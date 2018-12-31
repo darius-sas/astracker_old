@@ -12,7 +12,7 @@ import java.util.*;
 @SuppressWarnings("unchecked")
 public class ASTracker {
 
-    public static int trackCD(Graph graphV1, Graph graphV2){
+    public static Map<String, Map<Vertex, AbstractMap.SimpleEntry<Set<Vertex>, Set<Vertex>>>> trackCD(Graph graphV1, Graph graphV2){
         // Forward pass
         GraphTraversalSource g1 = graphV1.traversal();
         GraphTraversalSource g2 = graphV2.traversal();
@@ -22,7 +22,6 @@ public class ASTracker {
                 .group()
                 .by("shapeType").next();
 
-        int count = 0;
         Map<String, Map<Vertex, AbstractMap.SimpleEntry<Set<Vertex>, Set<Vertex>>>> smellMappingsPerType = new HashMap<>();
 
         for (Map.Entry<String, List<Vertex>> entry : smellGroups.entrySet()){
@@ -35,10 +34,14 @@ public class ASTracker {
                 default:
                     break;
             }
+            Map<Vertex, AbstractMap.SimpleEntry<Set<Vertex>, Set<Vertex>>> map = smellMappingsPerType.get(shape);
+            for (Vertex smellVertex : map.keySet()){
 
+            }
         }
         // TODO return results as pairs of smell ids
-        return count;
+
+        return smellMappingsPerType;
         // Backward pass
     }
 
@@ -69,9 +72,17 @@ public class ASTracker {
                     .hasLabel(P.within(VertexLabel.PACKAGE.toString(), VertexLabel.CLASS.toString()))
                     .has("name", P.within(vNames))
                     .toSet();
+            // We need to retrieve also the nodes that are part of the smell but only in v2 (extension)
             Set<Vertex> v2 = g2.V()
+                    .hasLabel(P.within(VertexLabel.PACKAGE.toString(), VertexLabel.CLASS.toString()))
                     .has("name", P.within(vNames))
-                    .in(EdgeLabel.PARTOFCYCLE.toString()).toSet();
+                    .in(EdgeLabel.PARTOFCYCLE.toString())
+                    .in(cdType.toString())
+                    .hasLabel(P.within(VertexLabel.CYCLESHAPE.toString()))
+                    .out(cdType.toString())
+                    .out(EdgeLabel.PARTOFCYCLE.toString())
+                    .hasLabel(P.within(VertexLabel.PACKAGE.toString(), VertexLabel.CLASS.toString()))
+                    .toSet();
 
             versionsMapping.put(smell, new AbstractMap.SimpleEntry<>(v1, v2));
 

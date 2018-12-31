@@ -139,8 +139,8 @@ public class SmellGraphFactory {
         GraphTraversalSource g = cgraph.traversal();
 
         Edge centreOfEdge = g.E().hasLabel(EdgeLabel.ISCENTREOF.toString()).next();
-        Vertex centre = centreOfEdge.outVertex();
-        Vertex star = centreOfEdge.inVertex();
+        Vertex centre = centreOfEdge.inVertex();
+        Vertex star = centreOfEdge.outVertex();
 
         addLeaves(g, centre, star, n, "org.dummy.extendedEvol");
 
