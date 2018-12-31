@@ -3,7 +3,8 @@ package org.rug.data;
 public enum VertexLabel {
     PACKAGE("package"),
     SMELL("smell"),
-    CYCLESHAPE("cycleShape");
+    CYCLESHAPE("cycleShape"),
+    CLASS("class");
 
 
     private final String value;

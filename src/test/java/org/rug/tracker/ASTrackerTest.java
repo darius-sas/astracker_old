@@ -13,7 +13,8 @@ class ASTrackerTest {
         Graph g1 = SmellGraphFactory.extendWithDummyNodes(SmellGraphFactory.createStarSmell(10));
         Graph g2 = SmellGraphFactory.simpleExtendEvolution(g1, 5);
 
-        ASTracker.trackAS(g1, g2);
+        int count = ASTracker.trackCD(g1, g2);
+        assertTrue(count > 1);
     }
 
 }

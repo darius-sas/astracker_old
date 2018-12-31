@@ -22,13 +22,15 @@ public class SmellGraphFactory {
      */
     public static SmellGraph createStarSmell(int leaves){
         if (leaves < 3)
-            throw new IllegalArgumentException("Star smell require at least 3 leaves.");
+            throw new IllegalArgumentException("Star smells require at least 3 leaves.");
 
         SmellGraph graph = new SmellGraph("star");
         GraphTraversalSource g = graph.traversal();
 
+        Random rng = new Random();
+
         Vertex centre = g.addV(VertexLabel.PACKAGE.toString()).property("name", "org.dummy.centre").next();
-        Vertex star = g.addV(VertexLabel.CYCLESHAPE.toString()).property("shapeType", "star").next();
+        Vertex star = g.addV(VertexLabel.CYCLESHAPE.toString()).property("shapeType", "star").property("smellId", rng.nextInt()).next();
 
         addLeaves(g, centre, star, leaves, "org.dummy.leaf");
 
@@ -158,7 +160,7 @@ public class SmellGraphFactory {
             Vertex toVertex = des.addVertex(srcVert.label());
             mapId.put(srcVert.id(), toVertex.id());
             srcVert.properties().forEachRemaining(srcVProp ->{
-                toVertex.property(srcVProp.key(), srcVProp.key());
+                toVertex.property(srcVProp.key(), srcVProp.value());
             });
         });
 
