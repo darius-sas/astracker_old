@@ -1,5 +1,7 @@
 package org.rug.data;
 
+import java.util.EnumSet;
+
 public enum EdgeLabel {
     PARTOFCYCLE("partOfCycle"),
     DEPENDSON("dependsOn"),

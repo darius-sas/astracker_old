@@ -27,7 +27,9 @@ class ASTrackerTest {
         g1.io(IoCore.graphml()).writeGraph("src/test/graphimages/starsmell.graphml");
         g2.io(IoCore.graphml()).writeGraph("src/test/graphimages/starsmell-evolved.graphml");
 
-        Map<String, Map<Vertex, List<VSetPair>>> mappingsPerType = ASTracker.trackCD(g1, g2);
+        ASTracker tracker = new ASTracker();
+
+        Map<String, Map<Vertex, List<VSetPair>>> mappingsPerType = tracker.trackCD(g1, g2);
 
         for (Map<Vertex, List<VSetPair>> mapping : mappingsPerType.values())
             for (List<VSetPair> pairs : mapping.values())
@@ -38,7 +40,7 @@ class ASTrackerTest {
 
 
         // Invert graphs to check whether the algorithm works with smells that lose components
-        mappingsPerType = ASTracker.trackCD(g2, g1);
+        mappingsPerType = tracker.trackCD(g2, g1);
 
         for (Map<Vertex, List<VSetPair>> mapping : mappingsPerType.values())
             for (List<VSetPair> pairs : mapping.values())

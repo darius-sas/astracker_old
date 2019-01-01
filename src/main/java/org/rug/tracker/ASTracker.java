@@ -1,12 +1,10 @@
 package org.rug.tracker;
 
 import org.apache.tinkerpop.gremlin.process.traversal.P;
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.EdgeLabel;
-import org.rug.data.Pair;
 import org.rug.data.VSetPair;
 import org.rug.data.VertexLabel;
 
@@ -14,6 +12,14 @@ import java.util.*;
 
 @SuppressWarnings("unchecked")
 public class ASTracker {
+
+    Map<String, String> idMap;
+    Map<String, Map<Vertex, List<VSetPair>>> trackedCDVertexMap;
+
+    public ASTracker(){
+        this.idMap = new HashMap<>();
+        this.trackedCDVertexMap = new HashMap<>();
+    }
 
     /**
      * Track CD smells from the first graph to the second one.
@@ -24,7 +30,7 @@ public class ASTracker {
      * at the current version (v1) whereas the second pair contains the pairs of vertices of the identified smell.
      * In case a smell splits, multiple pairs will be contained in the list.
      */
-    public static Map<String, Map<Vertex, List<VSetPair>>> trackCD(Graph graphV1, Graph graphV2) {
+    public Map<String, Map<Vertex, List<VSetPair>>> trackCD(Graph graphV1, Graph graphV2) {
         // Forward pass
         GraphTraversalSource g1 = graphV1.traversal();
         GraphTraversalSource g2 = graphV2.traversal();
@@ -34,23 +40,18 @@ public class ASTracker {
                 .group()
                 .by("shapeType").next();
 
-        Map<String, Map<Vertex, List<VSetPair>>> smellMappingsPerType = new HashMap<>();
+        trackedCDVertexMap = new HashMap<>();
+        Map<String, EdgeLabel> shapesELabelsMap = new HashMap<>();
+        shapesELabelsMap.put("star", EdgeLabel.PARTOFSTAR);
 
         for (Map.Entry<String, List<Vertex>> entry : smellsInTheSystem.entrySet()) {
             String shape = entry.getKey();
             List<Vertex> vertices = entry.getValue();
-            switch (shape) {
-                case "star":
-                    smellMappingsPerType.put(shape, getMapping(g1, g2, vertices, EdgeLabel.PARTOFSTAR));
-                    break;
-                default:
-                    break;
-            }
+            trackedCDVertexMap.put(shape, getMapping(g1, g2, vertices, shapesELabelsMap.get(shape)));
         }
-        // TODO return results as pairs of smell ids
 
-        return smellMappingsPerType;
-        // Backward pass
+        return trackedCDVertexMap;
+        // Backward pass ?
     }
 
     /**
@@ -64,7 +65,7 @@ public class ASTracker {
      * with the first element containing vertices from g1 and the second element the elements from g2
      * part of the same smell.
      */
-    private static Map<Vertex, List<VSetPair>> getMapping(GraphTraversalSource g1,
+    private Map<Vertex, List<VSetPair>> getMapping(GraphTraversalSource g1,
                                                           GraphTraversalSource g2,
                                                           List<Vertex> smellVertices,
                                                           EdgeLabel cdType) {
@@ -94,10 +95,22 @@ public class ASTracker {
                                 .out(cdType.toString())
                                 .out(EdgeLabel.PARTOFCYCLE.toString())
                                 .hasLabel(P.within(VertexLabel.PACKAGE.toString(), VertexLabel.CLASS.toString())).toSet();
-                        values.add(new VSetPair(v1, vn)); // this pair can also be substituted with smell id pairs
+                        if (!vn.isEmpty()){
+                            this.idMap.put(smell.property("smellId").toString(),
+                                    smellVertex.property("smellId").toString());
+                            values.add(new VSetPair(v1, vn)); // this pair can also be substituted with smell id pairs
+                        }
                     });
             versionsMapping.put(smell, values);
         }
         return versionsMapping;
+    }
+
+    public Map<String, String> getIdMap() {
+        return Collections.unmodifiableMap(idMap);
+    }
+
+    public Map<String, Map<Vertex, List<VSetPair>>> getTrackedCDVertexMap() {
+        return trackedCDVertexMap;
     }
 }
