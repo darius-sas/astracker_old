@@ -31,13 +31,13 @@ class ASTrackerTest {
 
         Map<String, Map<Vertex, List<VSetPair>>> mappingsPerType = tracker.trackCD(g1, g2);
 
-        for (Map<Vertex, List<VSetPair>> mapping : mappingsPerType.values())
+        for (Map<Vertex, List<VSetPair>> mapping : mappingsPerType.values()) {
             for (List<VSetPair> pairs : mapping.values())
-                for (VSetPair entry : pairs){
+                for (VSetPair entry : pairs) {
                     assertEquals(startingLeaves + 1, entry.getA().size());
                     assertEquals(startingLeaves + extLeaves + 1, entry.getB().size());
                 }
-
+        }
 
         // Invert graphs to check whether the algorithm works with smells that lose components
         mappingsPerType = tracker.trackCD(g2, g1);
