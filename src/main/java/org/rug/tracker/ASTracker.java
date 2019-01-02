@@ -13,7 +13,7 @@ import java.util.*;
 @SuppressWarnings("unchecked")
 public class ASTracker {
 
-    Map<String, String> idMap;
+    Map<String, List<String>> idMap;
     Map<String, Map<Vertex, List<VSetPair>>> trackedCDVertexMap;
 
     public ASTracker(){
@@ -73,6 +73,7 @@ public class ASTracker {
         Map<Vertex, List<VSetPair>> versionsMapping = new HashMap<>();
         for (Vertex smell : smellVertices) {
             List<VSetPair> values = new ArrayList<>();
+            List<String> smellIDValues = new ArrayList<>();
             Set<String> vNames = (Set<String>) (Set<?>)
                     g1.V(smell)
                             .out(cdType.toString())
@@ -96,17 +97,17 @@ public class ASTracker {
                                 .out(EdgeLabel.PARTOFCYCLE.toString())
                                 .hasLabel(P.within(VertexLabel.PACKAGE.toString(), VertexLabel.CLASS.toString())).toSet();
                         if (!vn.isEmpty()){
-                            this.idMap.put(smell.property("smellId").toString(),
-                                    smellVertex.property("smellId").toString());
-                            values.add(new VSetPair(v1, vn)); // this pair can also be substituted with smell id pairs
+                            values.add(new VSetPair(v1, vn));
+                            smellIDValues.add(smellVertex.value("smellId"));
                         }
                     });
+            this.idMap.put(smell.value("smellId"), smellIDValues);
             versionsMapping.put(smell, values);
         }
         return versionsMapping;
     }
 
-    public Map<String, String> getIdMap() {
+    public Map<String, List<String>> getIdMap() {
         return Collections.unmodifiableMap(idMap);
     }
 
