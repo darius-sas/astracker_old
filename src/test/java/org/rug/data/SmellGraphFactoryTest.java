@@ -58,4 +58,30 @@ class SmellGraphFactoryTest {
 
     }
 
+    @Test
+    void smellGraphBuilderTest(){
+        SmellGraphFactory factory = SmellGraphFactory.createRandomSystemGraph(100);
+        GraphTraversalSource g = factory.getGraph().traversal();
+
+        int expected = 0;
+        assertEquals(++expected, factory.getGraph().traversal().V().hasLabel(VertexLabel.SMELL.toString()).count().next());
+
+        factory.addTiny(1);
+        assertEquals(expected, g.V().hasLabel(VertexLabel.SMELL.toString()).count().next().intValue());
+
+        factory.addChain(3);
+        assertEquals(++expected, g.V().hasLabel(VertexLabel.SMELL.toString()).count().next().intValue());
+
+        factory.addStar(5);
+        expected = expected + 4; // Star cd nodes
+        assertEquals(++expected, g.V().hasLabel(VertexLabel.SMELL.toString()).count().next().intValue());
+
+        factory.addClique(5);
+        assertEquals(++expected, g.V().hasLabel(VertexLabel.SMELL.toString()).count().next().intValue());
+
+        factory.addCircle(6);
+        assertEquals(++expected, g.V().hasLabel(VertexLabel.SMELL.toString()).count().next().intValue());
+
+    }
+
 }
