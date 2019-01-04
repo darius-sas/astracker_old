@@ -58,6 +58,11 @@ public class SmellGraphFactory {
                     .property("shapeType", "tiny")
                     .next();
             g.addE(EdgeLabel.ISTINYSHAPED.toString()).from(shape).to(smell).next();
+
+            Set<Vertex> fromVertices = g.V().toSet();
+            List<Vertex> toVertices = Arrays.asList(a, b);
+            addDummyDependsOnEdges(graph, fromVertices, toVertices, 3, 0.01, DUMMYSYSSEED);
+            addDummyDependsOnEdges(graph, toVertices, fromVertices, 3, 0.01, DUMMYSYSSEED);
         }
 
         return this;
@@ -114,10 +119,15 @@ public class SmellGraphFactory {
             Vertex to = i+1 >= vertices.size() ? vertices.get(0) : vertices.get(i+1);
             g.addE(EdgeLabel.DEPENDSON.toString()).from(from).to(to).next();
             g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(from).next();
+
         }
 
         Vertex shape = g.addV(VertexLabel.CYCLESHAPE.toString()).property("shapeType", "circle").next();
         g.addE(EdgeLabel.ISCIRCLESHAPED.toString()).from(shape).to(smell).next();
+
+        Set<Vertex> fromVertices = g.V().toSet();
+        addDummyDependsOnEdges(graph, fromVertices, vertices, 3, 0.01, DUMMYSYSSEED);
+        addDummyDependsOnEdges(graph, vertices, fromVertices, 3, 0.01, DUMMYSYSSEED);
 
         return this;
     }
@@ -150,6 +160,10 @@ public class SmellGraphFactory {
         }
         Vertex shape = g.addV(VertexLabel.CYCLESHAPE.toString()).property("shapeType", "clique").next();
         g.addE(EdgeLabel.ISCLIQUESHAPED.toString()).from(shape).to(smell).next();
+
+        Set<Vertex> fromVertices = g.V().toSet();
+        addDummyDependsOnEdges(graph, fromVertices, vertices, 3, 0.01, DUMMYSYSSEED);
+        addDummyDependsOnEdges(graph, vertices, fromVertices, 3, 0.01, DUMMYSYSSEED);
 
         return this;
     }
@@ -186,11 +200,55 @@ public class SmellGraphFactory {
         Vertex shape = g.addV(VertexLabel.CYCLESHAPE.toString()).property("shapeType", "circle").next();
         g.addE(EdgeLabel.ISPARTOFCHAIN.toString()).from(shape).to(smell).next();
 
+        Set<Vertex> fromVertices = g.V().toSet();
+        addDummyDependsOnEdges(graph, fromVertices, vertices, 3, 0.01, DUMMYSYSSEED);
+        addDummyDependsOnEdges(graph, vertices, fromVertices, 3, 0.01, DUMMYSYSSEED);
+
         return this;
     }
 
-    public void addHubLike(){}
-    public void addUnstable(){}
+    /**
+     * Selects a node and makes it a Hublike Dependency within the current graph.
+     * @param in the number of in edges
+     * @param out the numnber of out edges
+     * @return the smell factory to further extend the graph (Builder pattern)
+     */
+    public SmellGraphFactory addHubLike(int in, int out){
+        GraphTraversalSource g = graph.traversal();
+        Vertex centre = getVertexNotAffectedBySmell();
+        Vertex smell = g.addV(VertexLabel.SMELL.toString())
+                .property("smellType", "hublikeDep")
+                .property("smellId", rng.nextInt()).next();
+        g.addE(EdgeLabel.HLAFFECTED.toString()).from(smell).to(centre).next();
+        getVertexNotAffectedBySmell(in, new Vertex[]{}).forEach(vertex -> {
+            g.addE(EdgeLabel.HLIN.toString()).from(smell).to(vertex).next();
+        });
+
+        getVertexNotAffectedBySmell(out, new Vertex[]{}).forEach(vertex -> {
+            g.addE(EdgeLabel.HLOUT.toString()).from(smell).to(vertex).next();
+        });
+
+        return this;
+    }
+
+    /**
+     * Selects a node within the current graph and makes it an unstable dependency
+     * @param badDep the number of bad dependencies
+     * @return the smell factory to further extend the graph (Builder pattern)
+     */
+    public SmellGraphFactory addUnstable(int badDep){
+        GraphTraversalSource g = graph.traversal();
+        Vertex centre = getVertexNotAffectedBySmell();
+        Vertex smell = g.addV(VertexLabel.SMELL.toString())
+                .property("smellType", "unstableDep")
+                .property("smellId", rng.nextInt()).next();
+        g.addE(EdgeLabel.UDAFFECTED.toString()).from(smell).to(centre).next();
+        getVertexNotAffectedBySmell(badDep, new Vertex[]{}).forEach(vertex -> {
+            g.addE(EdgeLabel.UDBADDEP.toString()).from(smell).to(vertex).next();
+        });
+
+        return this;
+    }
 
     /**
      * Gets a vertex not affected by a smell. If it does not exist, a new vertex is created.
@@ -198,22 +256,37 @@ public class SmellGraphFactory {
      * @return a vertex not affected by any smell
      */
     private Vertex getVertexNotAffectedBySmell(Vertex... exclude) {
+        return getVertexNotAffectedBySmell(1, exclude).get(0);
+    }
+
+    /**
+     * Gets a vertex not affected by a smell. If it does not exist, a new vertex is created.
+     * @param n the number of vertices to sample
+     * @param exclude exclude the given vertices from result
+     * @return a vertex not affected by any smell
+     */
+    private List<Vertex> getVertexNotAffectedBySmell(int n, Vertex... exclude) {
         GraphTraversalSource g = graph.traversal();
-        Vertex v;
+        List<Vertex> vertices;
 
         try{
             if (exclude.length > 0)
-                v = g.V().hasLabel(P.not(P.within(VertexLabel.SMELL.toString(), VertexLabel.CYCLESHAPE.toString())))
-                        .not(g.V(exclude))
-                        .sample(1).next();
+                vertices = g.V().hasLabel(P.not(P.within(VertexLabel.SMELL.toString(), VertexLabel.CYCLESHAPE.toString())))
+                        .is(P.not(P.within(exclude)))
+                        .sample(n).toList();
             else
-                v = g.V().hasLabel(P.not(P.within(VertexLabel.SMELL.toString(), VertexLabel.CYCLESHAPE.toString())))
-                        .sample(1).next();
+                vertices = g.V().hasLabel(P.not(P.within(VertexLabel.SMELL.toString(), VertexLabel.CYCLESHAPE.toString())))
+                        .sample(n).toList();
 
         }catch (NoSuchElementException e){
-            v = g.addV(VertexLabel.PACKAGE.toString()).property("name", String.format("%s.%s", "org.dummy.vertex", Math.round(Math.random() * 100000))).next();
+            vertices = new ArrayList<>();
+            for (int i = 0; i < n; i++) {
+                vertices.add(g.addV(VertexLabel.PACKAGE.toString())
+                        .property("name", String.format("%s.%s", "org.dummy.vertex", Math.round(Math.random() * 100000))).next());
+
+            }
         }
-        return v;
+        return vertices;
     }
 
     public Graph getGraph() {

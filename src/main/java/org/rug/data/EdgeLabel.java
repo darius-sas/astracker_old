@@ -10,7 +10,12 @@ public enum EdgeLabel {
     ISTINYSHAPED("isTinyShaped"),
     ISPARTOFCHAIN("isPartOfChain"),
     ISCIRCLESHAPED("isCircleShaped"),
-    ISCLIQUESHAPED("isCliqueShaped")
+    ISCLIQUESHAPED("isCliqueShaped"),
+    HLAFFECTED("HLaffected"),
+    UDAFFECTED("UDaffected"),
+    HLIN("isHLin"),
+    HLOUT("isHLout"),
+    UDBADDEP("UDbadDep")
     ;
 
     private final String value;
