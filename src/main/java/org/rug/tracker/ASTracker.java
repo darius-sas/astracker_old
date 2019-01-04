@@ -43,6 +43,10 @@ public class ASTracker {
         trackedCDVertexMap = new HashMap<>();
         Map<String, EdgeLabel> shapesELabelsMap = new HashMap<>();
         shapesELabelsMap.put("star", EdgeLabel.PARTOFSTAR);
+        shapesELabelsMap.put("tiny", EdgeLabel.ISTINYSHAPED);
+        shapesELabelsMap.put("clique", EdgeLabel.ISCLIQUESHAPED);
+        shapesELabelsMap.put("chain", EdgeLabel.ISPARTOFCHAIN);
+        shapesELabelsMap.put("circle", EdgeLabel.ISCIRCLESHAPED);
 
         for (Map.Entry<String, List<Vertex>> entry : smellsInTheSystem.entrySet()) {
             String shape = entry.getKey();
@@ -55,7 +59,7 @@ public class ASTracker {
     }
 
     /**
-     * Computes what vertices of g1 are present in g1 using the "name" property at package or class level.
+     * Computes what vertices of g1 are present in g2 using the "name" property at package or class level.
      *
      * @param g1            the first graph to extract the smells from
      * @param g2            the second graph to extract the smells from. It is assumed that this is the evolution of g1

@@ -14,7 +14,7 @@ class SmellGraphFactoryTest {
     @Test
     void testStarFactory() throws IOException{
         int leaves = 100;
-        SmellGraph graph = SmellGraphFactory.createStarSmell(leaves);
+        Graph graph = SmellGraphFactory.createStarSmell(leaves);
         int packageCount = getVertexCountLabel(graph.traversal(), VertexLabel.PACKAGE);
 
         int edgeCount = graph.traversal().E().count().next().intValue();

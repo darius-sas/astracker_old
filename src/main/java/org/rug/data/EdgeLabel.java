@@ -6,7 +6,12 @@ public enum EdgeLabel {
     PARTOFCYCLE("partOfCycle"),
     DEPENDSON("dependsOn"),
     PARTOFSTAR("partOfStar"),
-    ISCENTREOF("isCentreOf");
+    ISCENTREOFSTAR("isCentreOfStar"),
+    ISTINYSHAPED("isTinyShaped"),
+    ISPARTOFCHAIN("isPartOfChain"),
+    ISCIRCLESHAPED("isCircleShaped"),
+    ISCLIQUESHAPED("isCliqueShaped")
+    ;
 
     private final String value;
 
