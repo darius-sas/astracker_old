@@ -4,17 +4,18 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.junit.jupiter.api.Test;
+import org.rug.data.smells.factories.SyntethicSystemFactory;
 
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class SmellGraphFactoryTest {
+class SyntethicSystemFactoryTest {
 
     @Test
     void testStarFactory() throws IOException{
         int leaves = 100;
-        Graph graph = SmellGraphFactory.createStarSmell(leaves);
+        Graph graph = SyntethicSystemFactory.createStarSmell(leaves);
         int packageCount = getVertexCountLabel(graph.traversal(), VertexLabel.PACKAGE);
 
         int edgeCount = graph.traversal().E().count().next().intValue();
@@ -23,7 +24,7 @@ class SmellGraphFactoryTest {
         assertTrue(edgeCount > 0);
         graph.io(IoCore.graphml()).writeGraph("src/test/graphimages/starsample.graphml");
 
-        Graph graph2 = SmellGraphFactory.extendWithDummyNodes(graph);
+        Graph graph2 = SyntethicSystemFactory.extendWithDummyNodes(graph);
         int packageCount2 = getVertexCountLabel(graph2.traversal(), VertexLabel.PACKAGE);
         assertTrue(packageCount2 > packageCount);
         int edgeCount2 = graph2.traversal().E().count().next().intValue();
@@ -44,9 +45,9 @@ class SmellGraphFactoryTest {
     @Test
     void simpleExtendEvolution() throws IOException{
         int leaves = 10;
-        Graph graph = SmellGraphFactory.extendWithDummyNodes(SmellGraphFactory.createStarSmell(leaves));
+        Graph graph = SyntethicSystemFactory.extendWithDummyNodes(SyntethicSystemFactory.createStarSmell(leaves));
         int extendedLeaves = 5;
-        Graph extendedGraph = SmellGraphFactory.simpleExtendEvolution(graph, extendedLeaves);
+        Graph extendedGraph = SyntethicSystemFactory.simpleExtendEvolution(graph, extendedLeaves);
 
         assertFalse(extendedGraph == graph);
 
@@ -60,7 +61,7 @@ class SmellGraphFactoryTest {
 
     @Test
     void smellGraphBuilderTest() throws IOException{
-        SmellGraphFactory factory = SmellGraphFactory.createRandomSystemGraph(100);
+        SyntethicSystemFactory factory = SyntethicSystemFactory.createRandomSystemGraph(100);
         GraphTraversalSource g = factory.getGraph().traversal();
 
         int expected = 0;
@@ -73,13 +74,12 @@ class SmellGraphFactoryTest {
         assertEquals(++expected, g.V().hasLabel(VertexLabel.SMELL.toString()).count().next().intValue());
 
         factory.addStar(5);
-        expected = expected + 4; // Star cd nodes
         assertEquals(++expected, g.V().hasLabel(VertexLabel.SMELL.toString()).count().next().intValue());
 
         factory.addClique(5);
         assertEquals(++expected, g.V().hasLabel(VertexLabel.SMELL.toString()).count().next().intValue());
 
-        factory.addCircle(6);
+        factory.addCircle(7);
         assertEquals(++expected, g.V().hasLabel(VertexLabel.SMELL.toString()).count().next().intValue());
 
         factory.addHubLike(5, 10);

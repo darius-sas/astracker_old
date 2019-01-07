@@ -1,4 +1,4 @@
-package org.rug.data;
+package org.rug.data.smells.factories;
 
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
@@ -7,13 +7,17 @@ import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
+import org.rug.data.EdgeLabel;
+import org.rug.data.VertexLabel;
+import org.rug.data.smells.CDShape;
+import org.rug.data.smells.SmellType;
 
 import java.util.*;
 
 /**
- * Creates graphs of smells
+ * Creates a syntethic dependecy graph representing a system, including AS.
  */
-public class SmellGraphFactory {
+public class SyntethicSystemFactory {
 
     /**
      * The seed used to generate dummy nodes
@@ -23,7 +27,7 @@ public class SmellGraphFactory {
     private Graph graph;
     private Random rng;
 
-    private SmellGraphFactory(Graph graph){
+    private SyntethicSystemFactory(Graph graph){
         this.graph = graph;
         this.rng = new Random(DUMMYSYSSEED);
     }
@@ -34,36 +38,12 @@ public class SmellGraphFactory {
      * @param numerosity the number of tiny to add. If there are not enough free nodes, the maximum available is used.
      * @return the smell factory to further extend the graph (Builder pattern)
      */
-    public SmellGraphFactory addTiny(int numerosity){
+    public SyntethicSystemFactory addTiny(int numerosity){
         if (numerosity < 1 )
             throw new IllegalArgumentException("At least one tiny should be created");
 
-        GraphTraversalSource g = graph.traversal();
-
-        for (int i = 0; i < numerosity; i++) {
-            Vertex a = getVertexNotAffectedBySmell();
-            Vertex b = getVertexNotAffectedBySmell(a);
-
-            g.addE(EdgeLabel.DEPENDSON.toString()).from(a).to(b).next();
-            g.addE(EdgeLabel.DEPENDSON.toString()).from(b).to(a).next();
-
-            Vertex smell = g.addV(VertexLabel.SMELL.toString())
-                    .property("smellType", "cyclicDependency")
-                    .property("smellId", rng.nextInt())
-                    .next();
-            g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(a).next();
-            g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(b).next();
-
-            Vertex shape = g.addV(VertexLabel.CYCLESHAPE.toString())
-                    .property("shapeType", "tiny")
-                    .next();
-            g.addE(EdgeLabel.ISTINYSHAPED.toString()).from(shape).to(smell).next();
-
-            Set<Vertex> fromVertices = g.V().toSet();
-            List<Vertex> toVertices = Arrays.asList(a, b);
-            addDummyDependsOnEdges(graph, fromVertices, toVertices, 3, 0.01, DUMMYSYSSEED);
-            addDummyDependsOnEdges(graph, toVertices, fromVertices, 3, 0.01, DUMMYSYSSEED);
-        }
+        ASEvolver evolver = new TinyCDEvolver(graph);
+        evolver.addSmell(evolver.getVerticesNotAffectedBySmell(numerosity * 2));
 
         return this;
     }
@@ -73,25 +53,18 @@ public class SmellGraphFactory {
      * @param leaves the number of leaves of the star and nodes to add.
      * @return the smell factory to further extend the graph (Builder pattern)
      */
-    public SmellGraphFactory addStar(int leaves){
-        GraphTraversalSource g = graph.traversal();
-        if (leaves < 3 || leaves + 1 > g.V().count().next())
-            throw new IllegalArgumentException("The number of leaves of a star must be higher than 3 or the elements of the containing system must be enough to support its creation.");
+    public SyntethicSystemFactory addStar(int leaves){
 
-        Vertex centre = getVertexNotAffectedBySmell();
-        Vertex star = g.addV(VertexLabel.CYCLESHAPE.toString())
-                .property("shapeType", "star")
-                .property("smellId", rng.nextInt())
-                .next();
+        ASEvolver evolver = new StarCDEvolver(graph, leaves);
+        evolver.addSmell(evolver.getVerticesNotAffectedBySmell(leaves + 1));
 
-        Set<Vertex> leafVertices = addLeaves(g, centre, star, leaves, "org.dummy.leaf");
-        g.addE(EdgeLabel.ISCENTREOFSTAR.toString()).from(star).to(centre).next();
+        return this;
+    }
 
+    private void addDummyEdges(GraphTraversalSource g, Collection<Vertex> leafVertices) {
         Set<Vertex> fromVertices = g.V().toSet();
         addDummyDependsOnEdges(graph, fromVertices, leafVertices, 3, 0.01, DUMMYSYSSEED);
         addDummyDependsOnEdges(graph, leafVertices, fromVertices, 3, 0.01, DUMMYSYSSEED);
-
-        return this;
     }
 
     /**
@@ -99,37 +72,14 @@ public class SmellGraphFactory {
      * @param length the length of the circle
      * @return the smell factory to further extend the graph (Builder pattern)
      */
-    public SmellGraphFactory addCircle(int length){
+    public SyntethicSystemFactory addCircle(int length){
         if (length < 2)
             throw new IllegalArgumentException("Lenght must be more than 2 in order to create circle CD.");
 
-        GraphTraversalSource g = graph.traversal();
-        List<Vertex> vertices = new ArrayList<>();
-
-        for (int i = 0; i < length; i++) {
-            vertices.add(getVertexNotAffectedBySmell(vertices.toArray(new Vertex[]{})));
-        }
-
-        Vertex smell = g.addV(VertexLabel.SMELL.toString())
-                .property("smellType", "cyclicDependency")
-                .property("smellId", rng.nextInt()).next();
-
-        for (int i = 0; i < vertices.size(); i++) {
-            Vertex from = vertices.get(i);
-            Vertex to = i+1 >= vertices.size() ? vertices.get(0) : vertices.get(i+1);
-            g.addE(EdgeLabel.DEPENDSON.toString()).from(from).to(to).next();
-            g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(from).next();
-
-        }
-
-        Vertex shape = g.addV(VertexLabel.CYCLESHAPE.toString()).property("shapeType", "circle").next();
-        g.addE(EdgeLabel.ISCIRCLESHAPED.toString()).from(shape).to(smell).next();
-
-        Set<Vertex> fromVertices = g.V().toSet();
-        addDummyDependsOnEdges(graph, fromVertices, vertices, 3, 0.01, DUMMYSYSSEED);
-        addDummyDependsOnEdges(graph, vertices, fromVertices, 3, 0.01, DUMMYSYSSEED);
-
+        ASEvolver evolver = new CircleCDEvolver(graph);
+        evolver.addSmell(evolver.getVerticesNotAffectedBySmell(length));
         return this;
+
     }
 
     /**
@@ -137,33 +87,12 @@ public class SmellGraphFactory {
      * @param nodes the number of nodes
      * @return the smell factory to further extend the graph (Builder pattern)
      */
-    public SmellGraphFactory addClique(int nodes){
+    public SyntethicSystemFactory addClique(int nodes){
         if (nodes < 2)
             throw new IllegalArgumentException("Nodes must be more than 2 in order to create clique CD.");
 
-        GraphTraversalSource g = graph.traversal();
-        List<Vertex> vertices = new ArrayList<>();
-
-        for (int i = 0; i < nodes; i++) {
-            vertices.add(getVertexNotAffectedBySmell(vertices.toArray(new Vertex[]{})));
-        }
-
-        Vertex smell = g.addV(VertexLabel.SMELL.toString())
-                .property("smellType", "cyclicDependency")
-                .property("smellId", rng.nextInt()).next();
-
-        for (int i = 0; i < vertices.size(); i++) {
-            for (int j = 0; j < vertices.size(); j++) {
-                g.addE(EdgeLabel.DEPENDSON.toString()).from(vertices.get(i)).to(vertices.get(j)).next();
-            }
-            g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(vertices.get(i)).next();
-        }
-        Vertex shape = g.addV(VertexLabel.CYCLESHAPE.toString()).property("shapeType", "clique").next();
-        g.addE(EdgeLabel.ISCLIQUESHAPED.toString()).from(shape).to(smell).next();
-
-        Set<Vertex> fromVertices = g.V().toSet();
-        addDummyDependsOnEdges(graph, fromVertices, vertices, 3, 0.01, DUMMYSYSSEED);
-        addDummyDependsOnEdges(graph, vertices, fromVertices, 3, 0.01, DUMMYSYSSEED);
+        ASEvolver evolver = new CliqueCDEvolver(graph);
+        evolver.addSmell(evolver.getVerticesNotAffectedBySmell(nodes));
 
         return this;
     }
@@ -173,36 +102,10 @@ public class SmellGraphFactory {
      * @param length The length of the chain
      * @return the smell factory to further extend the graph (Builder pattern)
      */
-    public SmellGraphFactory addChain(int length){
-        if (length < 2)
-            throw new IllegalArgumentException("Lenght must be more than 2 in order to create circle CD.");
+    public SyntethicSystemFactory addChain(int length){
 
-        GraphTraversalSource g = graph.traversal();
-        List<Vertex> vertices = new ArrayList<>();
-
-        for (int i = 0; i < length; i++) {
-            vertices.add(getVertexNotAffectedBySmell(vertices.toArray(new Vertex[]{})));
-        }
-
-        Vertex smell = g.addV(VertexLabel.SMELL.toString())
-                .property("smellType", "cyclicDependency")
-                .property("smellId", rng.nextInt()).next();
-
-        for (int i = 0; i < vertices.size() - 1; i++) {
-            Vertex from = vertices.get(i);
-            Vertex to = vertices.get(i+1);
-            g.addE(EdgeLabel.DEPENDSON.toString()).from(from).to(to).next();
-            g.addE(EdgeLabel.DEPENDSON.toString()).from(to).to(from).next();
-            g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(to).next();
-        }
-        g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(vertices.get(0)).next();
-
-        Vertex shape = g.addV(VertexLabel.CYCLESHAPE.toString()).property("shapeType", "circle").next();
-        g.addE(EdgeLabel.ISPARTOFCHAIN.toString()).from(shape).to(smell).next();
-
-        Set<Vertex> fromVertices = g.V().toSet();
-        addDummyDependsOnEdges(graph, fromVertices, vertices, 3, 0.01, DUMMYSYSSEED);
-        addDummyDependsOnEdges(graph, vertices, fromVertices, 3, 0.01, DUMMYSYSSEED);
+        ASEvolver evolver = new ChainCDEvolver(graph);
+        evolver.addSmell(evolver.getVerticesNotAffectedBySmell(length));
 
         return this;
     }
@@ -213,21 +116,9 @@ public class SmellGraphFactory {
      * @param out the numnber of out edges
      * @return the smell factory to further extend the graph (Builder pattern)
      */
-    public SmellGraphFactory addHubLike(int in, int out){
-        GraphTraversalSource g = graph.traversal();
-        Vertex centre = getVertexNotAffectedBySmell();
-        Vertex smell = g.addV(VertexLabel.SMELL.toString())
-                .property("smellType", "hublikeDep")
-                .property("smellId", rng.nextInt()).next();
-        g.addE(EdgeLabel.HLAFFECTED.toString()).from(smell).to(centre).next();
-        getVertexNotAffectedBySmell(in, new Vertex[]{}).forEach(vertex -> {
-            g.addE(EdgeLabel.HLIN.toString()).from(smell).to(vertex).next();
-        });
-
-        getVertexNotAffectedBySmell(out, new Vertex[]{}).forEach(vertex -> {
-            g.addE(EdgeLabel.HLOUT.toString()).from(smell).to(vertex).next();
-        });
-
+    public SyntethicSystemFactory addHubLike(int in, int out){
+        ASEvolver evolver = new HLEvolver(graph, in);
+        evolver.addSmell(evolver.getVerticesNotAffectedBySmell(in+out+1));
         return this;
     }
 
@@ -236,58 +127,12 @@ public class SmellGraphFactory {
      * @param badDep the number of bad dependencies
      * @return the smell factory to further extend the graph (Builder pattern)
      */
-    public SmellGraphFactory addUnstable(int badDep){
-        GraphTraversalSource g = graph.traversal();
-        Vertex centre = getVertexNotAffectedBySmell();
-        Vertex smell = g.addV(VertexLabel.SMELL.toString())
-                .property("smellType", "unstableDep")
-                .property("smellId", rng.nextInt()).next();
-        g.addE(EdgeLabel.UDAFFECTED.toString()).from(smell).to(centre).next();
-        getVertexNotAffectedBySmell(badDep, new Vertex[]{}).forEach(vertex -> {
-            g.addE(EdgeLabel.UDBADDEP.toString()).from(smell).to(vertex).next();
-        });
-
+    public SyntethicSystemFactory addUnstable(int badDep){
+        ASEvolver evolver = new HLEvolver(graph);
+        evolver.addSmell(evolver.getVerticesNotAffectedBySmell(badDep + 1));
         return this;
     }
 
-    /**
-     * Gets a vertex not affected by a smell. If it does not exist, a new vertex is created.
-     * @param exclude exclude the given vertices from result
-     * @return a vertex not affected by any smell
-     */
-    private Vertex getVertexNotAffectedBySmell(Vertex... exclude) {
-        return getVertexNotAffectedBySmell(1, exclude).get(0);
-    }
-
-    /**
-     * Gets a vertex not affected by a smell. If it does not exist, a new vertex is created.
-     * @param n the number of vertices to sample
-     * @param exclude exclude the given vertices from result
-     * @return a vertex not affected by any smell
-     */
-    private List<Vertex> getVertexNotAffectedBySmell(int n, Vertex... exclude) {
-        GraphTraversalSource g = graph.traversal();
-        List<Vertex> vertices;
-
-        try{
-            if (exclude.length > 0)
-                vertices = g.V().hasLabel(P.not(P.within(VertexLabel.SMELL.toString(), VertexLabel.CYCLESHAPE.toString())))
-                        .is(P.not(P.within(exclude)))
-                        .sample(n).toList();
-            else
-                vertices = g.V().hasLabel(P.not(P.within(VertexLabel.SMELL.toString(), VertexLabel.CYCLESHAPE.toString())))
-                        .sample(n).toList();
-
-        }catch (NoSuchElementException e){
-            vertices = new ArrayList<>();
-            for (int i = 0; i < n; i++) {
-                vertices.add(g.addV(VertexLabel.PACKAGE.toString())
-                        .property("name", String.format("%s.%s", "org.dummy.vertex", Math.round(Math.random() * 100000))).next());
-
-            }
-        }
-        return vertices;
-    }
 
     public Graph getGraph() {
         return graph;
@@ -302,9 +147,9 @@ public class SmellGraphFactory {
      * @param seed the seed to use for randomly generating the edges
      * @return a graph representing a system
      */
-    public static SmellGraphFactory createRandomSystemGraph(int nodes, int maxOutDegree, double edgeGenerationProbability, long seed){
+    public static SyntethicSystemFactory createRandomSystemGraph(int nodes, int maxOutDegree, double edgeGenerationProbability, long seed){
         Graph graph = TinkerGraph.open();
-        return new SmellGraphFactory(extendWithDummyNodes(graph, nodes, maxOutDegree, edgeGenerationProbability, seed));
+        return new SyntethicSystemFactory(extendWithDummyNodes(graph, nodes, maxOutDegree, edgeGenerationProbability, seed));
     }
 
     /**
@@ -312,8 +157,8 @@ public class SmellGraphFactory {
      * @param nodes the number of dummy nodes to add
      * @return a graph representing a system
      */
-    public static SmellGraphFactory createRandomSystemGraph(int nodes){
-        return new SmellGraphFactory(extendWithDummyNodes(TinkerGraph.open(), nodes));
+    public static SyntethicSystemFactory createRandomSystemGraph(int nodes){
+        return new SyntethicSystemFactory(extendWithDummyNodes(TinkerGraph.open(), nodes));
     }
 
     /**
@@ -331,7 +176,7 @@ public class SmellGraphFactory {
         Random rng = new Random();
 
         Vertex centre = g.addV(VertexLabel.PACKAGE.toString()).property("name", "org.dummy.centre").next();
-        Vertex star = g.addV(VertexLabel.CYCLESHAPE.toString()).property("shapeType", "star").property("smellId", rng.nextInt()).next();
+        Vertex star = g.addV(VertexLabel.CYCLESHAPE.toString()).property("shapeType", CDShape.STAR.toString()).property("smellId", rng.nextInt()).next();
 
         addLeaves(g, centre, star, leaves, "org.dummy.leaf");
 
@@ -356,7 +201,7 @@ public class SmellGraphFactory {
             leafVertices.add(leaf);
             g.addE(EdgeLabel.DEPENDSON.toString()).from(centre).to(leaf).next();
             g.addE(EdgeLabel.DEPENDSON.toString()).from(leaf).to(centre).next();
-            Vertex smell = g.addV(VertexLabel.SMELL.toString()).property("smellType", "cyclicDependency").next();
+            Vertex smell = g.addV(VertexLabel.SMELL.toString()).property("smellType", SmellType.CD.toString()).next();
             g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(leaf).next();
             g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(centre).next();
             g.addE(EdgeLabel.PARTOFSTAR.toString()).from(star).to(smell).next();

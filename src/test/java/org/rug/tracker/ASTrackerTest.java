@@ -4,14 +4,12 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.junit.jupiter.api.Test;
-import org.rug.data.SmellGraphFactory;
+import org.rug.data.smells.factories.SyntethicSystemFactory;
 import org.rug.data.VSetPair;
 
 import java.io.IOException;
-import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,8 +19,8 @@ class ASTrackerTest {
     void trackAS() throws IOException {
         int startingLeaves = 10;
         int extLeaves = 5;
-        Graph g1 = SmellGraphFactory.extendWithDummyNodes(SmellGraphFactory.createStarSmell(startingLeaves), 3, 3, 0.01, SmellGraphFactory.DUMMYSYSSEED);
-        Graph g2 = SmellGraphFactory.simpleExtendEvolution(g1, extLeaves);
+        Graph g1 = SyntethicSystemFactory.extendWithDummyNodes(SyntethicSystemFactory.createStarSmell(startingLeaves), 3, 3, 0.01, SyntethicSystemFactory.DUMMYSYSSEED);
+        Graph g2 = SyntethicSystemFactory.simpleExtendEvolution(g1, extLeaves);
 
         g1.io(IoCore.graphml()).writeGraph("src/test/graphimages/starsmell.graphml");
         g2.io(IoCore.graphml()).writeGraph("src/test/graphimages/starsmell-evolved.graphml");
