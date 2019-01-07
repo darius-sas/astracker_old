@@ -61,12 +61,6 @@ public class SyntethicSystemFactory {
         return this;
     }
 
-    private void addDummyEdges(GraphTraversalSource g, Collection<Vertex> leafVertices) {
-        Set<Vertex> fromVertices = g.V().toSet();
-        addDummyDependsOnEdges(graph, fromVertices, leafVertices, 3, 0.01, DUMMYSYSSEED);
-        addDummyDependsOnEdges(graph, leafVertices, fromVertices, 3, 0.01, DUMMYSYSSEED);
-    }
-
     /**
      * Adds a circle of the given length to the current graph. If elements are not enough, vertices are added.
      * @param length the length of the circle
@@ -134,6 +128,10 @@ public class SyntethicSystemFactory {
     }
 
 
+    /**
+     * Gets the current instance representing the synthetic system.
+     * @return the graph containing the changes made
+     */
     public Graph getGraph() {
         return graph;
     }

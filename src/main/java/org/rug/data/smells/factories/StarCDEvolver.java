@@ -55,7 +55,12 @@ public class StarCDEvolver extends CDEvolver {
                 .property("smellId", rng.nextInt())
                 .next();
 
-        Set<Vertex> leafVertices = vertices.stream().filter(v -> v.equals(centre)).collect(Collectors.toSet());
+        Set<Vertex> leafVertices = vertices.stream().filter(v -> !v.equals(centre)).collect(Collectors.toSet());
+        addLeaves(centre, star, leafVertices);
+        g.addE(EdgeLabel.ISCENTREOFSTAR.toString()).from(star).to(centre).next();
+    }
+
+    private void addLeaves(Vertex centre, Vertex star, Set<Vertex> leafVertices) {
         for (Vertex leaf : leafVertices){
             g.addE(EdgeLabel.DEPENDSON.toString()).from(centre).to(leaf).next();
             g.addE(EdgeLabel.DEPENDSON.toString()).from(leaf).to(centre).next();
@@ -64,8 +69,21 @@ public class StarCDEvolver extends CDEvolver {
             g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(centre).next();
             g.addE(EdgeLabel.PARTOFSTAR.toString()).from(star).to(smell).next();
         }
-        g.addE(EdgeLabel.ISCENTREOFSTAR.toString()).from(star).to(centre).next();
     }
+
+    /**
+     * Add the given amount of elements to the given smell.
+     *
+     * @param smell the smell to enlarge
+     * @param n     the number of nodes to add. Some smell types might support addition to multiple parts.
+     */
+    @Override
+    public void addElements(Vertex smell, int... n) {
+        Vertex shape = g.V(smell).in(EdgeLabel.PARTOFSTAR.toString()).next();
+        Vertex centre = g.V(shape).out(EdgeLabel.ISCENTREOFSTAR.toString()).next();
+        addLeaves(centre, shape, getVerticesNotAffectedBySmell(n[0]));
+    }
+
 
     public void setLeaves(int leaves) {
         this.leaves = leaves;

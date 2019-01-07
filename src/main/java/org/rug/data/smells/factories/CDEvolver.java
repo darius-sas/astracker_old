@@ -1,7 +1,10 @@
 package org.rug.data.smells.factories;
 
+import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.rug.data.EdgeLabel;
+import org.rug.data.VertexLabel;
 import org.rug.data.smells.CDShape;
 
 import java.util.Set;
@@ -22,11 +25,19 @@ public abstract class CDEvolver extends ASEvolver {
     /**
      * Removes the smell from the system
      *
-     * @param smell
+     * @param smell the smell to remove that has a VertexLabel.Smell label.
      */
     @Override
     public void removeSmell(Vertex smell) {
+        if (!smell.label().equals(VertexLabel.SMELL))
+            return;
 
+        g.V(smell)
+                .inV().hasLabel(VertexLabel.CYCLESHAPE.toString())
+                .outV().hasLabel(VertexLabel.SMELL.toString())
+                .drop().iterate();
+
+        g.V(smell).drop().iterate();
     }
 
     /**
@@ -36,9 +47,7 @@ public abstract class CDEvolver extends ASEvolver {
      * @param n     the number of nodes to add. Some smell types might support addition to multiple parts.
      */
     @Override
-    public void addElements(Vertex smell, int... n) {
-
-    }
+    public abstract void addElements(Vertex smell, int... n);
 
     /**
      * Remove the given amount of elements from the given smell. If the number of elements exceeds the minimum

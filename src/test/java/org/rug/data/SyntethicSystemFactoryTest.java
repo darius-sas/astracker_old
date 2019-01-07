@@ -73,8 +73,9 @@ class SyntethicSystemFactoryTest {
         factory.addChain(3);
         assertEquals(++expected, g.V().hasLabel(VertexLabel.SMELL.toString()).count().next().intValue());
 
-        factory.addStar(5);
-        assertEquals(++expected, g.V().hasLabel(VertexLabel.SMELL.toString()).count().next().intValue());
+        factory.addStar(15);
+        expected = expected + 15;
+        assertEquals(expected, g.V().hasLabel(VertexLabel.SMELL.toString()).count().next().intValue());
 
         factory.addClique(5);
         assertEquals(++expected, g.V().hasLabel(VertexLabel.SMELL.toString()).count().next().intValue());

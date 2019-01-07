@@ -15,7 +15,8 @@ public enum EdgeLabel {
     UDAFFECTED("UDaffected"),
     HLIN("isHLin"),
     HLOUT("isHLout"),
-    UDBADDEP("UDbadDep")
+    UDBADDEP("UDbadDep"),
+    STARTOFCYCLE("startOfCycle")
     ;
 
     private final String value;

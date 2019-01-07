@@ -33,9 +33,14 @@ public abstract class ASEvolver {
 
     /**
      * Removes the smell from the system
-     * @param smell
+     * @param smell a vertex with label VertexLabel.Smell
      */
-    public abstract void removeSmell(Vertex smell);
+    public void removeSmell(Vertex smell){
+        if (!smell.label().equals(VertexLabel.SMELL))
+            return;
+
+        g.V(smell).drop().iterate();
+    }
 
     /**
      * Add the given amount of elements to the given smell.

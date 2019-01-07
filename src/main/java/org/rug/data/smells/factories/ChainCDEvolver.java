@@ -1,5 +1,6 @@
 package org.rug.data.smells.factories;
 
+import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.EdgeLabel;
@@ -31,6 +32,29 @@ public class ChainCDEvolver extends CDEvolver {
 
         Iterator<Vertex> itv = vertices.iterator();
         Vertex start = itv.next();
+        buildChain(smell, start, vertices);
+        g.addE(EdgeLabel.STARTOFCYCLE.toString()).from(smell).to(start);
+
+        Vertex shape = g.addV(VertexLabel.CYCLESHAPE.toString()).property("shapeType", CDShape.CHAIN.toString()).next();
+        g.addE(EdgeLabel.ISPARTOFCHAIN.toString()).from(shape).to(smell).next();
+    }
+
+    /**
+     * Add the given amount of elements to the given smell.
+     *
+     * @param smell the smell to enlarge
+     * @param n     the number of nodes to add. Some smell types might support addition to multiple parts.
+     */
+    @Override
+    public void addElements(Vertex smell, int... n) {
+        Vertex start = g.V(smell).out(EdgeLabel.STARTOFCYCLE.toString()).next();
+        Set<Vertex> newElements = getVerticesNotAffectedBySmell(n[0]);
+
+        buildChain(smell, start, newElements);
+    }
+
+    private void buildChain(Vertex smell, Vertex start, Set<Vertex> vertices) {
+        Iterator<Vertex> itv = vertices.iterator();
         Vertex from = null;
         Vertex to = null;
         do{
@@ -42,8 +66,5 @@ public class ChainCDEvolver extends CDEvolver {
 
         }while (itv.hasNext());
         g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(to).next();
-
-        Vertex shape = g.addV(VertexLabel.CYCLESHAPE.toString()).property("shapeType", CDShape.CHAIN.toString()).next();
-        g.addE(EdgeLabel.ISPARTOFCHAIN.toString()).from(shape).to(smell).next();
     }
 }

@@ -7,6 +7,7 @@ import org.rug.data.VertexLabel;
 import org.rug.data.smells.CDShape;
 import org.rug.data.smells.SmellType;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -41,5 +42,19 @@ public class CliqueCDEvolver extends CDEvolver {
         Vertex shape = g.addV(VertexLabel.CYCLESHAPE.toString())
                 .property("shapeType", CDShape.CLIQUE.toString()).next();
         g.addE(EdgeLabel.ISCLIQUESHAPED.toString()).from(shape).to(smell).next();
+    }
+
+    @Override
+    public void addElements(Vertex smell, int... n) {
+        Set<Vertex> currentElements = g.V(smell).out(EdgeLabel.ISCLIQUESHAPED.toString()).toSet();
+        Set<Vertex> newElements = getVerticesNotAffectedBySmell(n[0]);
+
+        for (Vertex to : newElements) {
+            for (Vertex from : currentElements) {
+                g.addE(EdgeLabel.DEPENDSON.toString()).from(from).to(to).next();
+                g.addE(EdgeLabel.DEPENDSON.toString()).from(to).to(from).next();
+            }
+            g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(to).next();
+        }
     }
 }

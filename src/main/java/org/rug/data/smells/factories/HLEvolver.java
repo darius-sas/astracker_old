@@ -71,15 +71,6 @@ public class HLEvolver extends ASEvolver {
         });
     }
 
-    /**
-     * Removes the smell from the system
-     *
-     * @param smell
-     */
-    @Override
-    public void removeSmell(Vertex smell) {
-
-    }
 
     /**
      * Add the given amount of elements to the given smell.

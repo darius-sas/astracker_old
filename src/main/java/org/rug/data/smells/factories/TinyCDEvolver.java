@@ -46,4 +46,15 @@ public class TinyCDEvolver extends CDEvolver {
             g.addE(EdgeLabel.ISTINYSHAPED.toString()).from(shape).to(smell).next();
         }
     }
+
+    /**
+     * Add the given amount of elements to the given smell.
+     *
+     * @param smell the smell to enlarge
+     * @param n     the number of nodes to add. Some smell types might support addition to multiple parts.
+     */
+    @Override
+    public void addElements(Vertex smell, int... n) {
+        return;
+    }
 }
