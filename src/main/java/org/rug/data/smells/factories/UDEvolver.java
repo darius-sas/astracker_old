@@ -65,10 +65,9 @@ public class UDEvolver extends ASEvolver {
      * Changes the shape of a smell to the given shape.
      *
      * @param smell   the smell to shapeshift.
-     * @param toShape the output shape
      */
     @Override
-    public void shapeShift(Vertex smell, CDShape toShape) {
-
+    public void shapeShift(Vertex smell) {
+        return;
     }
 }

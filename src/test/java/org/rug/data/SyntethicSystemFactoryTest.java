@@ -1,12 +1,18 @@
 package org.rug.data;
 
+import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Graph;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.junit.jupiter.api.Test;
+import org.rug.data.smells.CDShape;
+import org.rug.data.smells.factories.CDEvolver;
+import org.rug.data.smells.factories.ChainCDEvolver;
 import org.rug.data.smells.factories.SyntethicSystemFactory;
 
 import java.io.IOException;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -92,4 +98,37 @@ class SyntethicSystemFactoryTest {
         g.getGraph().io(IoCore.graphml()).writeGraph("src/test/graphimages/smells-graph.graphml");
     }
 
+    @Test
+    void smellEvolverTest(){
+        SyntethicSystemFactory factory = SyntethicSystemFactory.createRandomSystemGraph(500);
+        GraphTraversalSource g = factory.getGraph().traversal();
+
+        int smellsToAddperType = 3;
+
+        for (int i = 0; i < smellsToAddperType; i++) {
+            factory.addChain(10)
+                    .addCircle(10)
+                    .addClique(10)
+                    .addStar(10);
+        }
+
+        CDEvolver cdEvolver = new ChainCDEvolver(factory.getGraph());
+
+        Set<Vertex> notChainSmells = (Set<Vertex>)(Set<?>)g.V()
+                .in(EdgeLabel.PARTOFCYCLE.toString()).hasLabel(VertexLabel.SMELL.toString()).as("smell")
+                .in().has("shapeType", P.neq(CDShape.CHAIN.toString()))
+                .select("smell").toSet();
+
+        for (Vertex smell : notChainSmells){
+            cdEvolver.shapeShift(smell); //TODO some smells are not retrieved correctly in this method
+        }
+
+        notChainSmells = (Set<Vertex>)(Set<?>)g.V()
+                .in(EdgeLabel.PARTOFCYCLE.toString()).hasLabel(VertexLabel.SMELL.toString()).as("smell")
+                .in().has("shapeType", P.neq(CDShape.CHAIN.toString()))
+                .select("smell").toSet();
+
+        assertEquals(0, notChainSmells.size());
+
+    }
 }

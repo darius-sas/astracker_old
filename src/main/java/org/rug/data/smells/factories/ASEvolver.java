@@ -59,11 +59,10 @@ public abstract class ASEvolver {
 
     /**
      * Valid only for smells that have a shape attribute.
-     * Changes the shape of a smell to the given shape.
+     * Changes the shape of a smell to the shape managed by this instance.
      * @param smell the smell to shapeshift.
-     * @param toShape the output shape
      */
-    public abstract void shapeShift(Vertex smell, CDShape toShape);
+    public abstract void shapeShift(Vertex smell);
 
     /**
      * Returns a single vertex (package or classes) that is not affected by a smell and excludes a given amount of nodes.

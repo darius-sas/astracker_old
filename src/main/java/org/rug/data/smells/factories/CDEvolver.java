@@ -3,9 +3,7 @@ package org.rug.data.smells.factories;
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.rug.data.EdgeLabel;
 import org.rug.data.VertexLabel;
-import org.rug.data.smells.CDShape;
 
 import java.util.Set;
 
@@ -66,10 +64,18 @@ public abstract class CDEvolver extends ASEvolver {
      * Changes the shape of a smell to the given shape.
      *
      * @param smell   the smell to shapeshift.
-     * @param toShape the output shape
      */
     @Override
-    public void shapeShift(Vertex smell, CDShape toShape) {
+    public void shapeShift(Vertex smell) {
+        Set<Vertex> affectedElements = g.V(smell)
+                .in().hasLabel(VertexLabel.CYCLESHAPE.toString())
+                .out().hasLabel(VertexLabel.SMELL.toString())
+                .out().hasLabel(P.within(VertexLabel.CLASS.toString(), VertexLabel.PACKAGE.toString())).toSet();
 
+        g.V(smell).in().hasLabel(VertexLabel.CYCLESHAPE.toString()).as("shape")
+                .out().hasLabel(VertexLabel.SMELL.toString()).as("smell")
+                .select("smell").drop().iterate(); //TODO fix this so it can delete also shapes
+
+        addSmell(affectedElements);
     }
 }
