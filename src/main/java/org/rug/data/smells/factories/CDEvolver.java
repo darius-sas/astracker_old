@@ -1,8 +1,10 @@
 package org.rug.data.smells.factories;
 
 import org.apache.tinkerpop.gremlin.process.traversal.P;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.rug.data.EdgeLabel;
 import org.rug.data.VertexLabel;
 
 import java.util.Set;
@@ -67,15 +69,30 @@ public abstract class CDEvolver extends ASEvolver {
      */
     @Override
     public void shapeShift(Vertex smell) {
-        Set<Vertex> affectedElements = g.V(smell)
+        // Skip smells that are not part of the graph (previously removed)
+        if (!g.V(smell).hasNext())
+            return;
+
+        Set<Vertex> affectedElements = getAffectedElements(smell);
+
+        // Remove all the "smell" vertices starting from affected elements
+        g.V(affectedElements)
+                .in(EdgeLabel.PARTOFCYCLE.toString()).aggregate("x")
+                .in().hasLabel(VertexLabel.CYCLESHAPE.toString()).aggregate("x")
+                .select("x").unfold().drop().iterate();
+
+        addSmell(affectedElements);
+    }
+
+    /**
+     * Returns the elements affected by this CD smell instance
+     * @param smell
+     * @return
+     */
+    protected Set<Vertex> getAffectedElements(Vertex smell) {
+        return g.V(smell)
                 .in().hasLabel(VertexLabel.CYCLESHAPE.toString())
                 .out().hasLabel(VertexLabel.SMELL.toString())
                 .out().hasLabel(P.within(VertexLabel.CLASS.toString(), VertexLabel.PACKAGE.toString())).toSet();
-
-        g.V(smell).in().hasLabel(VertexLabel.CYCLESHAPE.toString()).as("shape")
-                .out().hasLabel(VertexLabel.SMELL.toString()).as("smell")
-                .select("smell").drop().iterate(); //TODO fix this so it can delete also shapes
-
-        addSmell(affectedElements);
     }
 }

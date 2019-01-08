@@ -99,18 +99,20 @@ class SyntethicSystemFactoryTest {
     }
 
     @Test
-    void smellEvolverTest(){
-        SyntethicSystemFactory factory = SyntethicSystemFactory.createRandomSystemGraph(500);
+    void smellEvolverTest() throws IOException{
+        SyntethicSystemFactory factory = SyntethicSystemFactory.createRandomSystemGraph(50);
         GraphTraversalSource g = factory.getGraph().traversal();
 
-        int smellsToAddperType = 3;
+        int smellsToAddperType = 2;
 
         for (int i = 0; i < smellsToAddperType; i++) {
-            factory.addChain(10)
-                    .addCircle(10)
-                    .addClique(10)
-                    .addStar(10);
+            factory.addChain(4)
+                    .addCircle(4)
+                    .addClique(4)
+                    .addStar(4);
         }
+
+        factory.getGraph().io(IoCore.graphml()).writeGraph("src/test/graphimages/evolved-smells.graphml");
 
         CDEvolver cdEvolver = new ChainCDEvolver(factory.getGraph());
 

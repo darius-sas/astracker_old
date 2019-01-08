@@ -55,16 +55,19 @@ public class ChainCDEvolver extends CDEvolver {
 
     private void buildChain(Vertex smell, Vertex start, Set<Vertex> vertices) {
         Iterator<Vertex> itv = vertices.iterator();
-        Vertex from = null;
-        Vertex to = null;
-        do{
-            from = (from == null) ? start : itv.next();
-            to = itv.hasNext() ? itv.next() : start;
+        Vertex from;
+        if (itv.hasNext())
+            from = itv.next();
+        else
+            return;
+        Vertex to;
+        while (itv.hasNext()){
+            to = itv.next();
             g.addE(EdgeLabel.DEPENDSON.toString()).from(from).to(to).next();
             g.addE(EdgeLabel.DEPENDSON.toString()).from(to).to(from).next();
             g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(from).next();
-
-        }while (itv.hasNext());
-        g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(to).next();
+            from = to;
+        }
+        g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(from).next();
     }
 }

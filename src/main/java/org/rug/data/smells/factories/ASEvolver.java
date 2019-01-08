@@ -2,8 +2,10 @@ package org.rug.data.smells.factories;
 
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.rug.data.EdgeLabel;
 import org.rug.data.VertexLabel;
 import org.rug.data.smells.CDShape;
 
@@ -84,11 +86,13 @@ public abstract class ASEvolver {
 
         try{
             if (exclude.length > 0)
-                vertices = g.V().hasLabel(P.not(P.within(VertexLabel.SMELL.toString(), VertexLabel.CYCLESHAPE.toString())))
+                vertices = g.V().hasLabel(P.within(VertexLabel.CLASS.toString(), VertexLabel.PACKAGE.toString()))
+                        .not(__.in().hasLabel(VertexLabel.SMELL.toString()))
                         .is(P.not(P.within(exclude)))
                         .sample(n).toSet();
             else
-                vertices = g.V().hasLabel(P.not(P.within(VertexLabel.SMELL.toString(), VertexLabel.CYCLESHAPE.toString())))
+                vertices = g.V().hasLabel(P.within(VertexLabel.CLASS.toString(), VertexLabel.PACKAGE.toString()))
+                        .not(__.in().hasLabel(VertexLabel.SMELL.toString()))
                         .sample(n).toSet();
 
         }catch (NoSuchElementException e){
