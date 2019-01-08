@@ -6,8 +6,6 @@ import org.rug.data.EdgeLabel;
 import org.rug.data.VertexLabel;
 import org.rug.data.smells.SmellType;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
 public class TinyCDEvolver extends CDEvolver {
