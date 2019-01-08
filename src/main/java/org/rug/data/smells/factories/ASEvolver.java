@@ -5,9 +5,8 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.rug.data.EdgeLabel;
 import org.rug.data.VertexLabel;
-import org.rug.data.smells.CDShape;
+
 
 import java.util.*;
 

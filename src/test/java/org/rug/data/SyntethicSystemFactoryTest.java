@@ -2,16 +2,18 @@ package org.rug.data;
 
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.junit.jupiter.api.Test;
 import org.rug.data.smells.CDShape;
-import org.rug.data.smells.factories.CDEvolver;
-import org.rug.data.smells.factories.ChainCDEvolver;
-import org.rug.data.smells.factories.SyntethicSystemFactory;
+import org.rug.data.smells.factories.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -98,23 +100,60 @@ class SyntethicSystemFactoryTest {
         g.getGraph().io(IoCore.graphml()).writeGraph("src/test/graphimages/smells-graph.graphml");
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void smellEvolverTest() throws IOException{
         SyntethicSystemFactory factory = SyntethicSystemFactory.createRandomSystemGraph(50);
         GraphTraversalSource g = factory.getGraph().traversal();
 
         int smellsToAddperType = 2;
+        int elements = 4;
 
         for (int i = 0; i < smellsToAddperType; i++) {
-            factory.addChain(4)
-                    .addCircle(4)
-                    .addClique(4)
-                    .addStar(4);
+            factory.addChain(elements)
+                    .addCircle(elements)
+                    .addClique(elements)
+                    .addStar(elements);
         }
+        ChainCDEvolver cdEvolver = new ChainCDEvolver(factory.getGraph());
+        CircleCDEvolver circEvolver = new CircleCDEvolver(factory.getGraph());
+        CliqueCDEvolver cliqueCDEvolver = new CliqueCDEvolver(factory.getGraph());
+        StarCDEvolver starEvolver = new StarCDEvolver(factory.getGraph());
 
-        factory.getGraph().io(IoCore.graphml()).writeGraph("src/test/graphimages/evolved-smells.graphml");
+        List<ASEvolver> evolvers = new ArrayList<>();
+        evolvers.add(cdEvolver);
+        evolvers.add(circEvolver);
+        evolvers.add(cliqueCDEvolver);
+        evolvers.add(starEvolver);
 
-        CDEvolver cdEvolver = new ChainCDEvolver(factory.getGraph());
+        int elementsToAddtoEachSmell = 3;
+        for (CDShape shape : CDShape.values()){
+            Set<Vertex> smellOfShape = (Set<Vertex>)(Set<?>)g.V()
+                    .in(EdgeLabel.PARTOFCYCLE.toString()).hasLabel(VertexLabel.SMELL.toString()).as("smell")
+                    .in().has("shapeType", shape)
+                    .select("smell").toSet();
+            for (Vertex smell : smellOfShape){
+                switch (shape.toString()) {
+                    case "chain":
+                        cdEvolver.addElements(smell, elementsToAddtoEachSmell);
+                        break;
+                    case "star":
+                        starEvolver.addElements(smell, elementsToAddtoEachSmell);
+                        break;
+                    case "circle":
+                        circEvolver.addElements(smell, elementsToAddtoEachSmell);
+                        break;
+                    case "clique":
+                        circEvolver.addElements(smell, elementsToAddtoEachSmell);
+                }
+            }
+            for (Vertex smell : smellOfShape){
+                int affectedElements = g.V(smell).in().hasLabel(VertexLabel.CYCLESHAPE.toString())
+                        .out().hasLabel(VertexLabel.SMELL.toString())
+                        .out().hasLabel(P.within(VertexLabel.CLASS.toString(), VertexLabel.PACKAGE.toString())).count().next().intValue();
+                assertEquals(elements + elementsToAddtoEachSmell, affectedElements);
+            }
+        }
 
         Set<Vertex> notChainSmells = (Set<Vertex>)(Set<?>)g.V()
                 .in(EdgeLabel.PARTOFCYCLE.toString()).hasLabel(VertexLabel.SMELL.toString()).as("smell")
@@ -122,7 +161,7 @@ class SyntethicSystemFactoryTest {
                 .select("smell").toSet();
 
         for (Vertex smell : notChainSmells){
-            cdEvolver.shapeShift(smell); //TODO some smells are not retrieved correctly in this method
+            cdEvolver.shapeShift(smell);
         }
 
         notChainSmells = (Set<Vertex>)(Set<?>)g.V()
