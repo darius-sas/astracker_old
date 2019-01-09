@@ -17,7 +17,7 @@ public class HLSmell extends SingleElementSmell {
      * @param smell the smell that characterizes this instance.
      */
     public HLSmell(Vertex smell) {
-        super(smell);
+        super(smell, SmellType.HL);
         this.inDep = smell.graph().traversal().V(smell).out(EdgeLabel.HLIN.toString()).toSet();
         this.outDep = smell.graph().traversal().V(smell).out(EdgeLabel.HLOUT.toString()).toSet();
     }

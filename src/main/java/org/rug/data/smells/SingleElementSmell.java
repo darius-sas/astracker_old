@@ -16,8 +16,8 @@ public abstract class SingleElementSmell extends ArchitecturalSmell {
      *
      * @param smell the smell that characterizes this instance.
      */
-    public SingleElementSmell(Vertex smell) {
-        super(smell);
+    public SingleElementSmell(Vertex smell, SmellType type) {
+        super(smell, type);
         this.centre = getAffectedElements().iterator().next();
     }
 

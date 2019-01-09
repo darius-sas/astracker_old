@@ -16,7 +16,7 @@ public class UDSmell extends SingleElementSmell {
      * @param smell the smell that characterizes this instance.
      */
     public UDSmell(Vertex smell) {
-        super(smell);
+        super(smell, SmellType.UD);
         this.badDep = smell.graph().traversal().V(smell).out(EdgeLabel.UDBADDEP.toString()).toSet();
     }
 

@@ -6,14 +6,14 @@ import org.rug.data.VertexLabel;
 
 import java.util.Set;
 
-public abstract class CDSmell extends ArchitecturalSmell {
+public class CDSmell extends ArchitecturalSmell {
 
     protected CDShape shape;
     protected Vertex shapeVertex;
 
 
     protected CDSmell(Vertex smell){
-        super(smell);
+        super(smell, SmellType.CD);
         assert smell.label().equals(VertexLabel.SMELL.toString());
         this.shapeVertex = smell.graph().traversal().V(smell).in().hasLabel(VertexLabel.CYCLESHAPE.toString()).next();
         setShape(this.shapeVertex);
@@ -28,7 +28,7 @@ public abstract class CDSmell extends ArchitecturalSmell {
     }
 
     private void setShape(Vertex shapeVertex){
-        this.shape = CDShape.valueOf(shapeVertex.value("shapeType"));
+        this.shape = CDShape.getValueOf(shapeVertex.value("shapeType"));
     }
 
     @Override

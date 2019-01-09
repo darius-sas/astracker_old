@@ -1,9 +1,14 @@
 package org.rug.data.smells;
 
+import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.VertexLabel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * Abstraction of an AS. A smell is composed by the nodes that represent the smell (label
@@ -11,6 +16,9 @@ import java.util.Set;
  * <code>VertexLabel.PACKAGE || VertexLabel.CLASS</code>.
  */
 public abstract class ArchitecturalSmell {
+
+    private final static Logger logger = LoggerFactory.getLogger(ArchitecturalSmell.class);
+
     private long id;
     private Set<Vertex> smellNodes;
     private Set<Vertex> affectedElements;
@@ -22,10 +30,10 @@ public abstract class ArchitecturalSmell {
      * Initializes this smell instance starting from the smell node
      * @param smell the smell that characterizes this instance.
      */
-    protected ArchitecturalSmell(Vertex smell){
+    protected ArchitecturalSmell(Vertex smell, SmellType type){
         assert smell.label().equals(VertexLabel.SMELL.toString());
-        this.id = smell.value("id");
-        this.smellType = SmellType.valueOf(smell.value("smellType"));
+        this.id = Long.parseLong(smell.id().toString());
+        this.smellType = type;
         setAffectedElements(smell);
         setSmellNodes(smell);
     }
@@ -65,4 +73,33 @@ public abstract class ArchitecturalSmell {
      * @param smell the starting smell node. This will be mostly the only element in this set.
      */
     public abstract void setSmellNodes(Vertex smell);
+
+    @Override
+    public int hashCode() {
+        return (int)id+smellNodes.hashCode()+smellType.hashCode();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static List<ArchitecturalSmell> getArchitecturalSmellsIn(Graph graph){
+        List<ArchitecturalSmell> architecturalSmells = new ArrayList<>();
+        graph.traversal().V().hasLabel(VertexLabel.SMELL.toString()).toList()
+        .forEach(smellVertex -> {
+            switch (SmellType.getValueOf(smellVertex.value("smellType"))){
+                case HL:
+                    architecturalSmells.add(new HLSmell(smellVertex));
+                    break;
+                case UD:
+                    architecturalSmells.add(new UDSmell(smellVertex));
+                    break;
+                case CD:
+                    architecturalSmells.add(new CDSmell(smellVertex));
+                    break;
+                case ICPD:
+                default:
+                    logger.warn("AS type '{}' was ignored since no implementation exists for it.", smellVertex.value("smellType").toString());
+                    break;
+            }
+        });
+        return architecturalSmells;
+    }
 }

@@ -31,7 +31,6 @@ public class ArcanDependencyGraphParser {
     public static SortedMap<String, Graph> parseGraphML(String path){
         SortedMap<String, Graph> versionedSystem = new TreeMap<>();
 
-
         Consumer<Path> addGraph = f -> {
             String version = f.getFileName().toString().substring(
                     f.getFileName().toString().lastIndexOf('-') + 1,

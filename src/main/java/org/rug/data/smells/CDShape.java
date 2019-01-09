@@ -1,5 +1,8 @@
 package org.rug.data.smells;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public enum CDShape {
     TINY("tiny"),
     CIRCLE("circle"),
@@ -16,5 +19,19 @@ public enum CDShape {
     @Override
     public String toString() {
         return shape;
+    }
+
+    public static CDShape getValueOf(String name){
+        return lookup.get(name);
+    }
+
+    private static final Map<String, CDShape> lookup = new HashMap<>();
+
+    static
+    {
+        for(CDShape shape : CDShape.values())
+        {
+            lookup.put(shape.shape, shape);
+        }
     }
 }
