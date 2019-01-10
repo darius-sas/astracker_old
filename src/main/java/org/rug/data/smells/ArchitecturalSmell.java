@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * Abstraction of an AS. A smell is composed by the nodes that represent the smell (label
@@ -84,20 +85,16 @@ public abstract class ArchitecturalSmell {
         List<ArchitecturalSmell> architecturalSmells = new ArrayList<>();
         graph.traversal().V().hasLabel(VertexLabel.SMELL.toString()).toList()
         .forEach(smellVertex -> {
-            switch (Type.getValueOf(smellVertex.value("smellType"))){
-                case HL:
-                    architecturalSmells.add(new HLSmell(smellVertex));
-                    break;
-                case UD:
-                    architecturalSmells.add(new UDSmell(smellVertex));
-                    break;
-                case CD:
-                    architecturalSmells.add(new CDSmell(smellVertex));
-                    break;
-                case ICPD:
-                default:
+            String smellTypeProperty = smellVertex.value("smellType");
+            if (smellTypeProperty != null) {
+                Type smellType = Type.fromString(smellTypeProperty);
+                ArchitecturalSmell as = smellType.getInstance(smellVertex);
+                if (as != null)
+                    architecturalSmells.add(as);
+                else
                     logger.warn("AS type '{}' was ignored since no implementation exists for it.", smellVertex.value("smellType").toString());
-                    break;
+            }else {
+                logger.warn("No 'smellType' property found for smell vertex {}.", smellVertex);
             }
         });
         return architecturalSmells;
@@ -111,25 +108,39 @@ public abstract class ArchitecturalSmell {
         this.level = level;
     }
 
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
     protected void setLevel(Vertex smell){
-        setLevel(Level.getValueOf(smell.value("vertexType")));
+        setLevel(Level.fromString(smell.value("vertexType")));
     }
 
     /**
      * Represents a type of AS
      */
     public enum Type {
-        CD("cyclicDep"),
-        UD("unstableDep"),
-        HL("hublikeDep"),
-        ICPD("ixpDep"),
-        MAS("multipleAS")
+        CD("cyclicDep", CDSmell::new),
+        UD("unstableDep", UDSmell::new),
+        HL("hubLikeDep", HLSmell::new),
+        ICPD("ixpDep", vertex -> null),
+        MAS("multipleAS", vertex -> null)
         ;
 
         private String value;
+        private Function<Vertex, ArchitecturalSmell> smellInstantiator;
 
-        Type(String value){
+        Type(String value, Function<Vertex, ArchitecturalSmell> smellInstantiator){
             this.value = value;
+            this.smellInstantiator = smellInstantiator;
+        }
+
+        public ArchitecturalSmell getInstance(Vertex vertex){
+            return this.smellInstantiator.apply(vertex);
         }
 
         @Override
@@ -137,7 +148,7 @@ public abstract class ArchitecturalSmell {
             return value;
         }
 
-        public static Type getValueOf(String name){
+        public static Type fromString(String name){
             return lookup.get(name);
         }
 
@@ -163,7 +174,7 @@ public abstract class ArchitecturalSmell {
             this.level = level;
         }
 
-        public static Level getValueOf(String name){
+        public static Level fromString(String name){
             return lookup.get(name);
         }
 

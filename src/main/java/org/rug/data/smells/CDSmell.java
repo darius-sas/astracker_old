@@ -38,7 +38,7 @@ public class CDSmell extends ArchitecturalSmell {
         if (this.shapeVertex == null){
             this.shape = Shape.UNKNOWN;
         }else {
-            this.shape = Shape.getValueOf(shapeVertex.value("shapeType"));
+            this.shape = Shape.fromString(shapeVertex.value("shapeType"));
         }
     }
 
@@ -76,7 +76,7 @@ public class CDSmell extends ArchitecturalSmell {
             return shape;
         }
 
-        public static Shape getValueOf(String name){
+        public static Shape fromString(String name){
             return lookup.get(name);
         }
 
