@@ -1,5 +1,6 @@
 package org.rug.data.smells;
 
+import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,7 @@ class ArchitecturalSmellTest {
 
             Supplier<Stream<Vertex>> smellVertexStream = () -> smellVertices.stream().filter(vertex -> !vertex.value("smellType").equals("multipleAS"));
 
+            // check all the smell were parsed using the id
             assertEquals(smellsInTheSystem.stream()
                             .map(ArchitecturalSmell::getId)
                             .collect(Collectors.toSet()),
@@ -42,6 +44,7 @@ class ArchitecturalSmellTest {
                              .collect(Collectors.toSet()),
                     errMessage);
 
+            // Check smell type matches
             assertEquals(smellVertexStream.get()
                             .sorted(Comparator.comparing(vertex -> Long.valueOf(vertex.id().toString())))
                             .map(vertex -> vertex.value("smellType"))
@@ -52,19 +55,20 @@ class ArchitecturalSmellTest {
                             .map(Objects::toString)
                             .collect(Collectors.toList()),
                     errMessage);
-
+            // Check CD shape matches
             assertEquals(smellVertexStream.get()
-                            .filter(vertex -> vertex.value("smellType").equals(ArchitecturalSmell.Type.CD.toString()))
+                            .filter(vertex -> vertex.value("smellType").equals(ArchitecturalSmell.Type.CD.toString())
+                                && vertex.edges(Direction.IN).hasNext())
                             .sorted(Comparator.comparing(vertex -> Long.valueOf(vertex.id().toString())))
-                            .map(vertex -> vertex.graph().traversal().V(vertex).out().hasLabel(VertexLabel.CYCLESHAPE.toString()).ge("smellShape"))
+                            .map(vertex -> vertex.graph().traversal().V(vertex)
+                                    .in().hasLabel(VertexLabel.CYCLESHAPE.toString()).values("shapeType").next().toString())
                             .collect(Collectors.toList()),
                     smellsInTheSystem.stream()
-
+                            .filter(as -> as.getType().equals(ArchitecturalSmell.Type.CD) && !((CDSmell)as).getShape().equals(CDSmell.Shape.UNKNOWN))
                             .sorted(Comparator.comparing(ArchitecturalSmell::getId))
-                            .map(ArchitecturalSmell::getType)
-                            .map(Objects::toString)
+                            .map(as -> ((CDSmell) as).getShape().toString())
                             .collect(Collectors.toList()),
-                    errMessage)
+                    errMessage);
             // This does not work for star smells, need to fix that in the smell parsing
         }
 
