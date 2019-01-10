@@ -1,12 +1,10 @@
 package org.rug.data.smells.factories;
 
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.EdgeLabel;
 import org.rug.data.VertexLabel;
-import org.rug.data.smells.CDShape;
-import org.rug.data.smells.SmellType;
+import org.rug.data.smells.ArchitecturalSmell;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -26,7 +24,7 @@ public class UDEvolver extends ASEvolver {
 
         Vertex centre = new ArrayList<>(vertices).get(rng.nextInt(vertices.size()));
         Vertex smell = g.addV(VertexLabel.SMELL.toString())
-                .property("smellType", SmellType.HL.toString())
+                .property("smellType", ArchitecturalSmell.Type.HL.toString())
                 .property("smellId", rng.nextInt()).next();
 
         g.addE(EdgeLabel.UDAFFECTED.toString()).from(smell).to(centre).next();

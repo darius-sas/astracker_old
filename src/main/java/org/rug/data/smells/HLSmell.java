@@ -1,5 +1,6 @@
 package org.rug.data.smells;
 
+import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.EdgeLabel;
 
@@ -17,7 +18,7 @@ public class HLSmell extends SingleElementSmell {
      * @param smell the smell that characterizes this instance.
      */
     public HLSmell(Vertex smell) {
-        super(smell, SmellType.HL);
+        super(smell, Type.HL);
         this.inDep = smell.graph().traversal().V(smell).out(EdgeLabel.HLIN.toString()).toSet();
         this.outDep = smell.graph().traversal().V(smell).out(EdgeLabel.HLOUT.toString()).toSet();
     }
@@ -29,8 +30,10 @@ public class HLSmell extends SingleElementSmell {
      */
     @Override
     public void setAffectedElements(Vertex smell) {
+        // Select the appropriate label based on the smell label
+        EdgeLabel label = EdgeLabel.HLAFFECTEDCLASS.toString().toLowerCase().contains(getLevel().toString().toLowerCase()) ? EdgeLabel.HLAFFECTEDCLASS : EdgeLabel.HLAFFECTEDPACK;
         setAffectedElements(new HashSet<>());
-        getAffectedElements().add(smell.graph().traversal().V(smell).out(EdgeLabel.HLAFFECTED.toString()).next());
+        getAffectedElements().add(smell.graph().traversal().V(smell).out(label.toString()).next());
     }
 
     public Set<Vertex> getInDep() {

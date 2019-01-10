@@ -1,5 +1,7 @@
 package org.rug.data;
 
+import org.rug.data.smells.ArchitecturalSmell;
+
 import java.util.EnumSet;
 
 public enum EdgeLabel {
@@ -11,11 +13,12 @@ public enum EdgeLabel {
     ISPARTOFCHAIN("isPartOfChain"),
     ISCIRCLESHAPED("isCircleShaped"),
     ISCLIQUESHAPED("isCliqueShaped"),
-    HLAFFECTED("HLaffected"),
-    UDAFFECTED("UDaffected"),
+    HLAFFECTEDPACK("HLAffectedPackage"),
+    HLAFFECTEDCLASS("HLAffectedClass"),
+    UDAFFECTED("UDAffectedPackage"),
     HLIN("isHLin"),
     HLOUT("isHLout"),
-    UDBADDEP("UDbadDep"),
+    UDBADDEP("badDep"),
     STARTOFCYCLE("startOfCycle")
     ;
 
@@ -32,5 +35,14 @@ public enum EdgeLabel {
 
     public String getValue() {
         return value;
+    }
+
+    /**
+     * Returns the correct affected edge label based on the given level
+     * @param level
+     * @return
+     */
+    public static EdgeLabel getHLAffectedOf(ArchitecturalSmell.Level level){
+        return level == ArchitecturalSmell.Level.CLASS ? EdgeLabel.HLAFFECTEDCLASS : EdgeLabel.HLAFFECTEDPACK;
     }
 }

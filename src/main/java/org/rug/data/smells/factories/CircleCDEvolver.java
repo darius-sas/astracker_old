@@ -1,13 +1,11 @@
 package org.rug.data.smells.factories;
 
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Graph;
-import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.EdgeLabel;
 import org.rug.data.VertexLabel;
-import org.rug.data.smells.CDShape;
-import org.rug.data.smells.SmellType;
+import org.rug.data.smells.ArchitecturalSmell;
+import org.rug.data.smells.CDSmell;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -34,7 +32,7 @@ public class CircleCDEvolver extends CDEvolver{
 
 
         Vertex smell = g.addV(VertexLabel.SMELL.toString())
-                .property("smellType", SmellType.CD.toString())
+                .property("smellType", ArchitecturalSmell.Type.CD.toString())
                 .property("smellId", rng.nextInt()).next();
 
         Iterator<Vertex> itv = vertices.iterator();
@@ -54,7 +52,7 @@ public class CircleCDEvolver extends CDEvolver{
         g.addE(EdgeLabel.DEPENDSON.toString()).from(from).to(start).next();
         g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(from).next();
 
-        Vertex shape = g.addV(VertexLabel.CYCLESHAPE.toString()).property("shapeType", CDShape.CIRCLE.toString()).next();
+        Vertex shape = g.addV(VertexLabel.CYCLESHAPE.toString()).property("shapeType", CDSmell.Shape.CIRCLE.toString()).next();
         g.addE(EdgeLabel.ISCIRCLESHAPED.toString()).from(shape).to(smell).next();
 
     }

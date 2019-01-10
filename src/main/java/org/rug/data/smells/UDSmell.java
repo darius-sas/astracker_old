@@ -16,7 +16,7 @@ public class UDSmell extends SingleElementSmell {
      * @param smell the smell that characterizes this instance.
      */
     public UDSmell(Vertex smell) {
-        super(smell, SmellType.UD);
+        super(smell, Type.UD);
         this.badDep = smell.graph().traversal().V(smell).out(EdgeLabel.UDBADDEP.toString()).toSet();
     }
 
@@ -28,5 +28,14 @@ public class UDSmell extends SingleElementSmell {
 
     public Set<Vertex> getBadDep() {
         return badDep;
+    }
+
+    /**
+     * UD is only defined at package Level, so we set it like that by default
+     * @param smell
+     */
+    @Override
+    protected void setLevel(Vertex smell) {
+        setLevel(Level.PACKAGE);
     }
 }

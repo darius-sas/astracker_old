@@ -1,15 +1,13 @@
 package org.rug.data.smells.factories;
 
-import jdk.nashorn.internal.ir.IfNode;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.EdgeLabel;
 import org.rug.data.VertexLabel;
-import org.rug.data.smells.CDShape;
-import org.rug.data.smells.SmellType;
+import org.rug.data.smells.ArchitecturalSmell;
+import org.rug.data.smells.CDSmell;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -51,7 +49,7 @@ public class StarCDEvolver extends CDEvolver {
         Vertex centre = new ArrayList<>(vertices).get(rng.nextInt(vertices.size()));
 
         Vertex star = g.addV(VertexLabel.CYCLESHAPE.toString())
-                .property("shapeType", CDShape.STAR.toString())
+                .property("shapeType", CDSmell.Shape.STAR.toString())
                 .property("smellId", rng.nextInt())
                 .next();
 
@@ -64,7 +62,7 @@ public class StarCDEvolver extends CDEvolver {
         for (Vertex leaf : leafVertices){
             g.addE(EdgeLabel.DEPENDSON.toString()).from(centre).to(leaf).next();
             g.addE(EdgeLabel.DEPENDSON.toString()).from(leaf).to(centre).next();
-            Vertex smell = g.addV(VertexLabel.SMELL.toString()).property("smellType", SmellType.CD.toString()).next();
+            Vertex smell = g.addV(VertexLabel.SMELL.toString()).property("smellType", ArchitecturalSmell.Type.CD.toString()).next();
             g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(leaf).next();
             g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(centre).next();
             g.addE(EdgeLabel.PARTOFSTAR.toString()).from(star).to(smell).next();

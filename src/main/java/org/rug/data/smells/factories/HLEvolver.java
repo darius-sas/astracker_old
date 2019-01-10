@@ -4,11 +4,9 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.EdgeLabel;
 import org.rug.data.VertexLabel;
-import org.rug.data.smells.CDShape;
-import org.rug.data.smells.SmellType;
+import org.rug.data.smells.ArchitecturalSmell;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,9 +17,10 @@ import java.util.stream.Collectors;
 public class HLEvolver extends ASEvolver {
 
     private int in;
+    private ArchitecturalSmell.Level level;
 
     protected HLEvolver(Graph system) {
-        this(system, 3);
+        this(system, 3, ArchitecturalSmell.Level.PACKAGE);
     }
 
     /**
@@ -30,9 +29,10 @@ public class HLEvolver extends ASEvolver {
      * @param system the system to use
      * @param in the number of in-dependencies
      */
-    protected HLEvolver(Graph system, int in){
+    protected HLEvolver(Graph system, int in, ArchitecturalSmell.Level level){
         super(system);
         this.in = in;
+        this.level = level;
     }
 
     /**
@@ -47,7 +47,7 @@ public class HLEvolver extends ASEvolver {
 
         Vertex centre = new ArrayList<>(vertices).get(rng.nextInt(vertices.size()));
         Vertex smell = g.addV(VertexLabel.SMELL.toString())
-                .property("smellType", SmellType.HL.toString())
+                .property("smellType", ArchitecturalSmell.Type.HL.toString())
                 .property("smellId", rng.nextInt()).next();
 
         Set<Vertex> inDependecies = new HashSet<>();
@@ -59,7 +59,7 @@ public class HLEvolver extends ASEvolver {
             if(index++ % 2 == 0) inDependecies.add(vertex); else outDependencies.add(vertex);
         }
 
-        g.addE(EdgeLabel.HLAFFECTED.toString()).from(smell).to(centre).next();
+        g.addE(EdgeLabel.getHLAffectedOf(level).toString()).from(smell).to(centre).next();
         inDependecies.forEach(vertex -> {
             g.addE(EdgeLabel.DEPENDSON.toString()).from(vertex).to(centre).next();
             g.addE(EdgeLabel.HLIN.toString()).from(smell).to(vertex).next();

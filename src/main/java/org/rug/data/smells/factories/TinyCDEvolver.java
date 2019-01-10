@@ -4,7 +4,7 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.EdgeLabel;
 import org.rug.data.VertexLabel;
-import org.rug.data.smells.SmellType;
+import org.rug.data.smells.ArchitecturalSmell;
 
 import java.util.Set;
 
@@ -32,7 +32,7 @@ public class TinyCDEvolver extends CDEvolver {
             g.addE(EdgeLabel.DEPENDSON.toString()).from(b).to(a).next();
 
             Vertex smell = g.addV(VertexLabel.SMELL.toString())
-                    .property("smellType", SmellType.CD.toString())
+                    .property("smellType", ArchitecturalSmell.Type.CD.toString())
                     .property("smellId", rng.nextInt())
                     .next();
             g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(a).next();

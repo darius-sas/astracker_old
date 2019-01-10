@@ -1,12 +1,11 @@
 package org.rug.data.smells.factories;
 
-import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.EdgeLabel;
 import org.rug.data.VertexLabel;
-import org.rug.data.smells.CDShape;
-import org.rug.data.smells.SmellType;
+import org.rug.data.smells.ArchitecturalSmell;
+import org.rug.data.smells.CDSmell;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -27,7 +26,7 @@ public class ChainCDEvolver extends CDEvolver {
             throw new IllegalArgumentException("Length must be more than 2 in order to create chain CD.");
 
         Vertex smell = g.addV(VertexLabel.SMELL.toString())
-                .property("smellType", SmellType.CD.toString())
+                .property("smellType", ArchitecturalSmell.Type.CD.toString())
                 .property("smellId", rng.nextInt()).next();
 
         Iterator<Vertex> itv = vertices.iterator();
@@ -35,7 +34,7 @@ public class ChainCDEvolver extends CDEvolver {
         buildChain(smell, start, vertices);
         g.addE(EdgeLabel.STARTOFCYCLE.toString()).from(smell).to(start);
 
-        Vertex shape = g.addV(VertexLabel.CYCLESHAPE.toString()).property("shapeType", CDShape.CHAIN.toString()).next();
+        Vertex shape = g.addV(VertexLabel.CYCLESHAPE.toString()).property("shapeType", CDSmell.Shape.CHAIN.toString()).next();
         g.addE(EdgeLabel.ISPARTOFCHAIN.toString()).from(shape).to(smell).next();
     }
 

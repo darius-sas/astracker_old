@@ -1,6 +1,5 @@
 package org.rug.data.smells.factories;
 
-import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Edge;
@@ -9,8 +8,8 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.rug.data.EdgeLabel;
 import org.rug.data.VertexLabel;
-import org.rug.data.smells.CDShape;
-import org.rug.data.smells.SmellType;
+import org.rug.data.smells.ArchitecturalSmell;
+import org.rug.data.smells.CDSmell;
 
 import java.util.*;
 
@@ -111,7 +110,7 @@ public class SyntethicSystemFactory {
      * @return the smell factory to further extend the graph (Builder pattern)
      */
     public SyntethicSystemFactory addHubLike(int in, int out){
-        ASEvolver evolver = new HLEvolver(graph, in);
+        ASEvolver evolver = new HLEvolver(graph, in, ArchitecturalSmell.Level.PACKAGE);
         evolver.addSmell(evolver.getVerticesNotAffectedBySmell(in+out+1));
         return this;
     }
@@ -174,7 +173,7 @@ public class SyntethicSystemFactory {
         Random rng = new Random();
 
         Vertex centre = g.addV(VertexLabel.PACKAGE.toString()).property("name", "org.dummy.centre").next();
-        Vertex star = g.addV(VertexLabel.CYCLESHAPE.toString()).property("shapeType", CDShape.STAR.toString()).property("smellId", rng.nextInt()).next();
+        Vertex star = g.addV(VertexLabel.CYCLESHAPE.toString()).property("shapeType", CDSmell.Shape.STAR.toString()).property("smellId", rng.nextInt()).next();
 
         addLeaves(g, centre, star, leaves, "org.dummy.leaf");
 
@@ -199,7 +198,7 @@ public class SyntethicSystemFactory {
             leafVertices.add(leaf);
             g.addE(EdgeLabel.DEPENDSON.toString()).from(centre).to(leaf).next();
             g.addE(EdgeLabel.DEPENDSON.toString()).from(leaf).to(centre).next();
-            Vertex smell = g.addV(VertexLabel.SMELL.toString()).property("smellType", SmellType.CD.toString()).next();
+            Vertex smell = g.addV(VertexLabel.SMELL.toString()).property("smellType", ArchitecturalSmell.Type.CD.toString()).next();
             g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(leaf).next();
             g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(centre).next();
             g.addE(EdgeLabel.PARTOFSTAR.toString()).from(star).to(smell).next();

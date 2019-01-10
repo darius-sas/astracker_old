@@ -4,10 +4,9 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.EdgeLabel;
 import org.rug.data.VertexLabel;
-import org.rug.data.smells.CDShape;
-import org.rug.data.smells.SmellType;
+import org.rug.data.smells.ArchitecturalSmell;
+import org.rug.data.smells.CDSmell;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -30,7 +29,7 @@ public class CliqueCDEvolver extends CDEvolver {
             throw new IllegalArgumentException("Vertices must be more than 2 in order to create clique CD.");
 
         Vertex smell = g.addV(VertexLabel.SMELL.toString())
-                .property("smellType", SmellType.CD.toString())
+                .property("smellType", ArchitecturalSmell.Type.CD.toString())
                 .property("smellId", rng.nextInt()).next();
 
         for (Vertex from : vertices) {
@@ -40,7 +39,7 @@ public class CliqueCDEvolver extends CDEvolver {
             g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(from).next();
         }
         Vertex shape = g.addV(VertexLabel.CYCLESHAPE.toString())
-                .property("shapeType", CDShape.CLIQUE.toString()).next();
+                .property("shapeType", CDSmell.Shape.CLIQUE.toString()).next();
         g.addE(EdgeLabel.ISCLIQUESHAPED.toString()).from(shape).to(smell).next();
     }
 

@@ -2,18 +2,16 @@ package org.rug.data;
 
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.junit.jupiter.api.Test;
-import org.rug.data.smells.CDShape;
+import org.rug.data.smells.CDSmell;
 import org.rug.data.smells.factories.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -127,7 +125,7 @@ class SyntethicSystemFactoryTest {
         evolvers.add(starEvolver);
 
         int elementsToAddtoEachSmell = 3;
-        for (CDShape shape : CDShape.values()){
+        for (CDSmell.Shape shape : CDSmell.Shape.values()){
             Set<Vertex> smellOfShape = (Set<Vertex>)(Set<?>)g.V()
                     .in(EdgeLabel.PARTOFCYCLE.toString()).hasLabel(VertexLabel.SMELL.toString()).as("smell")
                     .in().has("shapeType", shape)
@@ -157,7 +155,7 @@ class SyntethicSystemFactoryTest {
 
         Set<Vertex> notChainSmells = (Set<Vertex>)(Set<?>)g.V()
                 .in(EdgeLabel.PARTOFCYCLE.toString()).hasLabel(VertexLabel.SMELL.toString()).as("smell")
-                .in().has("shapeType", P.neq(CDShape.CHAIN.toString()))
+                .in().has("shapeType", P.neq(CDSmell.Shape.CHAIN.toString()))
                 .select("smell").toSet();
 
         for (Vertex smell : notChainSmells){
@@ -166,7 +164,7 @@ class SyntethicSystemFactoryTest {
 
         notChainSmells = (Set<Vertex>)(Set<?>)g.V()
                 .in(EdgeLabel.PARTOFCYCLE.toString()).hasLabel(VertexLabel.SMELL.toString()).as("smell")
-                .in().has("shapeType", P.neq(CDShape.CHAIN.toString()))
+                .in().has("shapeType", P.neq(CDSmell.Shape.CHAIN.toString()))
                 .select("smell").toSet();
 
         assertEquals(0, notChainSmells.size());

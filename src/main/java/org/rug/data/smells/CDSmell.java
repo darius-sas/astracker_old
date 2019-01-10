@@ -1,42 +1,53 @@
 package org.rug.data.smells;
 
 import org.apache.tinkerpop.gremlin.process.traversal.P;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.VertexLabel;
 
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CDSmell extends ArchitecturalSmell {
 
-    protected CDShape shape;
+    protected Shape shape;
     protected Vertex shapeVertex;
 
 
     protected CDSmell(Vertex smell){
-        super(smell, SmellType.CD);
-        assert smell.label().equals(VertexLabel.SMELL.toString());
-        this.shapeVertex = smell.graph().traversal().V(smell).in().hasLabel(VertexLabel.CYCLESHAPE.toString()).next();
-        setShape(this.shapeVertex);
+        super(smell, Type.CD);
+        setShape(smell);
     }
 
     public Vertex getShapeVertex() {
         return shapeVertex;
     }
 
-    public CDShape getShape() {
+    public Shape getShape() {
         return shape;
     }
 
-    private void setShape(Vertex shapeVertex){
-        this.shape = CDShape.getValueOf(shapeVertex.value("shapeType"));
+    /**
+     * Tries to retrieve the shape type by walking to the shape node starting from the given smell node.
+     * @param smell The smell node to start walking from
+     */
+    private void setShape(Vertex smell){
+        this.shapeVertex = smell.graph().traversal().V(smell)
+                .in().hasLabel(VertexLabel.CYCLESHAPE.toString())
+                .tryNext().orElse(null);
+        if (this.shapeVertex == null){
+            this.shape = Shape.UNKNOWN;
+        }else {
+            this.shape = Shape.getValueOf(shapeVertex.value("shapeType"));
+        }
     }
 
     @Override
     public void setAffectedElements(Vertex smell) {
         setAffectedElements(smell.graph().traversal().V(smell)
-                    .in().hasLabel(VertexLabel.CYCLESHAPE.toString())
-                    .out().hasLabel(VertexLabel.SMELL.toString())
-                    .out().hasLabel(P.within(VertexLabel.CLASS.toString(), VertexLabel.PACKAGE.toString())).toSet());
+                .choose(__.in().hasLabel(VertexLabel.CYCLESHAPE.toString()),
+                        __.in().hasLabel(VertexLabel.CYCLESHAPE.toString()))
+                .out().hasLabel(P.within(VertexLabel.CLASS.toString(), VertexLabel.PACKAGE.toString())).toSet());
     }
 
     @Override
@@ -44,5 +55,39 @@ public class CDSmell extends ArchitecturalSmell {
         setSmellNodes(smell.graph().traversal().V(smell)
                 .in().hasLabel(VertexLabel.CYCLESHAPE.toString())
                 .out().hasLabel(VertexLabel.SMELL.toString()).toSet());
+    }
+
+    public enum Shape {
+        TINY("tiny"),
+        CIRCLE("circle"),
+        CLIQUE("clique"),
+        STAR("star"),
+        CHAIN("chain"),
+        UNKNOWN("unknown");
+
+        private String shape;
+
+        Shape(String shape) {
+            this.shape = shape;
+        }
+
+        @Override
+        public String toString() {
+            return shape;
+        }
+
+        public static Shape getValueOf(String name){
+            return lookup.get(name);
+        }
+
+        private static final Map<String, Shape> lookup = new HashMap<>();
+
+        static
+        {
+            for(Shape shape : Shape.values())
+            {
+                lookup.put(shape.shape, shape);
+            }
+        }
     }
 }
