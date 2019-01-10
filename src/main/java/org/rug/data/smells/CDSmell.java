@@ -34,11 +34,15 @@ public class CDSmell extends ArchitecturalSmell {
     private void setShape(Vertex smell){
         this.shapeVertex = smell.graph().traversal().V(smell)
                 .in().hasLabel(VertexLabel.CYCLESHAPE.toString())
+                .not(__.has("visitedStar", "true"))
                 .tryNext().orElse(null);
         if (this.shapeVertex == null){
             this.shape = Shape.UNKNOWN;
         }else {
             this.shape = Shape.fromString(shapeVertex.value("shapeType"));
+        }
+        if (this.shape == Shape.STAR){
+            getSmellNodes().forEach(vertex -> vertex.property("visitedStar", "true"));
         }
     }
 
