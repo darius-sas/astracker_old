@@ -9,14 +9,17 @@ import java.util.List;
 
 /**
  * Models an abstract characteristic and groups commons methods and fields
- * @param <R> the type returned by the characteristic
  */
-public abstract class AbstractSmellCharacteristic<R> implements ISmellCharacteristic<R>{
+public abstract class AbstractSmellCharacteristic implements ISmellCharacteristic{
     private ArchitecturalSmell.Type targetSmellType;
     private String name;
-    private R value;
+    private double value;
 
-
+    /**
+     *
+     * @param targetType
+     * @param name
+     */
     protected AbstractSmellCharacteristic(ArchitecturalSmell.Type targetType, String name){
         this.targetSmellType = targetType;
         this.name = name;
@@ -34,7 +37,7 @@ public abstract class AbstractSmellCharacteristic<R> implements ISmellCharacteri
         this.name = name;
     }
 
-    public R getValue() {
+    public double getValue() {
         return value;
     }
 }

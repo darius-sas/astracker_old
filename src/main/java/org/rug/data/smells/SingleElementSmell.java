@@ -21,12 +21,20 @@ public abstract class SingleElementSmell extends ArchitecturalSmell {
         this.centre = getAffectedElements().iterator().next();
     }
 
+    /**
+     * Get the vertex affected by this smell.
+     * @return the vertex affected by this smell.
+     */
     public Vertex getCentre() {
         return centre;
     }
 
+    /**
+     * Sets the smells affected by this smell starting from the smell vertex describing it.
+     * @param smell the starting smell node. This will be mostly the only element in this set.
+     */
     @Override
-    public void setSmellNodes(Vertex smell) {
+    protected void setSmellNodes(Vertex smell) {
         setSmellNodes(new HashSet<>());
         getSmellNodes().add(smell);
     }

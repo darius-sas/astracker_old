@@ -8,6 +8,9 @@ import org.rug.data.VertexLabel;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Represents a Cyclic Dependency smell.
+ */
 public class CDSmell extends ArchitecturalSmell {
 
     protected Shape shape;
@@ -19,10 +22,18 @@ public class CDSmell extends ArchitecturalSmell {
         setShape(smell);
     }
 
+    /**
+     * Returns the Vertex describing the shape of this smell. Some types of CD smell may not have a shape, null is returned in such cases.
+     * @return the shape vertex of this smell.
+     */
     public Vertex getShapeVertex() {
         return shapeVertex;
     }
 
+    /**
+     * Conveninence method that returns the shape of this smell as an enum.
+     * @return the shape of the smell.
+     */
     public Shape getShape() {
         return shape;
     }
@@ -46,8 +57,9 @@ public class CDSmell extends ArchitecturalSmell {
         }
     }
 
+
     @Override
-    public void setAffectedElements(Vertex smell) {
+    protected void setAffectedElements(Vertex smell) {
         setAffectedElements(smell.graph().traversal().V(smell)
                 .choose(__.in().hasLabel(VertexLabel.CYCLESHAPE.toString()),
                         __.in().hasLabel(VertexLabel.CYCLESHAPE.toString()))
@@ -55,12 +67,15 @@ public class CDSmell extends ArchitecturalSmell {
     }
 
     @Override
-    public void setSmellNodes(Vertex smell) {
+    protected void setSmellNodes(Vertex smell) {
         setSmellNodes(smell.graph().traversal().V(smell)
                 .in().hasLabel(VertexLabel.CYCLESHAPE.toString())
                 .out().hasLabel(VertexLabel.SMELL.toString()).toSet());
     }
 
+    /**
+     * Lists the shapes that are currently supported for detection.
+     */
     public enum Shape {
         TINY("tiny"),
         CIRCLE("circle"),
@@ -80,6 +95,11 @@ public class CDSmell extends ArchitecturalSmell {
             return shape;
         }
 
+        /**
+         * Retrieves the shape enum from a string.
+         * @param name the string
+         * @return the shape as an enum value. Null is returned if no shape with the given name is found.
+         */
         public static Shape fromString(String name){
             return lookup.get(name);
         }

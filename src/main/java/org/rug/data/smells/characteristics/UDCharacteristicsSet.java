@@ -2,10 +2,10 @@ package org.rug.data.smells.characteristics;
 
 import java.util.Set;
 
-public class UDCharacteristicsSet implements ICharacteristicsSet<Double> {
+public class UDCharacteristicsSet implements ICharacteristicsSet {
 
     @Override
-    public Set<ISmellCharacteristic<Double>> getCharacteristicSet() {
+    public Set<ISmellCharacteristic> getCharacteristicSet() {
         return null;
     }
 }

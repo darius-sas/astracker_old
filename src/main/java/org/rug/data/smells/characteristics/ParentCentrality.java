@@ -6,15 +6,16 @@ import org.rug.data.smells.ArchitecturalSmell;
 /**
  * Calculates the Parent Centrality metric as defined by Al-Mutawa et al.
  */
-public class ParentCentrality extends AbstractSmellCharacteristic<Double> {
+public class ParentCentrality extends AbstractSmellCharacteristic {
 
-    protected ParentCentrality() {
+    public ParentCentrality() {
         super(ArchitecturalSmell.Type.CD, "parentCentrality");
     }
 
     @Override
-    public Double calculate(ArchitecturalSmell smell) {
-        return null;
+    public double calculate(ArchitecturalSmell smell) {
+
+        return 0.0;
     }
 
 }

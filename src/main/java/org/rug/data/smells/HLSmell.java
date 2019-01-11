@@ -1,12 +1,15 @@
 package org.rug.data.smells;
 
-import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.EdgeLabel;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Represents an Hublike dependency smell.
+ */
 public class HLSmell extends SingleElementSmell {
 
     private Set<Vertex> inDep;
@@ -36,11 +39,19 @@ public class HLSmell extends SingleElementSmell {
         getAffectedElements().add(smell.graph().traversal().V(smell).out(label.toString()).next());
     }
 
+    /**
+     * Gets the set of incoming dependencies to the element affected by this smell.
+     * @return an unmodifiable set.
+     */
     public Set<Vertex> getInDep() {
-        return inDep;
+        return Collections.unmodifiableSet(inDep);
     }
 
+    /**
+     * Gets the set of outgoing dependencies to the element affected by this smell.
+     * @return an unmodifiable set.
+     */
     public Set<Vertex> getOutDep() {
-        return outDep;
+        return Collections.unmodifiableSet(outDep);
     }
 }

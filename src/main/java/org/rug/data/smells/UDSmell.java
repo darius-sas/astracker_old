@@ -3,6 +3,7 @@ package org.rug.data.smells;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.EdgeLabel;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,8 +27,12 @@ public class UDSmell extends SingleElementSmell {
         getAffectedElements().add(smell.graph().traversal().V(smell).out(EdgeLabel.UDAFFECTED.toString()).next());
     }
 
+    /**
+     * Gets the set of outgoing dependencies to the element affected by this smell.
+     * @return an unmodifiable set.
+     */
     public Set<Vertex> getBadDep() {
-        return badDep;
+        return Collections.unmodifiableSet(badDep);
     }
 
     /**
