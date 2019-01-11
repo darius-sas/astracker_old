@@ -12,10 +12,16 @@ public class ParentCentrality extends AbstractSmellCharacteristic {
         super(ArchitecturalSmell.Type.CD, "parentCentrality");
     }
 
+
+    /**
+     * Calculates this characteristic and returns the value computed. The value can also be retrieved later by invoking
+     * the method <code>getValue()</code>
+     *
+     * @param smell the smell to calculate the characteristic on.
+     * @return the value computed.
+     */
     @Override
     public double calculate(ArchitecturalSmell smell) {
-
-        return 0.0;
+        return 0;
     }
-
 }

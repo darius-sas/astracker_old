@@ -16,27 +16,36 @@ public abstract class AbstractSmellCharacteristic implements ISmellCharacteristi
     private double value;
 
     /**
-     *
-     * @param targetType
-     * @param name
+     * Sets up the name and target smell type.
+     * @param targetType the target smell type
+     * @param name the name to use for this characteristic. Must be unique across the others characteristics.
      */
     protected AbstractSmellCharacteristic(ArchitecturalSmell.Type targetType, String name){
         this.targetSmellType = targetType;
         this.name = name;
     }
 
+    /**
+     * Get the type of the smell that this characteristics is calculated on
+     * @return the type of the smell
+     */
     public ArchitecturalSmell.Type getTargetSmellType() {
         return targetSmellType;
     }
 
+    /**
+     * Returns the name of this characteristic
+     * @return the name.
+     */
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
+    /**
+     * Returns the value computed by this characteristic. This is supposed to be the same value computed and returned
+     * by the <code>calculate()</code> method.
+     * @return the result
+     */
     public double getValue() {
         return value;
     }

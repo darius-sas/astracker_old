@@ -2,9 +2,12 @@ package org.rug.data.smells.characteristics;
 
 import java.util.Set;
 
-public class HLCharacteristicsSet implements ICharacteristicsSet<Double> {
+/**
+ * This class is responsible for creating the characteristic set for HL smells.
+ */
+public class HLCharacteristicsSet implements ICharacteristicsSet {
     @Override
-    public Set<ISmellCharacteristic<Double>> getCharacteristicSet() {
+    public Set<ISmellCharacteristic> getCharacteristicSet() {
         return null;
     }
 }

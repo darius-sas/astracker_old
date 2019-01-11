@@ -17,6 +17,10 @@ public class CDSmell extends ArchitecturalSmell {
     protected Vertex shapeVertex;
 
 
+    /**
+     * Builds an architectural smell instance of a CD smell starting from the given vertex.
+     * @param smell the vertex to use.
+     */
     protected CDSmell(Vertex smell){
         super(smell, Type.CD);
         setShape(smell);

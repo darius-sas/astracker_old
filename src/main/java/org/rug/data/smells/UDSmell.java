@@ -7,14 +7,16 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Represents an Unstable dependency smell.
+ */
 public class UDSmell extends SingleElementSmell {
 
     private Set<Vertex> badDep;
 
     /**
-     * Initializes this smell instance starting from the smell node
-     *
-     * @param smell the smell that characterizes this instance.
+     * Builds an architectural smell instance of a UD smell starting from the given vertex.
+     * @param smell the vertex to use.
      */
     public UDSmell(Vertex smell) {
         super(smell, Type.UD);
