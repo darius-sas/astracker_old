@@ -7,21 +7,34 @@ import org.rug.data.smells.ArchitecturalSmell;
 
 import java.util.List;
 
+/**
+ * Models an abstract characteristic and groups commons methods and fields
+ * @param <R> the type returned by the characteristic
+ */
 public abstract class AbstractSmellCharacteristic<R> implements ISmellCharacteristic<R>{
-    private ArchitecturalSmell.Type targetType;
+    private ArchitecturalSmell.Type targetSmellType;
     private String name;
+    private R value;
 
 
     protected AbstractSmellCharacteristic(ArchitecturalSmell.Type targetType, String name){
-        this.targetType = targetType;
+        this.targetSmellType = targetType;
         this.name = name;
     }
 
-    protected List<Vertex> getListOfSmells(Graph graph){
-        return graph.traversal().V()
-                .hasLabel(VertexLabel.SMELL.toString())
-                .has("smellType", targetType.toString())
-                .toList();
+    public ArchitecturalSmell.Type getTargetSmellType() {
+        return targetSmellType;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public R getValue() {
+        return value;
+    }
 }

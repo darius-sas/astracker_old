@@ -3,6 +3,7 @@ package org.rug.data.smells;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.VertexLabel;
+import org.rug.data.smells.characteristics.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +23,8 @@ public abstract class ArchitecturalSmell {
     private Set<Vertex> smellNodes;
     private Set<Vertex> affectedElements;
 
+    private Map<String, ISmellCharacteristic> characteristicMap;
+
     private Type type;
     private Level level;
 
@@ -34,6 +37,7 @@ public abstract class ArchitecturalSmell {
         assert smell.label().equals(VertexLabel.SMELL.toString());
         this.id = Long.parseLong(smell.id().toString());
         this.type = type;
+        this.characteristicMap = new HashMap<>();
         setLevel(smell);
         setAffectedElements(smell);
         setSmellNodes(smell);
@@ -80,24 +84,11 @@ public abstract class ArchitecturalSmell {
         return (int)id+smellNodes.hashCode()+ type.hashCode();
     }
 
-    @SuppressWarnings("unchecked")
-    public static List<ArchitecturalSmell> getArchitecturalSmellsIn(Graph graph){
-        List<ArchitecturalSmell> architecturalSmells = new ArrayList<>();
-        graph.traversal().V().hasLabel(VertexLabel.SMELL.toString()).toList()
-        .forEach(smellVertex -> {
-            String smellTypeProperty = smellVertex.value("smellType");
-            if (smellTypeProperty != null) {
-                Type smellType = Type.fromString(smellTypeProperty);
-                ArchitecturalSmell as = smellType.getInstance(smellVertex);
-                if (as != null)
-                    architecturalSmells.add(as);
-                else
-                    logger.warn("AS type '{}' was ignored since no implementation exists for it.", smellVertex.value("smellType").toString());
-            }else {
-                logger.warn("No 'smellType' property found for smell vertex {}.", smellVertex);
-            }
-        });
-        return architecturalSmells;
+    public void calculateCharacteristics(){
+        Set<ISmellCharacteristic> c = getCharacteristicsSet();
+        for (ISmellCharacteristic s : c){
+            s.calculate(this);
+        }
     }
 
     public Level getLevel() {
@@ -120,27 +111,56 @@ public abstract class ArchitecturalSmell {
         setLevel(Level.fromString(smell.value("vertexType")));
     }
 
+    @SuppressWarnings("unchecked")
+    private Set<ISmellCharacteristic> getCharacteristicsSet(){ return getType().getCharacteristicsSet().getCharacteristicSet();}
+
+    @SuppressWarnings("unchecked")
+    public static List<ArchitecturalSmell> getArchitecturalSmellsIn(Graph graph){
+        List<ArchitecturalSmell> architecturalSmells = new ArrayList<>();
+        graph.traversal().V().hasLabel(VertexLabel.SMELL.toString()).toList()
+                .forEach(smellVertex -> {
+                    String smellTypeProperty = smellVertex.value("smellType");
+                    if (smellTypeProperty != null) {
+                        Type smellType = Type.fromString(smellTypeProperty);
+                        ArchitecturalSmell as = smellType.getInstance(smellVertex);
+                        if (as != null)
+                            architecturalSmells.add(as);
+                        else
+                            logger.warn("AS type '{}' was ignored since no implementation exists for it.", smellVertex.value("smellType").toString());
+                    }else {
+                        logger.warn("No 'smellType' property found for smell vertex {}.", smellVertex);
+                    }
+                });
+        return architecturalSmells;
+    }
+
     /**
-     * Represents a type of AS
+     * Represents a type of AS and maps them to their instantiation and characteristics set.
      */
     public enum Type {
-        CD("cyclicDep", CDSmell::new),
-        UD("unstableDep", UDSmell::new),
-        HL("hubLikeDep", HLSmell::new),
-        ICPD("ixpDep", vertex -> null),
-        MAS("multipleAS", vertex -> null)
+        CD("cyclicDep", CDSmell::new, new CDCharacteristicsSet()),
+        UD("unstableDep", UDSmell::new, new UDCharacteristicsSet()),
+        HL("hubLikeDep", HLSmell::new, new HLCharacteristicsSet()),
+        ICPD("ixpDep", vertex -> null, null),
+        MAS("multipleAS", vertex -> null, null)
         ;
 
         private String value;
         private Function<Vertex, ArchitecturalSmell> smellInstantiator;
+        private ICharacteristicsSet characteristicsSet;
 
-        Type(String value, Function<Vertex, ArchitecturalSmell> smellInstantiator){
+        Type(String value, Function<Vertex, ArchitecturalSmell> smellInstantiator, ICharacteristicsSet characteristicsSet){
             this.value = value;
             this.smellInstantiator = smellInstantiator;
+            this.characteristicsSet = characteristicsSet;
         }
 
         public ArchitecturalSmell getInstance(Vertex vertex){
             return this.smellInstantiator.apply(vertex);
+        }
+
+        public ICharacteristicsSet getCharacteristicsSet() {
+            return characteristicsSet;
         }
 
         @Override
