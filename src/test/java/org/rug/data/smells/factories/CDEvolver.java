@@ -1,11 +1,10 @@
 package org.rug.data.smells.factories;
 
 import org.apache.tinkerpop.gremlin.process.traversal.P;
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.rug.data.EdgeLabel;
-import org.rug.data.VertexLabel;
+import org.rug.data.labels.EdgeLabel;
+import org.rug.data.labels.VertexLabel;
 
 import java.util.Set;
 

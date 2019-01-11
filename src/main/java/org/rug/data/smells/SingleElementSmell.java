@@ -35,7 +35,7 @@ public abstract class SingleElementSmell extends ArchitecturalSmell {
      */
     @Override
     protected void setSmellNodes(Vertex smell) {
-        setSmellNodes(new HashSet<>());
-        getSmellNodes().add(smell);
+        this.smellNodes = new HashSet<>();
+        this.smellNodes.add(smell);
     }
 }

@@ -1,6 +1,5 @@
-package org.rug.data.smells.characteristics;
+package org.rug.data.characteristics;
 
-import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.rug.data.smells.ArchitecturalSmell;
 
 /**

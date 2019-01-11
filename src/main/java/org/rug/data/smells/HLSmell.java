@@ -1,7 +1,7 @@
 package org.rug.data.smells;
 
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.rug.data.EdgeLabel;
+import org.rug.data.labels.EdgeLabel;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -34,8 +34,8 @@ public class HLSmell extends SingleElementSmell {
     public void setAffectedElements(Vertex smell) {
         // Select the appropriate label based on the smell label
         EdgeLabel label = EdgeLabel.HLAFFECTEDCLASS.toString().toLowerCase().contains(getLevel().toString().toLowerCase()) ? EdgeLabel.HLAFFECTEDCLASS : EdgeLabel.HLAFFECTEDPACK;
-        setAffectedElements(new HashSet<>());
-        getAffectedElements().add(smell.graph().traversal().V(smell).out(label.toString()).next());
+        this.affectedElements = new HashSet<>();
+        this.affectedElements.add(smell.graph().traversal().V(smell).out(label.toString()).next());
     }
 
     /**

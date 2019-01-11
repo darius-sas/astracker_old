@@ -1,11 +1,6 @@
-package org.rug.data.smells.characteristics;
+package org.rug.data.characteristics;
 
-import org.apache.tinkerpop.gremlin.structure.Graph;
-import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.rug.data.VertexLabel;
 import org.rug.data.smells.ArchitecturalSmell;
-
-import java.util.List;
 
 /**
  * Models an abstract characteristic and groups commons methods and fields

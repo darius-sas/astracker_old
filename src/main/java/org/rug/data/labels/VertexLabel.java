@@ -1,4 +1,4 @@
-package org.rug.data;
+package org.rug.data.labels;
 
 public enum VertexLabel {
     PACKAGE("package"),

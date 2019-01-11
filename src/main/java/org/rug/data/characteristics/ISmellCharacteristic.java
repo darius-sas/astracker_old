@@ -1,4 +1,4 @@
-package org.rug.data.smells.characteristics;
+package org.rug.data.characteristics;
 
 import org.rug.data.smells.ArchitecturalSmell;
 

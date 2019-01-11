@@ -6,6 +6,8 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.junit.jupiter.api.Test;
+import org.rug.data.labels.EdgeLabel;
+import org.rug.data.labels.VertexLabel;
 import org.rug.data.smells.CDSmell;
 import org.rug.data.smells.factories.*;
 

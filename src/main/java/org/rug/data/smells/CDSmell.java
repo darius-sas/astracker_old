@@ -3,7 +3,7 @@ package org.rug.data.smells;
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.rug.data.VertexLabel;
+import org.rug.data.labels.VertexLabel;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,7 +57,7 @@ public class CDSmell extends ArchitecturalSmell {
             this.shape = Shape.fromString(shapeVertex.value("shapeType"));
         }
         if (this.shape == Shape.STAR){
-            getSmellNodes().forEach(vertex -> vertex.property("visitedStar", "true"));
+            this.smellNodes.forEach(vertex -> vertex.property("visitedStar", "true"));
         }
     }
 

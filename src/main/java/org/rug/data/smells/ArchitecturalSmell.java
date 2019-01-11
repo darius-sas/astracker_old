@@ -2,8 +2,8 @@ package org.rug.data.smells;
 
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.rug.data.VertexLabel;
-import org.rug.data.smells.characteristics.*;
+import org.rug.data.labels.VertexLabel;
+import org.rug.data.characteristics.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,8 +20,8 @@ public abstract class ArchitecturalSmell {
     private final static Logger logger = LoggerFactory.getLogger(ArchitecturalSmell.class);
 
     private long id;
-    private Set<Vertex> smellNodes;
-    private Set<Vertex> affectedElements;
+    protected Set<Vertex> smellNodes;
+    protected Set<Vertex> affectedElements;
 
     private Map<String, Double> characteristicsMap;
 

@@ -1,8 +1,6 @@
-package org.rug.data;
+package org.rug.data.labels;
 
 import org.rug.data.smells.ArchitecturalSmell;
-
-import java.util.EnumSet;
 
 public enum EdgeLabel {
     PARTOFCYCLE("partOfCycle"),
