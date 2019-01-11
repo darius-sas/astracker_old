@@ -23,7 +23,7 @@ public abstract class ArchitecturalSmell {
     protected Set<Vertex> smellNodes;
     protected Set<Vertex> affectedElements;
 
-    private Map<String, Double> characteristicsMap;
+    protected Map<String, Double> characteristicsMap;
 
     private Type type;
     private Level level;
@@ -100,12 +100,13 @@ public abstract class ArchitecturalSmell {
      * retrievable using <code>getCharacteristicsMap()</code>.
      */
     public void calculateCharacteristics(){
-        Set<ISmellCharacteristic> characteristics = getCharacteristicsSet();
-        for (ISmellCharacteristic s : characteristics){
-            s.calculate(this);
-            this.characteristicsMap.put(s.getName(), s.getValue());
+        for (ISmellCharacteristic<ArchitecturalSmell> characteristic : Type.getGenericCharacteristicSet().getCharacteristicSet()){
+            characteristicsMap.put(characteristic.getName(), characteristic.calculate(this));
         }
+        calculateCharacteristicsInternal();
     }
+
+    protected abstract void calculateCharacteristicsInternal();
 
     /**
      * Get the map of the currently computed characteristics.
@@ -161,7 +162,7 @@ public abstract class ArchitecturalSmell {
      * @return an unmodifiable set of characteristics.
      */
     @SuppressWarnings("unchecked")
-    private Set<ISmellCharacteristic> getCharacteristicsSet(){ return Collections.unmodifiableSet(getType().getCharacteristicsSet().getCharacteristicSet());}
+    protected Set<ISmellCharacteristic> getCharacteristicsSet(){ return Collections.unmodifiableSet(getType().getCharacteristicsSet().getCharacteristicSet());}
 
     /**
      * Given the graph of a system, this methods builds a list of Architectural Smells that affect this system.
@@ -196,7 +197,8 @@ public abstract class ArchitecturalSmell {
         UD("unstableDep", UDSmell::new, new UDCharacteristicsSet()),
         HL("hubLikeDep", HLSmell::new, new HLCharacteristicsSet()),
         ICPD("ixpDep", vertex -> null, null),
-        MAS("multipleAS", vertex -> null, null)
+        MAS("multipleAS", vertex -> null, null),
+        GENERIC("generic", vertex -> null, new GenericCharacteristicSet()),
         ;
 
         private String value;
@@ -219,6 +221,10 @@ public abstract class ArchitecturalSmell {
          */
         public ICharacteristicsSet getCharacteristicsSet() {
             return characteristicsSet;
+        }
+
+        public static ICharacteristicsSet<ArchitecturalSmell> getGenericCharacteristicSet(){
+            return GENERIC.characteristicsSet;
         }
 
         @Override

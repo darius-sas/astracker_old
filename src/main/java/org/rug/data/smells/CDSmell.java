@@ -3,10 +3,14 @@ package org.rug.data.smells;
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.rug.data.characteristics.CDCharacteristicsSet;
+import org.rug.data.characteristics.ICharacteristicsSet;
+import org.rug.data.characteristics.ISmellCharacteristic;
 import org.rug.data.labels.VertexLabel;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Represents a Cyclic Dependency smell.
@@ -75,6 +79,20 @@ public class CDSmell extends ArchitecturalSmell {
         setSmellNodes(smell.graph().traversal().V(smell)
                 .in().hasLabel(VertexLabel.CYCLESHAPE.toString())
                 .out().hasLabel(VertexLabel.SMELL.toString()).toSet());
+    }
+
+    /**
+     * Triggers the calculation of each characteristic using the correct implementation of ICharacteristicsSet for the
+     * current smell type. The results of the calculation are saved internally in a map
+     * retrievable using <code>getCharacteristicsMap()</code>.
+     */
+    @Override
+    public void calculateCharacteristicsInternal() {
+        CDCharacteristicsSet cSet = (CDCharacteristicsSet)getCharacteristicsSet();
+        Set<ISmellCharacteristic<CDSmell>> characteristicsSets = cSet.getCharacteristicSet();
+        for (ISmellCharacteristic<CDSmell> characteristic : characteristicsSets){
+            characteristicsMap.put(characteristic.getName(), characteristic.calculate(this));
+        }
     }
 
     /**

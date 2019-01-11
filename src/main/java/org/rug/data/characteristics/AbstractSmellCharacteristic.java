@@ -2,10 +2,13 @@ package org.rug.data.characteristics;
 
 import org.rug.data.smells.ArchitecturalSmell;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Models an abstract characteristic and groups commons methods and fields
  */
-public abstract class AbstractSmellCharacteristic implements ISmellCharacteristic{
+public abstract class AbstractSmellCharacteristic<S extends ArchitecturalSmell> implements ISmellCharacteristic <S> {
     private ArchitecturalSmell.Type targetSmellType;
     private String name;
     private double value;
@@ -44,4 +47,5 @@ public abstract class AbstractSmellCharacteristic implements ISmellCharacteristi
     public double getValue() {
         return value;
     }
+
 }
