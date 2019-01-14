@@ -14,8 +14,7 @@ public class ParentCentrality extends AbstractSmellCharacteristic {
 
 
     /**
-     * Calculates this characteristic and returns the value computed. The value can be retrieved later by invoking
-     * the method <code>getValue()</code>
+     * Calculates this characteristic and returns the value computed.
      *
      * @param smell the smell to calculate the characteristic on.
      */
@@ -23,5 +22,6 @@ public class ParentCentrality extends AbstractSmellCharacteristic {
     public double calculate(CDSmell smell) {
         return 0;
     }
+
 
 }

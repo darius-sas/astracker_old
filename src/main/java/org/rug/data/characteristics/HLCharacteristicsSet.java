@@ -15,6 +15,6 @@ public class HLCharacteristicsSet extends CharacteristicsSet {
      */
     @Override
     protected void addSmellSpecificCharacteristics(Set<ISmellCharacteristic> characteristics) {
-
+        characteristics.add(new NumberOfDependencies());
     }
 }

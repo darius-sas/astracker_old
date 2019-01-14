@@ -1,5 +1,6 @@
 package org.rug.data.smells;
 
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.labels.VertexLabel;
@@ -22,6 +23,7 @@ public abstract class ArchitecturalSmell {
     private long id;
     protected Set<Vertex> smellNodes;
     protected Set<Vertex> affectedElements;
+    protected Graph affectedGraph;
 
     protected Map<String, Double> characteristicsMap;
 
@@ -37,6 +39,7 @@ public abstract class ArchitecturalSmell {
         this.id = Long.parseLong(smell.id().toString());
         this.type = type;
         this.characteristicsMap = new HashMap<>();
+        this.affectedGraph = smell.graph();
         setLevel(smell);
         setAffectedElements(smell);
         setSmellNodes(smell);
@@ -156,6 +159,22 @@ public abstract class ArchitecturalSmell {
      */
     protected void setLevel(Vertex smell){
         setLevel(Level.fromString(smell.value("vertexType")));
+    }
+
+    /**
+     * Returns the traversal of the graph affected by this smell.
+     * @return the traversal
+     */
+    public GraphTraversalSource getTraversalSource(){
+        return getAffectedGraph().traversal();
+    }
+
+    /**
+     * Returns the graph affected by this smell.
+     * @return the graph
+     */
+    public Graph getAffectedGraph() {
+        return affectedGraph;
     }
 
     /**

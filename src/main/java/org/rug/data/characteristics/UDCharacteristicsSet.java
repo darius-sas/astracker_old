@@ -14,6 +14,7 @@ public class UDCharacteristicsSet extends CharacteristicsSet {
      */
     @Override
     protected void addSmellSpecificCharacteristics(Set<ISmellCharacteristic> characteristics) {
-
+        characteristics.add(new Strength());
+        characteristics.add(new InstabilityGap());
     }
 }

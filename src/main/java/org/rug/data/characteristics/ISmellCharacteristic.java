@@ -16,15 +16,13 @@ public interface ISmellCharacteristic {
     double calculate(CDSmell smell);
 
     /**
-     * Calculates this characteristic and returns the value computed. The value can also be retrieved later by invoking
-     * the method <code>getValue()</code>
+     * Calculates this characteristic and returns the value computed.
      * @param smell the HL smell to calculate the characteristic on.
      */
     double calculate(HLSmell smell);
 
     /**
-     * Calculates this characteristic and returns the value computed. The value can also be retrieved later by invoking
-     * the method <code>getValue()</code>
+     * Calculates this characteristic and returns the value computed.
      * @param smell the UD smell to calculate the characteristic on.
      */
     double calculate(UDSmell smell);
