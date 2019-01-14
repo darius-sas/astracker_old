@@ -6,22 +6,22 @@ import org.rug.data.smells.CDSmell;
 /**
  * Calculates the Parent Centrality metric as defined by Al-Mutawa et al.
  */
-public class ParentCentrality extends AbstractSmellCharacteristic<CDSmell> {
+public class ParentCentrality extends AbstractSmellCharacteristic {
 
     public ParentCentrality() {
-        super(ArchitecturalSmell.Type.CD, "parentCentrality");
+        super("parentCentrality");
     }
 
 
     /**
-     * Calculates this characteristic and returns the value computed. The value can also be retrieved later by invoking
+     * Calculates this characteristic and returns the value computed. The value can be retrieved later by invoking
      * the method <code>getValue()</code>
      *
      * @param smell the smell to calculate the characteristic on.
-     * @return the value computed.
      */
     @Override
     public double calculate(CDSmell smell) {
         return 0;
     }
+
 }

@@ -102,7 +102,7 @@ public class ASTracker {
                                 .hasLabel(P.within(VertexLabel.PACKAGE.toString(), VertexLabel.CLASS.toString())).toSet();
                         if (!vn.isEmpty()){
                             values.add(new VSetPair(v1, vn));
-                            smellIDValues.add(smellVertex.value("smellId"));
+                            smellIDValues.add(smellVertex.value("smellId").toString());
                         }
                     });
             this.idMap.put(smell.value("smellId"), smellIDValues);

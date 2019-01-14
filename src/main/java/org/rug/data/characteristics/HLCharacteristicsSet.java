@@ -1,15 +1,20 @@
 package org.rug.data.characteristics;
 
-import org.rug.data.smells.HLSmell;
-
 import java.util.Set;
 
 /**
  * This class is responsible for creating the characteristic set for HL smells.
  */
-public class HLCharacteristicsSet implements ICharacteristicsSet<HLSmell> {
+public class HLCharacteristicsSet extends CharacteristicsSet {
+
+
+    /**
+     * Instantiates a new set of characteristics that can be used to save their calculations.
+     *
+     * @param characteristics
+     */
     @Override
-    public Set<ISmellCharacteristic<HLSmell>> getCharacteristicSet() {
-        return null;
+    protected void addSmellSpecificCharacteristics(Set<ISmellCharacteristic> characteristics) {
+
     }
 }

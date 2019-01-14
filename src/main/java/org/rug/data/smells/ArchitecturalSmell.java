@@ -95,18 +95,19 @@ public abstract class ArchitecturalSmell {
     protected abstract void setSmellNodes(Vertex smell);
 
     /**
-     * Triggers the calculation of each characteristic using the correct implementation of ICharacteristicsSet for the
+     * Triggers the calculation of each characteristic using the correct implementation of CharacteristicsSet for the
      * current smell type. The results of the calculation are saved internally in a map
      * retrievable using <code>getCharacteristicsMap()</code>.
      */
     public void calculateCharacteristics(){
-        for (ISmellCharacteristic<ArchitecturalSmell> characteristic : Type.getGenericCharacteristicSet().getCharacteristicSet()){
-            characteristicsMap.put(characteristic.getName(), characteristic.calculate(this));
+        Set<ISmellCharacteristic> characteristicsSets = this.type.getCharacteristicsSet();
+        for (ISmellCharacteristic characteristic : characteristicsSets){
+            double value = this.accept(characteristic);
+            characteristicsMap.put(characteristic.getName(), value);
         }
-        calculateCharacteristicsInternal();
     }
 
-    protected abstract void calculateCharacteristicsInternal();
+    protected abstract double accept(ISmellCharacteristic characteristic);
 
     /**
      * Get the map of the currently computed characteristics.
@@ -158,13 +159,6 @@ public abstract class ArchitecturalSmell {
     }
 
     /**
-     * Returns the characteristics that will be computed for this smell.
-     * @return an unmodifiable set of characteristics.
-     */
-    @SuppressWarnings("unchecked")
-    protected Set<ISmellCharacteristic> getCharacteristicsSet(){ return Collections.unmodifiableSet(getType().getCharacteristicsSet().getCharacteristicSet());}
-
-    /**
      * Given the graph of a system, this methods builds a list of Architectural Smells that affect this system.
      * @param graph the graph of the system.
      * @return a list containing the parsed smells.
@@ -198,14 +192,13 @@ public abstract class ArchitecturalSmell {
         HL("hubLikeDep", HLSmell::new, new HLCharacteristicsSet()),
         ICPD("ixpDep", vertex -> null, null),
         MAS("multipleAS", vertex -> null, null),
-        GENERIC("generic", vertex -> null, new GenericCharacteristicSet()),
         ;
 
         private String value;
         private Function<Vertex, ArchitecturalSmell> smellInstantiator;
-        private ICharacteristicsSet characteristicsSet;
+        private CharacteristicsSet characteristicsSet;
 
-        Type(String value, Function<Vertex, ArchitecturalSmell> smellInstantiator, ICharacteristicsSet characteristicsSet){
+        Type(String value, Function<Vertex, ArchitecturalSmell> smellInstantiator, CharacteristicsSet characteristicsSet){
             this.value = value;
             this.smellInstantiator = smellInstantiator;
             this.characteristicsSet = characteristicsSet;
@@ -216,15 +209,11 @@ public abstract class ArchitecturalSmell {
         }
 
         /**
-         * Returns the ICharacteristicsSet instance of the current type.
-         * @return the correct instance of ICharacteristicsSet that can be used to compute a smell's characteristics.
+         * Returns the CharacteristicsSet instance of the current type.
+         * @return the correct instance of CharacteristicsSet that can be used to compute a smell's characteristics.
          */
-        public ICharacteristicsSet getCharacteristicsSet() {
-            return characteristicsSet;
-        }
-
-        public static ICharacteristicsSet<ArchitecturalSmell> getGenericCharacteristicSet(){
-            return GENERIC.characteristicsSet;
+        public Set<ISmellCharacteristic> getCharacteristicsSet() {
+            return characteristicsSet.getCharacteristicSet();
         }
 
         @Override

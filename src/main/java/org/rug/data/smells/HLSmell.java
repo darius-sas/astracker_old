@@ -57,12 +57,9 @@ public class HLSmell extends SingleElementSmell {
         return Collections.unmodifiableSet(outDep);
     }
 
+
     @Override
-    protected void calculateCharacteristicsInternal() {
-        HLCharacteristicsSet cSet = (HLCharacteristicsSet)getCharacteristicsSet();
-        Set<ISmellCharacteristic<HLSmell>> characteristicsSets = cSet.getCharacteristicSet();
-        for (ISmellCharacteristic<HLSmell> characteristic : characteristicsSets){
-            characteristicsMap.put(characteristic.getName(), characteristic.calculate(this));
-        }
+    protected double accept(ISmellCharacteristic characteristic) {
+        return characteristic.calculate(this);
     }
 }

@@ -1,17 +1,19 @@
 package org.rug.data.characteristics;
 
-import org.rug.data.smells.CDSmell;
-
 import java.util.Set;
 
 /**
  * This class is responsible for creating the characteristic set for UD smells.
  */
-public class CDCharacteristicsSet implements ICharacteristicsSet<CDSmell> {
+public class CDCharacteristicsSet extends CharacteristicsSet {
 
+    /**
+     * Instantiates a new set of characteristics that can be used to save their calculations.
+     *
+     * @param characteristics
+     */
     @Override
-    public Set<ISmellCharacteristic<CDSmell>> getCharacteristicSet() {
-        return null;
-    }
+    protected void addSmellSpecificCharacteristics(Set<ISmellCharacteristic> characteristics) {
 
+    }
 }

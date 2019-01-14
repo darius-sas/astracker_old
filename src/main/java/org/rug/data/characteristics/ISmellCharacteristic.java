@@ -2,25 +2,33 @@ package org.rug.data.characteristics;
 
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.smells.CDSmell;
+import org.rug.data.smells.HLSmell;
+import org.rug.data.smells.UDSmell;
 
 /**
  * Models a SmellCharacteristics that returns a value of type R
  */
-public interface ISmellCharacteristic<S extends ArchitecturalSmell> {
+public interface ISmellCharacteristic {
+    /**
+     * Calculates this characteristic and returns the value computed.
+     * @param smell the CD smell to calculate the characteristic on.
+     */
+    double calculate(CDSmell smell);
+
     /**
      * Calculates this characteristic and returns the value computed. The value can also be retrieved later by invoking
      * the method <code>getValue()</code>
-     * @param smell the smell to calculate the characteristic on.
-     * @return the value computed.
+     * @param smell the HL smell to calculate the characteristic on.
      */
-    double calculate(S smell);
+    double calculate(HLSmell smell);
 
     /**
-     * Returns the value computed by this characteristic. This is supposed to be the same value computed and returned
-     * by the <code>calculate()</code> method.
-     * @return the result
+     * Calculates this characteristic and returns the value computed. The value can also be retrieved later by invoking
+     * the method <code>getValue()</code>
+     * @param smell the UD smell to calculate the characteristic on.
      */
-    double getValue();
+    double calculate(UDSmell smell);
+
 
     /**
      * Returns the name of this characteristic.
@@ -28,9 +36,4 @@ public interface ISmellCharacteristic<S extends ArchitecturalSmell> {
      */
     String getName();
 
-    /**
-     * Get the type of the smell that this characteristics is calculated on
-     * @return the type of the smell
-     */
-    ArchitecturalSmell.Type getTargetSmellType();
 }
