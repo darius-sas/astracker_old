@@ -30,7 +30,8 @@ public class CliqueCDEvolver extends CDEvolver {
 
         Vertex smell = g.addV(VertexLabel.SMELL.toString())
                 .property("smellType", ArchitecturalSmell.Type.CD.toString())
-                .property("smellId", rng.nextInt()).next();
+                .property("smellId", rng.nextInt())
+                .property("vertexType", ArchitecturalSmell.Level.PACKAGE.toString()).next();
 
         for (Vertex from : vertices) {
             for (Vertex to : vertices) {
@@ -44,16 +45,18 @@ public class CliqueCDEvolver extends CDEvolver {
     }
 
     @Override
-    public void addElements(Vertex smell, int... n) {
-        Set<Vertex> currentElements = g.V(smell).out(EdgeLabel.ISCLIQUESHAPED.toString()).toSet();
+    public void addElements(ArchitecturalSmell smell, int... n) {
+        Set<Vertex> currentElements = smell.getAffectedElements();
         Set<Vertex> newElements = getVerticesNotAffectedBySmell(n[0]);
+
+        Vertex smellVertex = smell.getSmellNodes().iterator().next();
 
         for (Vertex to : newElements) {
             for (Vertex from : currentElements) {
                 g.addE(EdgeLabel.DEPENDSON.toString()).from(from).to(to).next();
                 g.addE(EdgeLabel.DEPENDSON.toString()).from(to).to(from).next();
             }
-            g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(to).next();
+            g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smellVertex).to(to).next();
         }
     }
 }

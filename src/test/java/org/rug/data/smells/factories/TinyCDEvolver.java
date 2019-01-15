@@ -34,6 +34,7 @@ public class TinyCDEvolver extends CDEvolver {
             Vertex smell = g.addV(VertexLabel.SMELL.toString())
                     .property("smellType", ArchitecturalSmell.Type.CD.toString())
                     .property("smellId", rng.nextInt())
+                    .property("vertexType", ArchitecturalSmell.Level.PACKAGE.toString())
                     .next();
             g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(a).next();
             g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(b).next();
@@ -52,7 +53,7 @@ public class TinyCDEvolver extends CDEvolver {
      * @param n     the number of nodes to add. Some smell types might support addition to multiple parts.
      */
     @Override
-    public void addElements(Vertex smell, int... n) {
+    public void addElements(ArchitecturalSmell smell, int... n) {
         return;
     }
 }

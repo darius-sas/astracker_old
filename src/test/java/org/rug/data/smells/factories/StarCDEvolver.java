@@ -20,20 +20,20 @@ public class StarCDEvolver extends CDEvolver {
      * @param system the system to use
      */
     public StarCDEvolver(Graph system) {
-        this(system, 3);
+        this(system, 4);
     }
 
     /**
      * Builds a StarCDEvolver that creates star-shaped smells with the given amount of leaves
      * @param system the system to use
-     * @param leaves the number of leaves
+     * @param elements the number of elements
      */
-    public StarCDEvolver(Graph system, int leaves){
+    public StarCDEvolver(Graph system, int elements){
         super(system);
+        this.leaves = elements - 1;
         if (leaves < 3 || leaves + 1 > g.V().count().next())
             throw new IllegalArgumentException("The number of leaves of a star must be higher than 3 or the elements of the containing system must be enough to support its creation.");
 
-        this.leaves = leaves;
     }
 
     /**
@@ -62,7 +62,9 @@ public class StarCDEvolver extends CDEvolver {
         for (Vertex leaf : leafVertices){
             g.addE(EdgeLabel.DEPENDSON.toString()).from(centre).to(leaf).next();
             g.addE(EdgeLabel.DEPENDSON.toString()).from(leaf).to(centre).next();
-            Vertex smell = g.addV(VertexLabel.SMELL.toString()).property("smellType", ArchitecturalSmell.Type.CD.toString()).next();
+            Vertex smell = g.addV(VertexLabel.SMELL.toString())
+                    .property("smellType", ArchitecturalSmell.Type.CD.toString())
+                    .property("vertexType", ArchitecturalSmell.Level.PACKAGE.toString()).next();
             g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(leaf).next();
             g.addE(EdgeLabel.PARTOFCYCLE.toString()).from(smell).to(centre).next();
             g.addE(EdgeLabel.PARTOFSTAR.toString()).from(star).to(smell).next();
@@ -76,9 +78,9 @@ public class StarCDEvolver extends CDEvolver {
      * @param n     the number of nodes to add. Some smell types might support addition to multiple parts.
      */
     @Override
-    public void addElements(Vertex smell, int... n) {
-        Vertex shape = g.V(smell).in(EdgeLabel.PARTOFSTAR.toString()).next();
-        Vertex centre = g.V(shape).out(EdgeLabel.ISCENTREOFSTAR.toString()).next();
+    public void addElements(ArchitecturalSmell smell, int... n) {
+        Vertex shape = g.V(smell.getSmellNodes()).in(EdgeLabel.PARTOFSTAR.toString()).next();
+        Vertex centre = g.V(((CDSmell)smell).getShapeVertex()).out(EdgeLabel.ISCENTREOFSTAR.toString()).next();
         addLeaves(centre, shape, getVerticesNotAffectedBySmell(n[0]));
     }
 

@@ -5,6 +5,7 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.labels.EdgeLabel;
 import org.rug.data.labels.VertexLabel;
 import org.rug.data.smells.ArchitecturalSmell;
+import org.rug.data.smells.CDSmell;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -25,7 +26,9 @@ public class UDEvolver extends ASEvolver {
         Vertex centre = new ArrayList<>(vertices).get(rng.nextInt(vertices.size()));
         Vertex smell = g.addV(VertexLabel.SMELL.toString())
                 .property("smellType", ArchitecturalSmell.Type.HL.toString())
-                .property("smellId", rng.nextInt()).next();
+                .property("smellId", rng.nextInt())
+                .property("vertexType", ArchitecturalSmell.Level.PACKAGE.toString())
+                .next();
 
         g.addE(EdgeLabel.UDAFFECTED.toString()).from(smell).to(centre).next();
 
@@ -42,7 +45,7 @@ public class UDEvolver extends ASEvolver {
      * @param n     the number of nodes to add. Some smell types might support addition to multiple parts.
      */
     @Override
-    public void addElements(Vertex smell, int... n) {
+    public void addElements(ArchitecturalSmell smell, int... n) {
 
     }
 
@@ -54,7 +57,7 @@ public class UDEvolver extends ASEvolver {
      * @param n     the number of nodes to add. Some smell types might support addition to multiple parts.
      */
     @Override
-    public void removeElements(Vertex smell, int... n) {
+    public void removeElements(ArchitecturalSmell smell, int... n) {
 
     }
 
@@ -65,7 +68,7 @@ public class UDEvolver extends ASEvolver {
      * @param smell   the smell to shapeshift.
      */
     @Override
-    public void shapeShift(Vertex smell) {
+    public void shapeShift(CDSmell smell) {
         return;
     }
 }

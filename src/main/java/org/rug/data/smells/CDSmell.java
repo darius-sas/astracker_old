@@ -68,7 +68,8 @@ public class CDSmell extends ArchitecturalSmell {
     protected void setAffectedElements(Vertex smell) {
         setAffectedElements(smell.graph().traversal().V(smell)
                 .choose(__.in().hasLabel(VertexLabel.CYCLESHAPE.toString()),
-                        __.in().hasLabel(VertexLabel.CYCLESHAPE.toString()))
+                        __.in().hasLabel(VertexLabel.CYCLESHAPE.toString())
+                               .out().hasLabel(VertexLabel.SMELL.toString()))
                 .out().hasLabel(P.within(VertexLabel.CLASS.toString(), VertexLabel.PACKAGE.toString())).toSet());
     }
 

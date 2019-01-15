@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Abstraction of an AS. A smell is composed by the nodes that represent the smell (label
@@ -74,7 +75,7 @@ public abstract class ArchitecturalSmell {
      * @return an unmodifiable set of the affected elements.
      */
     public Set<Vertex> getAffectedElements() {
-        return Collections.unmodifiableSet(affectedElements);
+        return affectedElements;
     }
 
     /**
@@ -200,6 +201,15 @@ public abstract class ArchitecturalSmell {
                     }
                 });
         return architecturalSmells;
+    }
+
+    /**
+     * Maps every architectural smell in the given list to its id.
+     * @param list the list of AS to use
+     * @return a map where the keys are the ids of the smell and the values are the smell instances.
+     */
+    public static Map<Long, ArchitecturalSmell> toMap(List<ArchitecturalSmell> list){
+        return list.stream().collect(Collectors.toMap(ArchitecturalSmell::getId, smell -> smell));
     }
 
     /**

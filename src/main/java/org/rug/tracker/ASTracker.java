@@ -7,18 +7,53 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.labels.EdgeLabel;
 import org.rug.data.VSetPair;
 import org.rug.data.labels.VertexLabel;
+import org.rug.data.smells.ArchitecturalSmell;
+import org.rug.data.smells.CDSmell;
 
 import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
 public class ASTracker {
 
     Map<String, List<String>> idMap;
     Map<String, Map<Vertex, List<VSetPair>>> trackedCDVertexMap;
+    Map<ArchitecturalSmell, List<ArchitecturalSmell>> versionMap;
 
     public ASTracker(){
         this.idMap = new HashMap<>();
         this.trackedCDVertexMap = new HashMap<>();
+    }
+
+    public void trackCD2(Graph graphV1, Graph graphV2, List<CDSmell> smellsInV1, List<ArchitecturalSmell> smellsInV2){
+        GraphTraversalSource g1 = graphV1.traversal();
+        GraphTraversalSource g2 = graphV2.traversal();
+
+        Map<Long, ArchitecturalSmell> smellsInV2map = ArchitecturalSmell.toMap(smellsInV2);
+
+        for (CDSmell smell : smellsInV1){
+            // Get affected nodes names
+            Set<String> nodesNames = (Set<String>) (Set<?>)g1.V(smell.getAffectedElements()).values("name").toSet();
+
+            // Get nodes with such names in the next version
+            // find all smells affecting such nodes in the next version and save their ids
+            Set<Long> successorSmellsIds = g2.V()
+                    .hasLabel(P.within(VertexLabel.PACKAGE.toString(), VertexLabel.CLASS.toString()))
+                    .has("name", P.within(nodesNames))
+                    .in().hasLabel(VertexLabel.SMELL.toString())
+                    .has("smellType", ArchitecturalSmell.Type.CD.toString())
+                    .toSet().stream().mapToLong(vertex -> Long.parseLong(vertex.id().toString()))
+                    .boxed().collect(Collectors.toSet());
+
+            assert smellsInV2map.keySet().containsAll(successorSmellsIds);
+            // Save a map of their ids
+            idMap.put(String.valueOf(smell.getId()), successorSmellsIds.stream().map(Object::toString).collect(Collectors.toList()));
+            List<ArchitecturalSmell> successorSmells = versionMap.getOrDefault(smell, new ArrayList<>());
+            successorSmellsIds.forEach(id -> successorSmells.add(smellsInV2map.get(id)));
+            versionMap.putIfAbsent(smell, successorSmells);
+        }
+
     }
 
     /**
@@ -117,5 +152,9 @@ public class ASTracker {
 
     public Map<String, Map<Vertex, List<VSetPair>>> getTrackedCDVertexMap() {
         return trackedCDVertexMap;
+    }
+
+    public Map<ArchitecturalSmell, List<ArchitecturalSmell>> getVersionMap() {
+        return versionMap;
     }
 }

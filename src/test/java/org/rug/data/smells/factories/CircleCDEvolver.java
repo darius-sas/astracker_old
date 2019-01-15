@@ -33,7 +33,8 @@ public class CircleCDEvolver extends CDEvolver{
 
         Vertex smell = g.addV(VertexLabel.SMELL.toString())
                 .property("smellType", ArchitecturalSmell.Type.CD.toString())
-                .property("smellId", rng.nextInt()).next();
+                .property("smellId", rng.nextInt())
+                .property("vertexType", ArchitecturalSmell.Level.PACKAGE.toString()).next();
 
         Iterator<Vertex> itv = vertices.iterator();
         Vertex from;
@@ -58,9 +59,9 @@ public class CircleCDEvolver extends CDEvolver{
     }
 
     @Override
-    public void addElements(Vertex smell, int... n) {
+    public void addElements(ArchitecturalSmell smell, int... n) {
         Set<Vertex> newElements = getVerticesNotAffectedBySmell(n[0]);
-        Set<Vertex> currentElements = getAffectedElements(smell);
+        Set<Vertex> currentElements = smell.getAffectedElements();
         currentElements.addAll(newElements);
         addSmell(currentElements);
     }

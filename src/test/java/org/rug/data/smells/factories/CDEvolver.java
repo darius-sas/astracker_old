@@ -5,6 +5,8 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.labels.EdgeLabel;
 import org.rug.data.labels.VertexLabel;
+import org.rug.data.smells.ArchitecturalSmell;
+import org.rug.data.smells.CDSmell;
 
 import java.util.Set;
 
@@ -27,16 +29,13 @@ public abstract class CDEvolver extends ASEvolver {
      * @param smell the smell to remove that has a VertexLabel.Smell label.
      */
     @Override
-    public void removeSmell(Vertex smell) {
-        if (!smell.label().equals(VertexLabel.SMELL))
-            return;
-
-        g.V(smell)
+    public void removeSmell(ArchitecturalSmell smell) {
+        g.V(smell.getSmellNodes())
                 .inV().hasLabel(VertexLabel.CYCLESHAPE.toString())
                 .outV().hasLabel(VertexLabel.SMELL.toString())
                 .drop().iterate();
 
-        g.V(smell).drop().iterate();
+        g.V(smell.getSmellNodes()).drop().iterate();
     }
 
     /**
@@ -46,7 +45,7 @@ public abstract class CDEvolver extends ASEvolver {
      * @param n     the number of nodes to add. Some smell types might support addition to multiple parts.
      */
     @Override
-    public abstract void addElements(Vertex smell, int... n);
+    public abstract void addElements(ArchitecturalSmell smell, int... n);
 
     /**
      * Remove the given amount of elements from the given smell. If the number of elements exceeds the minimum
@@ -56,7 +55,7 @@ public abstract class CDEvolver extends ASEvolver {
      * @param n     the number of nodes to add. Some smell types might support addition to multiple parts.
      */
     @Override
-    public void removeElements(Vertex smell, int... n) {
+    public void removeElements(ArchitecturalSmell smell, int... n) {
 
     }
 
@@ -67,12 +66,12 @@ public abstract class CDEvolver extends ASEvolver {
      * @param smell   the smell to shapeshift.
      */
     @Override
-    public void shapeShift(Vertex smell) {
+    public void shapeShift(CDSmell smell) {
         // Skip smells that are not part of the graph (previously removed)
-        if (!g.V(smell).hasNext())
+        if (!g.V(smell.getSmellNodes()).hasNext())
             return;
 
-        Set<Vertex> affectedElements = getAffectedElements(smell);
+        Set<Vertex> affectedElements = smell.getAffectedElements();
 
         // Remove all the "smell" vertices starting from affected elements
         g.V(affectedElements)
@@ -81,17 +80,5 @@ public abstract class CDEvolver extends ASEvolver {
                 .select("x").unfold().drop().iterate();
 
         addSmell(affectedElements);
-    }
-
-    /**
-     * Returns the elements affected by this CD smell instance
-     * @param smell
-     * @return
-     */
-    protected Set<Vertex> getAffectedElements(Vertex smell) {
-        return g.V(smell)
-                .in().hasLabel(VertexLabel.CYCLESHAPE.toString())
-                .out().hasLabel(VertexLabel.SMELL.toString())
-                .out().hasLabel(P.within(VertexLabel.CLASS.toString(), VertexLabel.PACKAGE.toString())).toSet();
     }
 }

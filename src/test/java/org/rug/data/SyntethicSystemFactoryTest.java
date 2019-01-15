@@ -8,6 +8,7 @@ import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.junit.jupiter.api.Test;
 import org.rug.data.labels.EdgeLabel;
 import org.rug.data.labels.VertexLabel;
+import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.smells.CDSmell;
 import org.rug.data.smells.factories.*;
 
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -82,7 +84,7 @@ class SyntethicSystemFactoryTest {
         assertEquals(++expected, g.V().hasLabel(VertexLabel.SMELL.toString()).count().next().intValue());
 
         factory.addStar(15);
-        expected = expected + 15;
+        expected = expected + 15 - 1; // the central element does not have a smell node attached
         assertEquals(expected, g.V().hasLabel(VertexLabel.SMELL.toString()).count().next().intValue());
 
         factory.addClique(5);
@@ -115,6 +117,9 @@ class SyntethicSystemFactoryTest {
                     .addClique(elements)
                     .addStar(elements);
         }
+
+        List<ArchitecturalSmell> asInSystem = ArchitecturalSmell.getArchitecturalSmellsIn(factory.getGraph());
+
         ChainCDEvolver cdEvolver = new ChainCDEvolver(factory.getGraph());
         CircleCDEvolver circEvolver = new CircleCDEvolver(factory.getGraph());
         CliqueCDEvolver cliqueCDEvolver = new CliqueCDEvolver(factory.getGraph());
@@ -126,13 +131,12 @@ class SyntethicSystemFactoryTest {
         evolvers.add(cliqueCDEvolver);
         evolvers.add(starEvolver);
 
+        g.getGraph().io(IoCore.graphml()).writeGraph("src/test/graphimages/g1.graphml");
+
         int elementsToAddtoEachSmell = 3;
         for (CDSmell.Shape shape : CDSmell.Shape.values()){
-            Set<Vertex> smellOfShape = (Set<Vertex>)(Set<?>)g.V()
-                    .in(EdgeLabel.PARTOFCYCLE.toString()).hasLabel(VertexLabel.SMELL.toString()).as("smell")
-                    .in().has("shapeType", shape)
-                    .select("smell").toSet();
-            for (Vertex smell : smellOfShape){
+            Set<ArchitecturalSmell> smellOfShape = asInSystem.stream().filter(smell -> smell instanceof CDSmell && ((CDSmell) smell).getShape().equals(shape)).collect(Collectors.toSet());
+            for (ArchitecturalSmell smell : smellOfShape){
                 switch (shape.toString()) {
                     case "chain":
                         cdEvolver.addElements(smell, elementsToAddtoEachSmell);
@@ -147,27 +151,25 @@ class SyntethicSystemFactoryTest {
                         circEvolver.addElements(smell, elementsToAddtoEachSmell);
                 }
             }
-            for (Vertex smell : smellOfShape){
-                int affectedElements = g.V(smell).in().hasLabel(VertexLabel.CYCLESHAPE.toString())
-                        .out().hasLabel(VertexLabel.SMELL.toString())
-                        .out().hasLabel(P.within(VertexLabel.CLASS.toString(), VertexLabel.PACKAGE.toString())).count().next().intValue();
-                assertEquals(elements + elementsToAddtoEachSmell, affectedElements);
-            }
         }
 
-        Set<Vertex> notChainSmells = (Set<Vertex>)(Set<?>)g.V()
-                .in(EdgeLabel.PARTOFCYCLE.toString()).hasLabel(VertexLabel.SMELL.toString()).as("smell")
-                .in().has("shapeType", P.neq(CDSmell.Shape.CHAIN.toString()))
-                .select("smell").toSet();
+        asInSystem = ArchitecturalSmell.getArchitecturalSmellsIn(factory.getGraph());
 
-        for (Vertex smell : notChainSmells){
+        g.getGraph().io(IoCore.graphml()).writeGraph("src/test/graphimages/g1-evolved.graphml");
+
+
+        for (ArchitecturalSmell smell : asInSystem){
+            int affectedElements = smell.getAffectedElements().size();
+            assertEquals(elements + elementsToAddtoEachSmell, affectedElements);
+        }
+
+        Set<CDSmell> notChainSmells = asInSystem.stream().filter(smell -> smell instanceof CDSmell && !((CDSmell) smell).getShape().equals(CDSmell.Shape.CHAIN)).map(s -> (CDSmell)s).collect(Collectors.toSet());
+
+        for (CDSmell smell : notChainSmells){
             cdEvolver.shapeShift(smell);
         }
 
-        notChainSmells = (Set<Vertex>)(Set<?>)g.V()
-                .in(EdgeLabel.PARTOFCYCLE.toString()).hasLabel(VertexLabel.SMELL.toString()).as("smell")
-                .in().has("shapeType", P.neq(CDSmell.Shape.CHAIN.toString()))
-                .select("smell").toSet();
+        notChainSmells = asInSystem.stream().filter(smell -> smell instanceof CDSmell && !((CDSmell) smell).getShape().equals(CDSmell.Shape.CHAIN)).map(s -> (CDSmell)s).collect(Collectors.toSet());;
 
         assertEquals(0, notChainSmells.size());
 

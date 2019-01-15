@@ -26,9 +26,10 @@ public class SyntethicSystemFactory {
     private Graph graph;
     private Random rng;
 
-    private SyntethicSystemFactory(Graph graph){
+    public SyntethicSystemFactory(Graph graph){
         this.graph = graph;
         this.rng = new Random(DUMMYSYSSEED);
+        this.graph.traversal().V().properties("visitedStar").drop().iterate();
     }
 
 
@@ -55,7 +56,7 @@ public class SyntethicSystemFactory {
     public SyntethicSystemFactory addStar(int leaves){
 
         ASEvolver evolver = new StarCDEvolver(graph, leaves);
-        evolver.addSmell(evolver.getVerticesNotAffectedBySmell(leaves + 1));
+        evolver.addSmell(evolver.getVerticesNotAffectedBySmell(leaves));
 
         return this;
     }
@@ -126,6 +127,9 @@ public class SyntethicSystemFactory {
         return this;
     }
 
+    public SyntethicSystemFactory evolveSmells(){
+        return null;
+    }
 
     /**
      * Gets the current instance representing the synthetic system.

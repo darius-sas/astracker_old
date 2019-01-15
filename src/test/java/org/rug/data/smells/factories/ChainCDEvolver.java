@@ -27,12 +27,13 @@ public class ChainCDEvolver extends CDEvolver {
 
         Vertex smell = g.addV(VertexLabel.SMELL.toString())
                 .property("smellType", ArchitecturalSmell.Type.CD.toString())
-                .property("smellId", rng.nextInt()).next();
+                .property("smellId", rng.nextInt())
+                .property("vertexType", ArchitecturalSmell.Level.PACKAGE.toString()).next();
 
         Iterator<Vertex> itv = vertices.iterator();
         Vertex start = itv.next();
         buildChain(smell, start, vertices);
-        g.addE(EdgeLabel.STARTOFCYCLE.toString()).from(smell).to(start);
+        g.addE(EdgeLabel.STARTOFCYCLE.toString()).from(smell).to(start).next();
 
         Vertex shape = g.addV(VertexLabel.CYCLESHAPE.toString()).property("shapeType", CDSmell.Shape.CHAIN.toString()).next();
         g.addE(EdgeLabel.ISPARTOFCHAIN.toString()).from(shape).to(smell).next();
@@ -45,12 +46,13 @@ public class ChainCDEvolver extends CDEvolver {
      * @param n     the number of nodes to add. Some smell types might support addition to multiple parts.
      */
     @Override
-    public void addElements(Vertex smell, int... n) {
-        Vertex start = g.V(smell).out(EdgeLabel.STARTOFCYCLE.toString()).next();
+    public void addElements(ArchitecturalSmell smell, int... n) {
+        Vertex start = g.V(smell.getSmellNodes()).out(EdgeLabel.STARTOFCYCLE.toString()).next();
         Set<Vertex> newElements = getVerticesNotAffectedBySmell(n[0]);
 
-        buildChain(smell, start, newElements);
+        buildChain(smell.getSmellNodes().iterator().next(), start, newElements);
     }
+
 
     private void buildChain(Vertex smell, Vertex start, Set<Vertex> vertices) {
         Iterator<Vertex> itv = vertices.iterator();
