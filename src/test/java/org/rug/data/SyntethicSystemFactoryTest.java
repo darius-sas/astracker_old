@@ -14,6 +14,7 @@ import org.rug.data.smells.factories.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -120,6 +121,8 @@ class SyntethicSystemFactoryTest {
 
         List<ArchitecturalSmell> asInSystem = ArchitecturalSmell.getArchitecturalSmellsIn(factory.getGraph());
 
+        assertTrue(asInSystem.size() == smellsToAddperType * 4, "Actual size is " + asInSystem.size());
+
         ChainCDEvolver cdEvolver = new ChainCDEvolver(factory.getGraph());
         CircleCDEvolver circEvolver = new CircleCDEvolver(factory.getGraph());
         CliqueCDEvolver cliqueCDEvolver = new CliqueCDEvolver(factory.getGraph());
@@ -131,12 +134,12 @@ class SyntethicSystemFactoryTest {
         evolvers.add(cliqueCDEvolver);
         evolvers.add(starEvolver);
 
-        g.getGraph().io(IoCore.graphml()).writeGraph("src/test/graphimages/g1.graphml");
 
         int elementsToAddtoEachSmell = 3;
         for (CDSmell.Shape shape : CDSmell.Shape.values()){
             Set<ArchitecturalSmell> smellOfShape = asInSystem.stream().filter(smell -> smell instanceof CDSmell && ((CDSmell) smell).getShape().equals(shape)).collect(Collectors.toSet());
             for (ArchitecturalSmell smell : smellOfShape){
+                assertEquals(elements, g.V(smell.getSmellNodes()).out().hasLabel("package").toSet().size());
                 switch (shape.toString()) {
                     case "chain":
                         cdEvolver.addElements(smell, elementsToAddtoEachSmell);
@@ -150,28 +153,32 @@ class SyntethicSystemFactoryTest {
                     case "clique":
                         circEvolver.addElements(smell, elementsToAddtoEachSmell);
                 }
+                assertEquals(elements + elementsToAddtoEachSmell, g.V(smell.getSmellNodes()).out().in().hasLabel("smell").out().hasLabel("package").toSet().size(),
+                        String.format("Error on smell shape: %s \t Smell Vertices %s", shape, smell.getSmellNodes()));
             }
         }
 
         asInSystem = ArchitecturalSmell.getArchitecturalSmellsIn(factory.getGraph());
 
-        g.getGraph().io(IoCore.graphml()).writeGraph("src/test/graphimages/g1-evolved.graphml");
-
-
         for (ArchitecturalSmell smell : asInSystem){
+            if (smell instanceof CDSmell && ((CDSmell) smell).getShape().equals(CDSmell.Shape.STAR))
+                continue;
             int affectedElements = smell.getAffectedElements().size();
-            assertEquals(elements + elementsToAddtoEachSmell, affectedElements);
+            assertEquals(elements + elementsToAddtoEachSmell, affectedElements,
+                    String.format("Smell shape: %s \t elements: %s", ((CDSmell)smell).getShape(), smell.getAffectedElements()));
         }
 
-        Set<CDSmell> notChainSmells = asInSystem.stream().filter(smell -> smell instanceof CDSmell && !((CDSmell) smell).getShape().equals(CDSmell.Shape.CHAIN)).map(s -> (CDSmell)s).collect(Collectors.toSet());
+        Set<ArchitecturalSmell> notChainSmells = asInSystem.stream().filter(smell -> smell instanceof CDSmell && !((CDSmell) smell).getShape().equals(CDSmell.Shape.CHAIN)).map(s -> (CDSmell)s).collect(Collectors.toSet());
 
-        for (CDSmell smell : notChainSmells){
-            cdEvolver.shapeShift(smell);
+        for (ArchitecturalSmell smell : notChainSmells){
+            cdEvolver.shapeShift((CDSmell)smell);
         }
 
-        notChainSmells = asInSystem.stream().filter(smell -> smell instanceof CDSmell && !((CDSmell) smell).getShape().equals(CDSmell.Shape.CHAIN)).map(s -> (CDSmell)s).collect(Collectors.toSet());;
+        List<ArchitecturalSmell> newSmellsInSystem = ArchitecturalSmell.getArchitecturalSmellsIn(factory.getGraph());
 
-        assertEquals(0, notChainSmells.size());
+        assertEquals(0, newSmellsInSystem.stream().filter(smell -> !(((CDSmell)smell).getShape() == CDSmell.Shape.CHAIN)).count());
+        assertEquals(smellsToAddperType * 4, newSmellsInSystem.stream().filter(smell -> (((CDSmell)smell).getShape() == CDSmell.Shape.CHAIN)).count());
+
 
     }
 }

@@ -50,13 +50,13 @@ public class SyntethicSystemFactory {
 
     /**
      * Adds a star smell by adding the given amount of nodes that will be used as leaves of the star.
-     * @param leaves the number of leaves of the star and nodes to add.
+     * @param elements the number of elements of the star and nodes to add.
      * @return the smell factory to further extend the graph (Builder pattern)
      */
-    public SyntethicSystemFactory addStar(int leaves){
+    public SyntethicSystemFactory addStar(int elements){
 
-        ASEvolver evolver = new StarCDEvolver(graph, leaves);
-        evolver.addSmell(evolver.getVerticesNotAffectedBySmell(leaves));
+        ASEvolver evolver = new StarCDEvolver(graph, elements);
+        evolver.addSmell(evolver.getVerticesNotAffectedBySmell(elements));
 
         return this;
     }

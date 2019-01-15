@@ -80,7 +80,7 @@ public class StarCDEvolver extends CDEvolver {
     @Override
     public void addElements(ArchitecturalSmell smell, int... n) {
         Vertex shape = g.V(smell.getSmellNodes()).in(EdgeLabel.PARTOFSTAR.toString()).next();
-        Vertex centre = g.V(((CDSmell)smell).getShapeVertex()).out(EdgeLabel.ISCENTREOFSTAR.toString()).next();
+        Vertex centre = g.V(shape).out(EdgeLabel.ISCENTREOFSTAR.toString()).next();
         addLeaves(centre, shape, getVerticesNotAffectedBySmell(n[0]));
     }
 

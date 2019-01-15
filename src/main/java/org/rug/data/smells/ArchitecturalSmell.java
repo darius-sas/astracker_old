@@ -191,11 +191,13 @@ public abstract class ArchitecturalSmell {
                     String smellTypeProperty = smellVertex.value("smellType");
                     if (smellTypeProperty != null) {
                         Type smellType = Type.fromString(smellTypeProperty);
-                        ArchitecturalSmell as = smellType.getInstance(smellVertex);
-                        if (as != null)
-                            architecturalSmells.add(as);
-                        else
-                            logger.warn("AS type '{}' was ignored since no implementation exists for it.", smellVertex.value("smellType").toString());
+                        if(!smellVertex.property("visitedStar").orElse("false").equals("true")) {
+                            ArchitecturalSmell as = smellType.getInstance(smellVertex);
+                            if (as != null)
+                                architecturalSmells.add(as);
+                            else
+                                logger.warn("AS type '{}' with id '{}' was ignored since no implementation exists for it.", smellVertex.value("smellType").toString(), smellVertex.id());
+                        }
                     }else {
                         logger.warn("No 'smellType' property found for smell vertex {}.", smellVertex);
                     }

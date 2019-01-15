@@ -1,5 +1,7 @@
 package org.rug.data.smells.factories;
 
+import org.apache.tinkerpop.gremlin.process.traversal.P;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.labels.EdgeLabel;
@@ -36,6 +38,11 @@ public class CircleCDEvolver extends CDEvolver{
                 .property("smellId", rng.nextInt())
                 .property("vertexType", ArchitecturalSmell.Level.PACKAGE.toString()).next();
 
+        buildCircle(vertices, smell);
+
+    }
+
+    private void buildCircle(Set<Vertex> vertices, Vertex smell) {
         Iterator<Vertex> itv = vertices.iterator();
         Vertex from;
         if (itv.hasNext())
@@ -55,7 +62,6 @@ public class CircleCDEvolver extends CDEvolver{
 
         Vertex shape = g.addV(VertexLabel.CYCLESHAPE.toString()).property("shapeType", CDSmell.Shape.CIRCLE.toString()).next();
         g.addE(EdgeLabel.ISCIRCLESHAPED.toString()).from(shape).to(smell).next();
-
     }
 
     @Override
@@ -63,6 +69,13 @@ public class CircleCDEvolver extends CDEvolver{
         Set<Vertex> newElements = getVerticesNotAffectedBySmell(n[0]);
         Set<Vertex> currentElements = smell.getAffectedElements();
         currentElements.addAll(newElements);
-        addSmell(currentElements);
+
+        Vertex smellVertex = smell.getSmellNodes().iterator().next();
+
+        smellVertex.graph().traversal().V(smellVertex).outE().drop().iterate();
+        smellVertex.graph().traversal().V(currentElements).outE(EdgeLabel.DEPENDSON.toString())
+                .where(__.otherV().is(P.within(currentElements))).drop().iterate();
+
+        buildCircle(currentElements, smellVertex);
     }
 }

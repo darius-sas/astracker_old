@@ -32,15 +32,15 @@ class ArchitecturalSmellTest {
 
             Supplier<String> errMessage = () -> String.format("Error for version %s.", entry.getKey());
 
-            Supplier<Stream<Vertex>> smellVertexStream = () -> smellVertices.stream().filter(vertex -> !vertex.value("smellType").equals("multipleAS"));
+            Supplier<Stream<Vertex>> smellVertexStream = () -> smellVertices.stream().filter(vertex -> !vertex.value("smellType").equals("multipleAS") && !vertex.property("visitedStar").orElse("false").equals("true"));
 
             // check all the smell were parsed using the id
-            assertEquals(smellsInTheSystem.stream()
+            assertEquals(smellVertexStream.get()
+                            .map(vertex -> Long.parseLong(vertex.id().toString()))
+                            .collect(Collectors.toSet()),
+                    smellsInTheSystem.stream()
                             .map(ArchitecturalSmell::getId)
                             .collect(Collectors.toSet()),
-                    smellVertexStream.get()
-                             .map(vertex -> Long.parseLong(vertex.id().toString()))
-                             .collect(Collectors.toSet()),
                     errMessage);
 
             // Check smell type matches

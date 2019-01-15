@@ -60,6 +60,7 @@ public class CDSmell extends ArchitecturalSmell {
         }
         if (this.shape == Shape.STAR){
             this.smellNodes.forEach(vertex -> vertex.property("visitedStar", "true"));
+            smell.property("visitedStar", "false");
         }
     }
 

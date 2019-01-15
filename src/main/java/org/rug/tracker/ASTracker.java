@@ -2,6 +2,7 @@ package org.rug.tracker;
 
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.labels.EdgeLabel;
@@ -24,6 +25,7 @@ public class ASTracker {
     public ASTracker(){
         this.idMap = new HashMap<>();
         this.trackedCDVertexMap = new HashMap<>();
+        this.versionMap = new HashMap<>();
     }
 
     public void trackCD2(Graph graphV1, Graph graphV2, List<CDSmell> smellsInV1, List<ArchitecturalSmell> smellsInV2){
@@ -43,10 +45,10 @@ public class ASTracker {
                     .has("name", P.within(nodesNames))
                     .in().hasLabel(VertexLabel.SMELL.toString())
                     .has("smellType", ArchitecturalSmell.Type.CD.toString())
+                    .not(__.has("visitedStar", "true"))
                     .toSet().stream().mapToLong(vertex -> Long.parseLong(vertex.id().toString()))
                     .boxed().collect(Collectors.toSet());
 
-            assert smellsInV2map.keySet().containsAll(successorSmellsIds);
             // Save a map of their ids
             idMap.put(String.valueOf(smell.getId()), successorSmellsIds.stream().map(Object::toString).collect(Collectors.toList()));
             List<ArchitecturalSmell> successorSmells = versionMap.getOrDefault(smell, new ArrayList<>());

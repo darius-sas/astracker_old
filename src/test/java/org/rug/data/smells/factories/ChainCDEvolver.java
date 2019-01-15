@@ -47,7 +47,7 @@ public class ChainCDEvolver extends CDEvolver {
      */
     @Override
     public void addElements(ArchitecturalSmell smell, int... n) {
-        Vertex start = g.V(smell.getSmellNodes()).out(EdgeLabel.STARTOFCYCLE.toString()).next();
+        Vertex start = g.V(smell.getSmellNodes()).out(EdgeLabel.STARTOFCYCLE.toString()).tryNext().orElse(smell.getSmellNodes().iterator().next());
         Set<Vertex> newElements = getVerticesNotAffectedBySmell(n[0]);
 
         buildChain(smell.getSmellNodes().iterator().next(), start, newElements);
