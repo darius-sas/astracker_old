@@ -55,7 +55,7 @@ class ASTrackerTest {
     @Test
     void trackAS2() throws IOException{
         SyntethicSystemFactory f1 = SyntethicSystemFactory.createRandomSystemGraph(100);
-        Graph g1 = f1.addChain(4).addTiny(4).addClique(4).addCircle(4).getGraph();
+        Graph g1 = f1.addChain(4).addClique(4).addCircle(4).getGraph();
         SyntethicSystemFactory f2 = new SyntethicSystemFactory(SyntethicSystemFactory.clone(g1));
         Graph g2 = f2.getGraph();
         f2.addStar(4);
@@ -88,8 +88,13 @@ class ASTrackerTest {
 
         tracker.trackCD2(g1, g2, smellsInV1, smellsInV2);
 
-        System.out.println(tracker.getIdMap());
+        tracker.getVersionMap().forEach((key, value) -> {
+            System.out.println("Key:\n" + key);
+            value.forEach(smell -> System.out.println("Val:\n" + smell));
+            System.out.println("---\n");
+        });
 
+        // Tracker seems to work fine. However the addition of smells elements seems bugged as fuck
         for (Map.Entry<ArchitecturalSmell, List<ArchitecturalSmell>> e : tracker.getVersionMap().entrySet()) {
             e.getValue().forEach(smell ->
                     assertTrue(smell.getAffectedElements().containsAll(e.getKey().getAffectedElements())));

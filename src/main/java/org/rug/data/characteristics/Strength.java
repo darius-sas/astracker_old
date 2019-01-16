@@ -11,7 +11,7 @@ public class Strength extends AbstractSmellCharacteristic {
     }
 
     @Override
-    public double calculate(UDSmell smell) {
+    public double visit(UDSmell smell) {
         return smell.getCentre().value("DUD");
     }
 }

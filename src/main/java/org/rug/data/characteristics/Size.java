@@ -15,30 +15,30 @@ public class Size extends AbstractSmellCharacteristic {
 
     /**
      * Calculates this characteristic and returns the value computed.
-     * @param smell the CD smell to calculate the characteristic on.
+     * @param smell the CD smell to visit the characteristic on.
      */
     @Override
-    public double calculate(CDSmell smell) {
+    public double visit(CDSmell smell) {
         return smell.getAffectedElements().size();
     }
 
     /**
      * Calculates this characteristic and returns the value computed.
      *
-     * @param smell the HL smell to calculate the characteristic on.
+     * @param smell the HL smell to visit the characteristic on.
      */
     @Override
-    public double calculate(HLSmell smell) {
+    public double visit(HLSmell smell) {
         return smell.getOutDep().size() + smell.getInDep().size();
     }
 
     /**
      * Calculates this characteristic and returns the value computed.
      *
-     * @param smell the UD smell to calculate the characteristic on.
+     * @param smell the UD smell to visit the characteristic on.
      */
     @Override
-    public double calculate(UDSmell smell) {
+    public double visit(UDSmell smell) {
         return smell.getBadDep().size();
     }
 }

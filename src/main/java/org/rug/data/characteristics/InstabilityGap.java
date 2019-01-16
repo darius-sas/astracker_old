@@ -11,7 +11,7 @@ public class InstabilityGap extends AbstractSmellCharacteristic {
     }
 
     @Override
-    public double calculate(UDSmell smell) {
+    public double visit(UDSmell smell) {
         double centreInstability = smell.getCentre().value("instability");
         double badDepAvrgInstability = smell.getTraversalSource().V(smell.getBadDep())
                 .values("instability")

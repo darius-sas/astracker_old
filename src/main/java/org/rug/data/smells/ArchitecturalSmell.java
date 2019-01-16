@@ -3,6 +3,7 @@ package org.rug.data.smells;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.rug.data.SmellVisitor;
 import org.rug.data.labels.VertexLabel;
 import org.rug.data.characteristics.*;
 import org.slf4j.Logger;
@@ -111,7 +112,12 @@ public abstract class ArchitecturalSmell {
         }
     }
 
-    protected abstract double accept(ISmellCharacteristic characteristic);
+    /**
+     * Accepts a smell visitor.
+     * @param visitor the visitor to accept.
+     * @return the eventual value returned by this visitor
+     */
+    public abstract double accept(SmellVisitor visitor);
 
     /**
      * Get the map of the currently computed characteristics.
@@ -178,6 +184,50 @@ public abstract class ArchitecturalSmell {
         return affectedGraph;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("ID:         " + id); builder.append(System.lineSeparator());
+        builder.append("SmellNodes: " + smellNodes); builder.append(System.lineSeparator());
+        builder.append("Affected:   " + affectedElements.stream().map(v -> v.property("name").value().toString()).sorted().collect(Collectors.toList())); builder.append(System.lineSeparator());
+        builder.append("Type:       " + type);  builder.append(System.lineSeparator());
+        if (this instanceof CDSmell) {
+            builder.append("Shape:      " + ((CDSmell) this).getShape());
+            builder.append(System.lineSeparator());
+        }
+
+        return builder.toString();
+    }
+
+    /**
+     * Two smells are identical if they affect the same elements, have the same type. (Further checks may be made by subclasses)
+     * @param o the other smell to check
+     * @return true if this smell is equal to the other smell.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (o == null)
+            return false;
+        if (!(o instanceof ArchitecturalSmell))
+            return false;
+
+        ArchitecturalSmell other = (ArchitecturalSmell)o;
+
+        if (this == other)
+            return true;
+
+        if (this.type != other.type)
+            return false;
+
+        return this.affectedElements.equals(other.affectedElements);
+    }
+
+    @Override
+    public int hashCode() {
+        return (int)id + smellNodes.hashCode() + affectedElements.hashCode() + super.hashCode();
+    }
+
     /**
      * Given the graph of a system, this methods builds a list of Architectural Smells that affect this system.
      * @param graph the graph of the system.
@@ -213,6 +263,7 @@ public abstract class ArchitecturalSmell {
     public static Map<Long, ArchitecturalSmell> toMap(List<ArchitecturalSmell> list){
         return list.stream().collect(Collectors.toMap(ArchitecturalSmell::getId, smell -> smell));
     }
+
 
     /**
      * Represents a type of AS and maps them to their instantiation and characteristics set.

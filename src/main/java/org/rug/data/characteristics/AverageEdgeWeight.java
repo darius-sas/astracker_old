@@ -14,7 +14,7 @@ public class AverageEdgeWeight extends AbstractSmellCharacteristic {
     }
 
     @Override
-    public double calculate(CDSmell smell) {
+    public double visit(CDSmell smell) {
         /*
          Get all the edges between the affected nodes that have EdgeLabel.DEPENDSON label, then get their Weight and
          average the value across all the retrieved edges. Return 0 if the average is not present.

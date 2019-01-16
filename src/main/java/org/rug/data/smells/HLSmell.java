@@ -1,9 +1,7 @@
 package org.rug.data.smells;
 
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.rug.data.characteristics.CDCharacteristicsSet;
-import org.rug.data.characteristics.HLCharacteristicsSet;
-import org.rug.data.characteristics.ISmellCharacteristic;
+import org.rug.data.SmellVisitor;
 import org.rug.data.labels.EdgeLabel;
 
 import java.util.Collections;
@@ -59,7 +57,15 @@ public class HLSmell extends SingleElementSmell {
 
 
     @Override
-    protected double accept(ISmellCharacteristic characteristic) {
-        return characteristic.calculate(this);
+    public double accept(SmellVisitor visitor) {
+        return visitor.visit(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof HLSmell)
+            return super.equals(o) && ((HLSmell) o).inDep.equals(inDep) && ((HLSmell) o).outDep.equals(outDep);
+        else
+            return false;
     }
 }

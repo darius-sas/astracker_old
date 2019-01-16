@@ -3,8 +3,7 @@ package org.rug.data.smells;
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.rug.data.characteristics.CDCharacteristicsSet;
-import org.rug.data.characteristics.ISmellCharacteristic;
+import org.rug.data.SmellVisitor;
 import org.rug.data.labels.VertexLabel;
 
 import java.util.HashMap;
@@ -82,8 +81,16 @@ public class CDSmell extends ArchitecturalSmell {
     }
 
     @Override
-    protected double accept(ISmellCharacteristic characteristic) {
-        return characteristic.calculate(this);
+    public double accept(SmellVisitor visitor) {
+        return visitor.visit(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof CDSmell)
+                return super.equals(o) && ((CDSmell)o).shape == this.shape;
+        else
+            return false;
     }
 
     /**

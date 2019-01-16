@@ -32,11 +32,11 @@ public abstract class AbstractSmellCharacteristic implements ISmellCharacteristi
      * Calculates this characteristic and returns the value computed. The value can also be retrieved later by invoking
      * the method <code>getValue()</code>
      *
-     * @param smell the CD smell to calculate the characteristic on.
+     * @param smell the CD smell to visit the characteristic on.
      * @return the value computed.
      */
     @Override
-    public double calculate(CDSmell smell) {
+    public double visit(CDSmell smell) {
         throw new UnsupportedOperationException("This operation is not possible on this type of smell.");
     }
 
@@ -44,11 +44,11 @@ public abstract class AbstractSmellCharacteristic implements ISmellCharacteristi
      * Calculates this characteristic and returns the value computed. The value can also be retrieved later by invoking
      * the method <code>getValue()</code>
      *
-     * @param smell the HL smell to calculate the characteristic on.
+     * @param smell the HL smell to visit the characteristic on.
      * @return the value computed.
      */
     @Override
-    public double calculate(HLSmell smell) {
+    public double visit(HLSmell smell) {
         throw new UnsupportedOperationException("This operation is not possible on this type of smell.");
     }
 
@@ -56,11 +56,11 @@ public abstract class AbstractSmellCharacteristic implements ISmellCharacteristi
      * Calculates this characteristic and returns the value computed. The value can also be retrieved later by invoking
      * the method <code>getValue()</code>
      *
-     * @param smell the UD smell to calculate the characteristic on.
+     * @param smell the UD smell to visit the characteristic on.
      * @return the value computed.
      */
     @Override
-    public double calculate(UDSmell smell) {
+    public double visit(UDSmell smell) {
         throw new UnsupportedOperationException("This operation is not possible on this type of smell.");
     }
 }

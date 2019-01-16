@@ -11,7 +11,7 @@ public class NumberOfDependencies extends AbstractSmellCharacteristic {
     }
 
     @Override
-    public double calculate(HLSmell smell) {
+    public double visit(HLSmell smell) {
         return smell.getInDep().size() + smell.getOutDep().size();
     }
 }

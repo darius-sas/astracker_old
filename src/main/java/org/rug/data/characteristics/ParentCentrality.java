@@ -16,10 +16,10 @@ public class ParentCentrality extends AbstractSmellCharacteristic {
     /**
      * Calculates this characteristic and returns the value computed.
      *
-     * @param smell the smell to calculate the characteristic on.
+     * @param smell the smell to visit the characteristic on.
      */
     @Override
-    public double calculate(CDSmell smell) {
+    public double visit(CDSmell smell) {
         return 0;
     }
 

@@ -20,11 +20,11 @@ public class NumberOfEdges extends AbstractSmellCharacteristic {
     }
 
     @Override
-    public double calculate(CDSmell smell) {
+    public double visit(CDSmell smell) {
         return countEdges(smell.getAffectedElements(), smell);
     }
 
-    public double calculate(UDSmell smell) {
+    public double visit(UDSmell smell) {
         Set<Vertex> vertices = new HashSet<>();
         vertices.add(smell.getCentre());
         vertices.addAll(smell.getBadDep());
@@ -32,7 +32,7 @@ public class NumberOfEdges extends AbstractSmellCharacteristic {
     }
 
     @Override
-    public double calculate(HLSmell smell) {
+    public double visit(HLSmell smell) {
         Set<Vertex> vertices = new HashSet<>();
         vertices.add(smell.getCentre());
         vertices.addAll(smell.getInDep());

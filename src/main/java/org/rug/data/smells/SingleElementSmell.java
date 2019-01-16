@@ -38,4 +38,12 @@ public abstract class SingleElementSmell extends ArchitecturalSmell {
         this.smellNodes = new HashSet<>();
         this.smellNodes.add(smell);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof SingleElementSmell)
+            return super.equals(o) && ((SingleElementSmell) o).centre == centre;
+        else
+            return false;
+    }
 }
