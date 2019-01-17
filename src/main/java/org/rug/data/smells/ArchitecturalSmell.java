@@ -225,7 +225,7 @@ public abstract class ArchitecturalSmell {
 
     @Override
     public int hashCode() {
-        return (int)id + smellNodes.hashCode() + affectedElements.hashCode() + super.hashCode();
+        return (int)id + smellNodes.hashCode() ^ 2 + affectedElements.hashCode() ^ 3 + super.hashCode() ^ 4;
     }
 
     /**
