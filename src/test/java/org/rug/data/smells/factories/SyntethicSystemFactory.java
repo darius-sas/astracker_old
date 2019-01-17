@@ -29,7 +29,7 @@ public class SyntethicSystemFactory {
     public SyntethicSystemFactory(Graph graph){
         this.graph = graph;
         this.rng = new Random(DUMMYSYSSEED);
-        this.graph.traversal().V().properties("visitedStar").drop().iterate();
+        this.graph.traversal().V().properties(CDSmell.VISITED_SMELL_NODE).drop().iterate();
     }
 
 

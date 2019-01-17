@@ -12,7 +12,6 @@ import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.smells.CDSmell;
 
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
@@ -45,7 +44,7 @@ public class ASTracker {
                     .has("name", P.within(nodesNames))
                     .in().hasLabel(VertexLabel.SMELL.toString())
                     .has("smellType", ArchitecturalSmell.Type.CD.toString())
-                    .not(__.has("visitedStar", "true"))
+                    .not(__.has(CDSmell.VISITED_SMELL_NODE, "true"))
                     .toSet().stream().mapToLong(vertex -> Long.parseLong(vertex.id().toString()))
                     .boxed().collect(Collectors.toSet());
 

@@ -241,7 +241,7 @@ public abstract class ArchitecturalSmell {
                     String smellTypeProperty = smellVertex.value("smellType");
                     if (smellTypeProperty != null) {
                         Type smellType = Type.fromString(smellTypeProperty);
-                        if(!smellVertex.property("visitedStar").orElse("false").equals("true")) {
+                        if(!smellVertex.property(CDSmell.VISITED_SMELL_NODE).orElse("false").equals("true")) {
                             ArchitecturalSmell as = smellType.getInstance(smellVertex);
                             if (as != null)
                                 architecturalSmells.add(as);

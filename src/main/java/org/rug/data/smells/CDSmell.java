@@ -6,14 +6,17 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.SmellVisitor;
 import org.rug.data.labels.VertexLabel;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Represents a Cyclic Dependency smell.
  */
 public class CDSmell extends ArchitecturalSmell {
 
+    public static final String VISITED_SMELL_NODE = "visitedSmellNode";
     protected Shape shape;
     protected Vertex shapeVertex;
 
@@ -50,16 +53,16 @@ public class CDSmell extends ArchitecturalSmell {
     private void setShape(Vertex smell){
         this.shapeVertex = smell.graph().traversal().V(smell)
                 .in().hasLabel(VertexLabel.CYCLESHAPE.toString())
-                .not(__.has("visitedStar", "true"))
+                .not(__.has(VISITED_SMELL_NODE, "true"))
                 .tryNext().orElse(null);
         if (this.shapeVertex == null){
             this.shape = Shape.UNKNOWN;
         }else {
             this.shape = Shape.fromString(shapeVertex.value("shapeType"));
         }
-        if (this.shape == Shape.STAR){
-            this.smellNodes.forEach(vertex -> vertex.property("visitedStar", "true"));
-            smell.property("visitedStar", "false");
+        if (Shape.getMultipleSmellNodesShapes().contains(this.shape)){
+            this.smellNodes.forEach(vertex -> vertex.property(VISITED_SMELL_NODE, "true"));
+            smell.property(VISITED_SMELL_NODE, "false");
         }
     }
 
@@ -76,8 +79,10 @@ public class CDSmell extends ArchitecturalSmell {
     @Override
     protected void setSmellNodes(Vertex smell) {
         setSmellNodes(smell.graph().traversal().V(smell)
-                .in().hasLabel(VertexLabel.CYCLESHAPE.toString())
-                .out().hasLabel(VertexLabel.SMELL.toString()).toSet());
+                .choose(__.in().hasLabel(VertexLabel.CYCLESHAPE.toString()),
+                        __.in().hasLabel(VertexLabel.CYCLESHAPE.toString())
+                                .out().hasLabel(VertexLabel.SMELL.toString()),
+                        __.V(smell)).toSet());
     }
 
     @Override
@@ -103,6 +108,14 @@ public class CDSmell extends ArchitecturalSmell {
         STAR("star"),
         CHAIN("chain"),
         UNKNOWN("unknown");
+
+        /**
+         * Returns the shapes that are represented by multiple smell vertices.
+         * @return A enum set.
+         */
+        public static Set<Shape> getMultipleSmellNodesShapes(){
+            return EnumSet.of(STAR, CHAIN);
+        }
 
         private String shape;
 
