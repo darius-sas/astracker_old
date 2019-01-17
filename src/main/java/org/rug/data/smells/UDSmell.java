@@ -48,7 +48,7 @@ public class UDSmell extends SingleElementSmell {
     }
 
     @Override
-    public double accept(SmellVisitor visitor) {
+    public <R> R accept(SmellVisitor<R> visitor) {
         return visitor.visit(this);
     }
 

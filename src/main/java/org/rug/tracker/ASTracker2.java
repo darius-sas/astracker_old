@@ -1,20 +1,18 @@
 package org.rug.tracker;
 
-import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
-import org.rug.data.labels.VertexLabel;
+import org.rug.data.Triple;
 import org.rug.data.smells.ArchitecturalSmell;
-import org.rug.data.smells.CDSmell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +39,7 @@ public class ASTracker2 {
     private Graph trackGraph;
     private Vertex tail;
     private long uniqueSmellID;
+    private ISuccessorMatcher matcher;
 
     private final boolean trackNonConsecutiveVersions;
 
@@ -49,18 +48,20 @@ public class ASTracker2 {
      * @param trackNonConsecutiveVersions whether to track a smell through non-consecutive versions.
      *                                    This adds the possibility to track reappearing smells.
      */
-    public ASTracker2(boolean trackNonConsecutiveVersions){
+    public ASTracker2(ISuccessorMatcher matcher, boolean trackNonConsecutiveVersions){
         this.trackGraph = TinkerGraph.open();
         this.tail = trackGraph.traversal().addV("tail").next();
         this.uniqueSmellID = 1L;
         this.trackNonConsecutiveVersions = trackNonConsecutiveVersions;
+        this.matcher = matcher;
     }
 
     /**
      * Builds an instance of this tracker that does not tracks smells through non-consecutive versions.
+     * A JaccardMatcher is used to select the single successor of the given smell.
      */
     public ASTracker2(){
-        this(false);
+        this(new JaccardMatcher(), false);
     }
 
     /**
@@ -68,64 +69,59 @@ public class ASTracker2 {
      * @param systemGraph the graph representing the system as computed by Arcan
      * @param nextVersion the version of the given system
      */
-    public void track(Graph systemGraph, String nextVersion) {
-        Map<Long, ArchitecturalSmell> nextVersionSmells = ArchitecturalSmell.toMap(ArchitecturalSmell.getArchitecturalSmellsIn(systemGraph));
+    public void track(Graph systemGraph, String nextVersion){
+        List<ArchitecturalSmell> nextVersionSmells = ArchitecturalSmell.getArchitecturalSmellsIn(systemGraph);
 
         GraphTraversalSource g1 = trackGraph.traversal();
 
         if (g1.V(tail).outE().hasNext()) {
-            GraphTraversalSource g2 = systemGraph.traversal();
             // Create a map between a smell vertex in the current track graph and the contained smell
-            Map<Vertex, ArchitecturalSmell> currentVersionSmells = g1.V()
-                    .where(__.in().is(tail)).toStream()
-                    .collect(HashMap::new, (map, vertex) -> map.putIfAbsent(vertex, vertex.value(SMELL_OBJECT)), HashMap::putAll);
+            List<ArchitecturalSmell> currentVersionSmells = g1.V(tail)
+                    .out().toStream()
+                    .map(vertex -> (ArchitecturalSmell) vertex.value(SMELL_OBJECT))
+                    .collect(Collectors.toList());
 
             if (!trackNonConsecutiveVersions)
                 g1.V(tail).outE().drop().iterate();
 
-            currentVersionSmells.forEach((smellVertex, smell) -> {
-                // Get affected nodes names
-                Set<String> nodesNames = smell.getAffectedElements().stream().map(vertex -> vertex.value(NAME).toString()).collect(Collectors.toSet());
+            List<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch = matcher.bestMatch(currentVersionSmells, nextVersionSmells);
 
-                // Get nodes with such names in the next version
-                // find all smells of the same type affecting such nodes in the next version and save their ids
-                Set<Long> successorSmellsIds = g2.V()
-                        .hasLabel(P.within(VertexLabel.PACKAGE.toString(), VertexLabel.CLASS.toString()))
-                        .has(NAME, P.within(nodesNames))
-                        .in().hasLabel(VertexLabel.SMELL.toString())
-                        .has(SMELL_TYPE, smell.getType().toString())
-                        .not(__.has(CDSmell.VISITED_SMELL_NODE, "true"))
-                        .toSet().stream().mapToLong(vertex -> Long.parseLong(vertex.id().toString()))
-                        .boxed().collect(Collectors.toSet());
-
-                // Add the corresponding smells as successors and set adequately the tail to the latest version
-                successorSmellsIds.forEach(id -> {
-                    ArchitecturalSmell nextVersionSmell = nextVersionSmells.remove(id);
-                    Vertex successor = g1.addV(SMELL)
-                            .property(VERSION, nextVersion)
-                            .property(SMELL_OBJECT, nextVersionSmell).next();
+            // Add smells that respect the threshold of the matcher as successors, or as newly arose smells if they
+            // do not respect the threshold
+            bestMatch.forEach(t -> {
+                Vertex successor = g1.addV(SMELL)
+                        .property(VERSION, nextVersion)
+                        .property(SMELL_OBJECT, t.getB()).next();
+                if (t.getC() >= matcher.getThreshold()) {
+                    Vertex predecessor = g1.V(tail).out().is(t.getA()).next();
                     // Reset tail for this dynasty (allows tracking through non-consecutive versions)
-                    g1.V(tail).outE().where(__.otherV().is(smellVertex)).drop().iterate();
-                    if (tail.value(LATEST_VERSION).equals(smellVertex.value(VERSION)))
-                        g1.addE(EVOLVED_FROM).from(successor).to(smellVertex).next();
+                    g1.V(tail).outE().where(__.otherV().is(predecessor)).drop().iterate();
+                    if (tail.value(LATEST_VERSION).equals(predecessor.value(VERSION)))
+                        g1.addE(EVOLVED_FROM).from(successor).to(predecessor).next();
                     else
-                        g1.addE(REAPPEARED).from(successor).to(smellVertex).next();
+                        g1.addE(REAPPEARED).from(successor).to(predecessor).next();
                     g1.addE(LATEST_VERSION).from(tail).to(successor).next();
-                });
+                } else {
+                    Vertex head = g1.addV(HEAD)
+                            .property(VERSION, nextVersion)
+                            .property(UNIQUE_SMELL_ID, uniqueSmellID++).next();
+                    g1.addE(STARTED_IN).from(head).to(successor).next();
+                    g1.addE(LATEST_VERSION).from(tail).to(successor).next();
+                }
             });
-        }
-
-        // all smells remained are new and can be added to trackGraph as newly arose smells assigning them a unique id
-        nextVersionSmells.forEach((id, smell) -> {
+        }else {
+            // TODO remove this duplicated code
+            nextVersionSmells.forEach(smell -> {
+                Vertex successor = g1.addV(SMELL)
+                        .property(VERSION, nextVersion)
+                        .property(SMELL_OBJECT, smell).next();
                 Vertex head = g1.addV(HEAD)
                         .property(VERSION, nextVersion)
                         .property(UNIQUE_SMELL_ID, uniqueSmellID++).next();
-                Vertex v = g1.addV(SMELL)
-                        .property(VERSION, nextVersion)
-                        .property(SMELL_OBJECT, smell).next();
-                g1.addE(STARTED_IN).from(head).to(v).next();
-                g1.addE(LATEST_VERSION).from(tail).to(v).next();
-        });
+                g1.addE(STARTED_IN).from(head).to(successor).next();
+                g1.addE(LATEST_VERSION).from(tail).to(successor).next();
+            });
+        }
 
         // Add end vertex and edges to all vertices that do not have a successor/incoming edge.
         if (!trackNonConsecutiveVersions){

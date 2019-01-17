@@ -117,7 +117,7 @@ public abstract class ArchitecturalSmell {
      * @param visitor the visitor to accept.
      * @return the eventual value returned by this visitor
      */
-    public abstract double accept(SmellVisitor visitor);
+    public abstract <T> T accept(SmellVisitor<T> visitor);
 
     /**
      * Get the map of the currently computed characteristics.

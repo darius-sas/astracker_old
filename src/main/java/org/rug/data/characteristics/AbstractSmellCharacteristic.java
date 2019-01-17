@@ -36,7 +36,7 @@ public abstract class AbstractSmellCharacteristic implements ISmellCharacteristi
      * @return the value computed.
      */
     @Override
-    public double visit(CDSmell smell) {
+    public Double visit(CDSmell smell) {
         throw new UnsupportedOperationException("This operation is not possible on this type of smell.");
     }
 
@@ -48,7 +48,7 @@ public abstract class AbstractSmellCharacteristic implements ISmellCharacteristi
      * @return the value computed.
      */
     @Override
-    public double visit(HLSmell smell) {
+    public Double visit(HLSmell smell) {
         throw new UnsupportedOperationException("This operation is not possible on this type of smell.");
     }
 
@@ -60,7 +60,7 @@ public abstract class AbstractSmellCharacteristic implements ISmellCharacteristi
      * @return the value computed.
      */
     @Override
-    public double visit(UDSmell smell) {
+    public Double visit(UDSmell smell) {
         throw new UnsupportedOperationException("This operation is not possible on this type of smell.");
     }
 }

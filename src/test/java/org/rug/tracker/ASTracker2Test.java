@@ -6,7 +6,6 @@ import org.rug.data.ArcanDependencyGraphParser;
 
 import java.util.SortedMap;
 
-import static org.junit.jupiter.api.Assertions.*;
 
 class ASTracker2Test {
 
@@ -14,7 +13,7 @@ class ASTracker2Test {
     void trackTest(){
         SortedMap<String, Graph> versionedSystem = ArcanDependencyGraphParser.parseGraphML("./arcanrunner/outputs/antlr");
 
-        ASTracker2 tracker = new ASTracker2(false);
+        ASTracker2 tracker = new ASTracker2();
         versionedSystem.forEach( (version, graph) -> {
             tracker.track(graph, version);
         });

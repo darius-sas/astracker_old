@@ -86,7 +86,7 @@ public class CDSmell extends ArchitecturalSmell {
     }
 
     @Override
-    public double accept(SmellVisitor visitor) {
+    public <R> R accept(SmellVisitor<R> visitor) {
         return visitor.visit(this);
     }
 

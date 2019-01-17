@@ -9,7 +9,7 @@ public class AffectedDesign extends AbstractSmellCharacteristic{
     }
 
     @Override
-    public double visit(CDSmell smell) {
+    public Double visit(CDSmell smell) {
         return super.visit(smell);
     }
 

@@ -9,7 +9,7 @@ import org.rug.data.smells.UDSmell;
 /**
  * Models a SmellCharacteristics that returns a value of type R
  */
-public interface ISmellCharacteristic extends SmellVisitor {
+public interface ISmellCharacteristic extends SmellVisitor<Double> {
 
     /**
      * Returns the name of this characteristic.

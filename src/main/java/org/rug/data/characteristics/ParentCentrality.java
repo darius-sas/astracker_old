@@ -1,6 +1,5 @@
 package org.rug.data.characteristics;
 
-import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.smells.CDSmell;
 
 /**
@@ -19,8 +18,8 @@ public class ParentCentrality extends AbstractSmellCharacteristic {
      * @param smell the smell to visit the characteristic on.
      */
     @Override
-    public double visit(CDSmell smell) {
-        return 0;
+    public Double visit(CDSmell smell) {
+        return 0d;
     }
 
 

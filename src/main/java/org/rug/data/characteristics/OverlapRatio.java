@@ -21,12 +21,12 @@ public class OverlapRatio extends AbstractSmellCharacteristic {
     }
 
     @Override
-    public double visit(CDSmell smell) {
+    public Double visit(CDSmell smell) {
         return calculateOverlapRatio(smell.getAffectedElements(), smell);
     }
 
     @Override
-    public double visit(HLSmell smell) {
+    public Double visit(HLSmell smell) {
         Set<Vertex> vertices = new HashSet<>();
         vertices.addAll(smell.getInDep());
         vertices.addAll(smell.getOutDep());
@@ -35,7 +35,7 @@ public class OverlapRatio extends AbstractSmellCharacteristic {
     }
 
     @Override
-    public double visit(UDSmell smell) {
+    public Double visit(UDSmell smell) {
         Set<Vertex> vertices = new HashSet<>();
         vertices.add(smell.getCentre());
         vertices.addAll(smell.getBadDep());
