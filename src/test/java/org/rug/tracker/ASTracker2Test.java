@@ -23,7 +23,15 @@ class ASTracker2Test {
             tracker.track(graph, version);
         });
 
-        tracker.writeTrackGraph("src/test/graphimages/trackgraph.graphml", false);
+        tracker.writeTrackGraph("src/test/graphimages/trackgraph.graphml");
+
+        ASTracker2 tracker2 = new ASTracker2(new JaccardSimilarityLinker(), true);
+        versionedSystem.forEach( (version, graph) -> {
+            logger.info("Tracking version {}", version);
+            tracker2.track(graph, version);
+        });
+
+        tracker.writeTrackGraph("src/test/graphimages/trackgraph-nonconsec.graphml");
     }
 
 }

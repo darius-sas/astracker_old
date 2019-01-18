@@ -106,27 +106,18 @@ public class ASTracker2 {
                 currentVersionSmells.remove(t.getA());
                 nextVersionSmells.remove(t.getB());
             });
-            currentVersionSmells.forEach(smell -> {
-                Vertex end = g1.addV(END).next();
-                g1.addE(REMOVED).from(end).to(g1.V().has(SMELL_OBJECT, smell)).next();
-            });
+            if (!trackNonConsecutiveVersions)
+                currentVersionSmells.forEach(this::endDynasty);
         }
         nextVersionSmells.forEach(s -> addNewDynasty(s, nextVersion));
-
-        // Add end vertex and edges to all vertices that do not have a successor/incoming edge.
-        if (!trackNonConsecutiveVersions){
-            g1.V().hasLabel(SMELL)
-                    .where(__.not(__.in()))
-                    .is(P.not(P.eq(tail)))
-                    .forEachRemaining(vertex -> {
-                        Vertex end = g1.addV(END).next();
-                        g1.addE(REMOVED).from(end).to(vertex).next();
-                    });
-        }
-
         tail.property(LATEST_VERSION, nextVersion);
     }
 
+    /**
+     * Begins a new dynasty for the given AS at the given starting version
+     * @param s the starter of the dynasty
+     * @param startingVersion the version
+     */
     private void addNewDynasty(ArchitecturalSmell s, String startingVersion) {
         GraphTraversalSource g = trackGraph.traversal();
         Vertex successor = g.addV(SMELL)
@@ -137,6 +128,16 @@ public class ASTracker2 {
                 .property(UNIQUE_SMELL_ID, uniqueSmellID++).next();
         g.addE(STARTED_IN).from(head).to(successor).next();
         g.addE(LATEST_VERSION).from(tail).to(successor).next();
+    }
+
+    /**
+     * Concludes the dynasty of the given smell (last smell in the dynasty)
+     * @param smell the smell
+     */
+    private void endDynasty(ArchitecturalSmell smell){
+        GraphTraversalSource g = trackGraph.traversal();
+        Vertex end = g.addV(END).next();
+        g.addE(REMOVED).from(end).to(g.V().has(SMELL_OBJECT, smell)).next();
     }
 
     /**
@@ -163,10 +164,11 @@ public class ASTracker2 {
         }
     }
 
-    public void writeTrackGraph(String file, boolean writeTail){
+    public void writeTrackGraph(String file){
         try {
-            if(!writeTail)
-                trackGraph.traversal().V(tail).drop().iterate();
+            GraphTraversalSource g = trackGraph.traversal();
+            g.V(tail).out().has(VERSION, tail.value(LATEST_VERSION).toString()).forEachRemaining( v -> g.addE(END).from(g.addV(END).next()).to(v).next());
+            tail.remove();
             trackGraph.io(IoCore.graphml()).writeGraph(file);
         } catch (IOException e) {
             logger.error("Could not write track graph on file: {}", e.getMessage());
