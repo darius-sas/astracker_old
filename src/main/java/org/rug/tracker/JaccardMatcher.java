@@ -25,7 +25,7 @@ public class JaccardMatcher implements ISuccessorMatcher, SmellVisitor<Set<Strin
         this.THRESHOLD = THRESHOLD;
     }
 
-    public JaccardMatcher(){this(0.5);}
+    public JaccardMatcher(){this(0.8);}
 
     /**
      * Calculates the best match
@@ -39,11 +39,15 @@ public class JaccardMatcher implements ISuccessorMatcher, SmellVisitor<Set<Strin
         List<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> matchList = new ArrayList<>();
         for(ArchitecturalSmell s1 : currentVersionSmells) {
             for (ArchitecturalSmell s2 : nextVersionSmells) {
-                matchList.add(new Triple<>(s1, s2, calculateJaccardSimilarity(s1, s2)));
+                if (s1.getType() == s2.getType()) {
+                    double similarityScore = calculateJaccardSimilarity(s1, s2);
+                    if (similarityScore >= getThreshold())
+                        matchList.add(new Triple<>(s1, s2, similarityScore));
+                }
             }
         }
 
-        matchList.sort(Comparator.comparingDouble(Triple::getC));
+        matchList.sort(Comparator.comparingDouble(t -> ((Triple<?,?, Double>)t).getC()).reversed());
         return matchList;
     }
 

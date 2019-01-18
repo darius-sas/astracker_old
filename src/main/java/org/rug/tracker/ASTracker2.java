@@ -1,5 +1,6 @@
 package org.rug.tracker;
 
+import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Graph;
@@ -12,7 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -76,24 +80,26 @@ public class ASTracker2 {
 
         if (g1.V(tail).outE().hasNext()) {
             // Create a map between a smell vertex in the current track graph and the contained smell
-            List<ArchitecturalSmell> currentVersionSmells = g1.V(tail)
-                    .out().toStream()
-                    .map(vertex -> (ArchitecturalSmell) vertex.value(SMELL_OBJECT))
-                    .collect(Collectors.toList());
-
-            if (!trackNonConsecutiveVersions)
-                g1.V(tail).outE().drop().iterate();
+            List<ArchitecturalSmell> currentVersionSmells;
+            if (trackNonConsecutiveVersions)
+                currentVersionSmells = g1.V(tail).out().values(SMELL_OBJECT)
+                        .toStream().map(o -> (ArchitecturalSmell)o).collect(Collectors.toList());
+            else
+                currentVersionSmells = g1.V(tail).out().has(VERSION, tail.value(LATEST_VERSION).toString()).values(SMELL_OBJECT)
+                        .toStream().map(o -> (ArchitecturalSmell)o).collect(Collectors.toList());
 
             List<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch = matcher.bestMatch(currentVersionSmells, nextVersionSmells);
+            Set<ArchitecturalSmell> linkedSmells = new HashSet<>();
+            Set<ArchitecturalSmell> unlinkedSmellsNextVersion = new HashSet<>(nextVersionSmells);
 
             // Add smells that respect the threshold of the matcher as successors, or as newly arose smells if they
             // do not respect the threshold
             bestMatch.forEach(t -> {
-                Vertex successor = g1.addV(SMELL)
-                        .property(VERSION, nextVersion)
-                        .property(SMELL_OBJECT, t.getB()).next();
-                if (t.getC() >= matcher.getThreshold()) {
-                    Vertex predecessor = g1.V(tail).out().is(t.getA()).next();
+                if (!linkedSmells.contains(t.getA()) && unlinkedSmellsNextVersion.contains(t.getB())) {
+                    Vertex successor = g1.addV(SMELL)
+                            .property(VERSION, nextVersion)
+                            .property(SMELL_OBJECT, t.getB()).next();
+                    Vertex predecessor = g1.V(tail).out().has(SMELL_OBJECT, t.getA()).next();
                     // Reset tail for this dynasty (allows tracking through non-consecutive versions)
                     g1.V(tail).outE().where(__.otherV().is(predecessor)).drop().iterate();
                     if (tail.value(LATEST_VERSION).equals(predecessor.value(VERSION)))
@@ -101,25 +107,22 @@ public class ASTracker2 {
                     else
                         g1.addE(REAPPEARED).from(successor).to(predecessor).next();
                     g1.addE(LATEST_VERSION).from(tail).to(successor).next();
-                } else {
-                    Vertex head = g1.addV(HEAD)
-                            .property(VERSION, nextVersion)
-                            .property(UNIQUE_SMELL_ID, uniqueSmellID++).next();
-                    g1.addE(STARTED_IN).from(head).to(successor).next();
-                    g1.addE(LATEST_VERSION).from(tail).to(successor).next();
+                    linkedSmells.add(t.getA());
+                    unlinkedSmellsNextVersion.remove(t.getB());
                 }
             });
+            unlinkedSmellsNextVersion.forEach(s ->                 {
+                Vertex successor = g1.addV(SMELL)
+                                .property(VERSION, nextVersion)
+                                .property(SMELL_OBJECT, s).next();
+                addNewDinasty(nextVersion, g1, successor);
+            });
         }else {
-            // TODO remove this duplicated code
             nextVersionSmells.forEach(smell -> {
                 Vertex successor = g1.addV(SMELL)
                         .property(VERSION, nextVersion)
                         .property(SMELL_OBJECT, smell).next();
-                Vertex head = g1.addV(HEAD)
-                        .property(VERSION, nextVersion)
-                        .property(UNIQUE_SMELL_ID, uniqueSmellID++).next();
-                g1.addE(STARTED_IN).from(head).to(successor).next();
-                g1.addE(LATEST_VERSION).from(tail).to(successor).next();
+                addNewDinasty(nextVersion, g1, successor);
             });
         }
 
@@ -134,6 +137,14 @@ public class ASTracker2 {
         }
 
         tail.property(LATEST_VERSION, nextVersion);
+    }
+
+    private void addNewDinasty(String startingVersion, GraphTraversalSource g, Vertex successor) {
+        Vertex head = g.addV(HEAD)
+                .property(VERSION, startingVersion)
+                .property(UNIQUE_SMELL_ID, uniqueSmellID++).next();
+        g.addE(STARTED_IN).from(head).to(successor).next();
+        g.addE(LATEST_VERSION).from(tail).to(successor).next();
     }
 
     /**
@@ -162,6 +173,7 @@ public class ASTracker2 {
 
     public void writeTrackGraph(String file){
         try {
+            trackGraph.traversal().V(tail).drop().iterate();
             trackGraph.io(IoCore.graphml()).writeGraph(file);
         } catch (IOException e) {
             logger.error("Could not write track graph on file: {}", e.getMessage());
