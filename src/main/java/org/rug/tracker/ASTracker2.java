@@ -13,10 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashSet;
+import java.text.DecimalFormat;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -27,7 +25,6 @@ public class ASTracker2 {
     private final static Logger logger = LoggerFactory.getLogger(ASTracker2.class);
 
     private static final String NAME = "name";
-    private static final String SMELL_TYPE = "smellType";
     private static final String SMELL = "smell";
     private static final String VERSION = "version";
     private static final String SMELL_OBJECT = "smellObject";
@@ -43,7 +40,8 @@ public class ASTracker2 {
     private Graph trackGraph;
     private Vertex tail;
     private long uniqueSmellID;
-    private ISuccessorMatcher matcher;
+    private ISimilarityLinker scorer;
+    private DecimalFormat decimal;
 
     private final boolean trackNonConsecutiveVersions;
 
@@ -52,20 +50,22 @@ public class ASTracker2 {
      * @param trackNonConsecutiveVersions whether to track a smell through non-consecutive versions.
      *                                    This adds the possibility to track reappearing smells.
      */
-    public ASTracker2(ISuccessorMatcher matcher, boolean trackNonConsecutiveVersions){
+    public ASTracker2(ISimilarityLinker scorer, boolean trackNonConsecutiveVersions){
         this.trackGraph = TinkerGraph.open();
         this.tail = trackGraph.traversal().addV("tail").next();
         this.uniqueSmellID = 1L;
         this.trackNonConsecutiveVersions = trackNonConsecutiveVersions;
-        this.matcher = matcher;
+        this.scorer = scorer;
+        this.decimal = new DecimalFormat("0.0#");
+
     }
 
     /**
      * Builds an instance of this tracker that does not tracks smells through non-consecutive versions.
-     * A JaccardMatcher is used to select the single successor of the given smell.
+     * A JaccardSimilarityLinker is used to select the single successor of the given smell.
      */
     public ASTracker2(){
-        this(new JaccardMatcher(), false);
+        this(new JaccardSimilarityLinker(), false);
     }
 
     /**
@@ -88,48 +88,36 @@ public class ASTracker2 {
                 currentVersionSmells = g1.V(tail).out().has(VERSION, tail.value(LATEST_VERSION).toString()).values(SMELL_OBJECT)
                         .toStream().map(o -> (ArchitecturalSmell)o).collect(Collectors.toList());
 
-            List<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch = matcher.bestMatch(currentVersionSmells, nextVersionSmells);
-            Set<ArchitecturalSmell> linkedSmells = new HashSet<>();
-            Set<ArchitecturalSmell> unlinkedSmellsNextVersion = new HashSet<>(nextVersionSmells);
+            List<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch = scorer.bestMatch(currentVersionSmells, nextVersionSmells);
 
-            // Add smells that respect the threshold of the matcher as successors, or as newly arose smells if they
+            // Add smells that respect the threshold of the scorer as successors, or as newly arose smells if they
             // do not respect the threshold
             bestMatch.forEach(t -> {
-                if (!linkedSmells.contains(t.getA()) && unlinkedSmellsNextVersion.contains(t.getB())) {
-                    Vertex successor = g1.addV(SMELL)
-                            .property(VERSION, nextVersion)
-                            .property(SMELL_OBJECT, t.getB()).next();
-                    Vertex predecessor = g1.V(tail).out().has(SMELL_OBJECT, t.getA()).next();
-                    // Reset tail for this dynasty (allows tracking through non-consecutive versions)
-                    g1.V(tail).outE().where(__.otherV().is(predecessor)).drop().iterate();
-                    if (tail.value(LATEST_VERSION).equals(predecessor.value(VERSION)))
-                        g1.addE(EVOLVED_FROM).from(successor).to(predecessor).next();
-                    else
-                        g1.addE(REAPPEARED).from(successor).to(predecessor).next();
-                    g1.addE(LATEST_VERSION).from(tail).to(successor).next();
-                    linkedSmells.add(t.getA());
-                    unlinkedSmellsNextVersion.remove(t.getB());
-                }
-            });
-            unlinkedSmellsNextVersion.forEach(s ->                 {
-                Vertex successor = g1.addV(SMELL)
-                                .property(VERSION, nextVersion)
-                                .property(SMELL_OBJECT, s).next();
-                addNewDinasty(nextVersion, g1, successor);
-            });
-        }else {
-            nextVersionSmells.forEach(smell -> {
+                // If this fails it means that a successor has already been found.
+                Vertex predecessor = g1.V(tail).out().has(SMELL_OBJECT, t.getA()).next();
                 Vertex successor = g1.addV(SMELL)
                         .property(VERSION, nextVersion)
-                        .property(SMELL_OBJECT, smell).next();
-                addNewDinasty(nextVersion, g1, successor);
+                        .property(SMELL_OBJECT, t.getB()).next();
+
+                g1.V(tail).outE().where(__.otherV().is(predecessor)).drop().iterate();
+                String eLabel = tail.value(LATEST_VERSION).equals(predecessor.value(VERSION)) ? EVOLVED_FROM : REAPPEARED;
+                g1.addE(eLabel).property("similarity", decimal.format(t.getC())).from(successor).to(predecessor).next();
+                g1.addE(LATEST_VERSION).from(tail).to(successor).next();
+                currentVersionSmells.remove(t.getA());
+                nextVersionSmells.remove(t.getB());
+            });
+            currentVersionSmells.forEach(smell -> {
+                Vertex end = g1.addV(END).next();
+                g1.addE(REMOVED).from(end).to(g1.V().has(SMELL_OBJECT, smell)).next();
             });
         }
+        nextVersionSmells.forEach(s -> addNewDynasty(s, nextVersion));
 
         // Add end vertex and edges to all vertices that do not have a successor/incoming edge.
         if (!trackNonConsecutiveVersions){
             g1.V().hasLabel(SMELL)
                     .where(__.not(__.in()))
+                    .is(P.not(P.eq(tail)))
                     .forEachRemaining(vertex -> {
                         Vertex end = g1.addV(END).next();
                         g1.addE(REMOVED).from(end).to(vertex).next();
@@ -139,7 +127,11 @@ public class ASTracker2 {
         tail.property(LATEST_VERSION, nextVersion);
     }
 
-    private void addNewDinasty(String startingVersion, GraphTraversalSource g, Vertex successor) {
+    private void addNewDynasty(ArchitecturalSmell s, String startingVersion) {
+        GraphTraversalSource g = trackGraph.traversal();
+        Vertex successor = g.addV(SMELL)
+                .property(VERSION, startingVersion)
+                .property(SMELL_OBJECT, s).next();
         Vertex head = g.addV(HEAD)
                 .property(VERSION, startingVersion)
                 .property(UNIQUE_SMELL_ID, uniqueSmellID++).next();
@@ -171,9 +163,10 @@ public class ASTracker2 {
         }
     }
 
-    public void writeTrackGraph(String file){
+    public void writeTrackGraph(String file, boolean writeTail){
         try {
-            trackGraph.traversal().V(tail).drop().iterate();
+            if(!writeTail)
+                trackGraph.traversal().V(tail).drop().iterate();
             trackGraph.io(IoCore.graphml()).writeGraph(file);
         } catch (IOException e) {
             logger.error("Could not write track graph on file: {}", e.getMessage());

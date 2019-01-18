@@ -23,7 +23,7 @@ class ASTracker2Test {
             tracker.track(graph, version);
         });
 
-        tracker.writeTrackGraph("src/test/graphimages/trackgraph.graphml");
+        tracker.writeTrackGraph("src/test/graphimages/trackgraph.graphml", false);
     }
 
 }
