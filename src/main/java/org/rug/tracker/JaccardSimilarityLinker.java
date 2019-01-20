@@ -58,7 +58,7 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
                 }
             }
         }
-
+        // TODO: implement prioritization when score is the same (use shape for cd smells)
         // A linked hash set will only add the elements of matchlist that are unique (using equals()).
         matchList.sort(Comparator.comparingDouble(t -> ((JaccardTriple)t).getC()).reversed());
         matchList = new ArrayList<>(new LinkedHashSet<>(matchList));

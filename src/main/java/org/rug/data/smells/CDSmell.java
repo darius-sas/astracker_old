@@ -51,6 +51,7 @@ public class CDSmell extends ArchitecturalSmell {
      * @param smell The smell node to start walking from
      */
     private void setShape(Vertex smell){
+        //TODO a smell node can be part of two cycles, need to find a way to distinguish between the two
         this.shapeVertex = smell.graph().traversal().V(smell)
                 .in().hasLabel(VertexLabel.CYCLESHAPE.toString())
                 .not(__.has(VISITED_SMELL_NODE, "true"))

@@ -31,7 +31,7 @@ class ASTracker2Test {
             tracker2.track(graph, version);
         });
 
-        tracker.writeTrackGraph("src/test/graphimages/trackgraph-nonconsec.graphml");
+        tracker2.writeTrackGraph("src/test/graphimages/trackgraph-nonconsec.graphml");
     }
 
 }

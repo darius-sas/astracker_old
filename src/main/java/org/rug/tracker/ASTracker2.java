@@ -1,6 +1,5 @@
 package org.rug.tracker;
 
-import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Graph;
@@ -136,8 +135,10 @@ public class ASTracker2 {
      */
     private void endDynasty(ArchitecturalSmell smell){
         GraphTraversalSource g = trackGraph.traversal();
+        Vertex lastHeir = g.V().has(SMELL_OBJECT, smell).next();
         Vertex end = g.addV(END).next();
-        g.addE(REMOVED).from(end).to(g.V().has(SMELL_OBJECT, smell)).next();
+        g.V(tail).outE().where(__.otherV().is(lastHeir)).drop().iterate();
+        g.addE(REMOVED).from(end).to(lastHeir).next();
     }
 
     /**
@@ -167,7 +168,7 @@ public class ASTracker2 {
     public void writeTrackGraph(String file){
         try {
             GraphTraversalSource g = trackGraph.traversal();
-            g.V(tail).out().has(VERSION, tail.value(LATEST_VERSION).toString()).forEachRemaining( v -> g.addE(END).from(g.addV(END).next()).to(v).next());
+            g.V(tail).out().forEachRemaining( v -> g.addE(END).from(g.addV(END).next()).to(v).next());
             tail.remove();
             trackGraph.io(IoCore.graphml()).writeGraph(file);
         } catch (IOException e) {
