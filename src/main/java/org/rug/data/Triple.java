@@ -7,9 +7,9 @@ package org.rug.data;
  * @param <C>
  */
 public class Triple<A, B, C> {
-    private A a;
-    private B b;
-    private C c;
+    protected A a;
+    protected B b;
+    protected C c;
 
     public Triple(A a, B b, C c){
         this.a = a;

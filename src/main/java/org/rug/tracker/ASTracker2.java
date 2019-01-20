@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +36,7 @@ public class ASTracker2 {
     private static final String STARTED_IN = "startedIn";
     private static final String REMOVED = "removed";
     private static final String END = "end";
+    private static final String SIMILARITY = "similarity";
 
     private Graph trackGraph;
     private Vertex tail;
@@ -87,7 +89,9 @@ public class ASTracker2 {
                 currentVersionSmells = g1.V(tail).out().has(VERSION, tail.value(LATEST_VERSION).toString()).values(SMELL_OBJECT)
                         .toStream().map(o -> (ArchitecturalSmell)o).collect(Collectors.toList());
 
-            List<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch = scorer.bestMatch(currentVersionSmells, nextVersionSmells);
+            LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch = scorer.bestMatch(currentVersionSmells, nextVersionSmells);
+
+            //TODO add here plotting of matching
 
             // Add smells that respect the threshold of the scorer as successors, or as newly arose smells if they
             // do not respect the threshold
@@ -100,7 +104,7 @@ public class ASTracker2 {
 
                 g1.V(tail).outE().where(__.otherV().is(predecessor)).drop().iterate();
                 String eLabel = tail.value(LATEST_VERSION).equals(predecessor.value(VERSION)) ? EVOLVED_FROM : REAPPEARED;
-                g1.addE(eLabel).property("similarity", decimal.format(t.getC())).from(successor).to(predecessor).next();
+                g1.addE(eLabel).property(SIMILARITY, decimal.format(t.getC())).from(successor).to(predecessor).next();
                 g1.addE(LATEST_VERSION).from(tail).to(successor).next();
                 currentVersionSmells.remove(t.getA());
                 nextVersionSmells.remove(t.getB());

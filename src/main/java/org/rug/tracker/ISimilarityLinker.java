@@ -3,6 +3,7 @@ package org.rug.tracker;
 import org.rug.data.Triple;
 import org.rug.data.smells.ArchitecturalSmell;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -20,11 +21,6 @@ public interface ISimilarityLinker {
      * @return a descending sorted list of triples where the first value of the list is the current smell element,
      * the second is the next version element, and the third value of the triple is the similarity score.
      */
-    List<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch(List<ArchitecturalSmell> currentVersionSmells, List<ArchitecturalSmell> nextVersionSmells);
+    LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch(List<ArchitecturalSmell> currentVersionSmells, List<ArchitecturalSmell> nextVersionSmells);
 
-    /**
-     * The suggested threshold for this matcher
-     * @return the threshold for this matcher
-     */
-    double getThreshold();
 }
