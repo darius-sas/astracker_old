@@ -1,6 +1,8 @@
 library(gplots)
 library(RColorBrewer)
 
+# Note: plot jaccard similarity between two versions
+
 jaccard <- function(x,y){return(length(intersect(x,y))/length(union(x,y)))}
 jaccardMatr <- function(n, m){ 
   jmat = matrix(nrow = n, ncol = m)
