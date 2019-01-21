@@ -1,6 +1,7 @@
 package org.rug.tracker;
 
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.rug.data.Analysis;
 import org.rug.data.SmellVisitor;
 import org.rug.data.Triple;
 import org.rug.data.smells.ArchitecturalSmell;
@@ -56,27 +57,27 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
      */
     @Override
     public LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch(List<ArchitecturalSmell> currentVersionSmells, List<ArchitecturalSmell> nextVersionSmells) {
-        List<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> matchList = new ArrayList<>();
+        List<JaccardTriple> matchList = new ArrayList<>();
+        List<JaccardTriple> matchListPlot = new ArrayList<>();
         double variableThreshold;
         for(ArchitecturalSmell s1 : currentVersionSmells) {
             for (ArchitecturalSmell s2 : nextVersionSmells) {
                 if (s1.getType() == s2.getType()) {
                     double similarityScore = calculateJaccardSimilarity(s1, s2);
+                    JaccardTriple t = new JaccardTriple(s1, s2, similarityScore);
                     variableThreshold = s1.getAffectedElements().size() <= fewElements ? fewElementsThreshold : moreElementsThreshold;
+                    matchListPlot.add(t);
                     if (similarityScore >= variableThreshold)
                         matchList.add(new JaccardTriple(s1, s2, similarityScore));
                 }
             }
         }
+        Analysis.writeMatchScores(matchListPlot);
 
         // A linked hash set will only add the elements of matchlist that are unique (using equals()).
         //matchList.sort(Comparator.comparingDouble(t -> ((JaccardTriple)t).getC()).reversed());
-        matchList.sort(Comparator.comparing(t -> (JaccardTriple)t));
-        //TODO somehow the set does not filter duplicates.
-        LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> link = new LinkedHashSet<>(matchList);
-
-
-        return link;
+        matchList.sort(Comparator.comparing(t -> (JaccardTriple)t).reversed());
+        return new JaccardTripleSet(matchList);
     }
 
     /**
@@ -127,9 +128,9 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
      */
     @Override
     public Set<String> visit(HLSmell smell) {
-        Set<String> elements = smell.getOutDep().stream().map(this::getName).collect(Collectors.toSet());
-        elements.addAll(smell.getInDep().stream().map(this::getName).collect(Collectors.toSet()));
-        elements.add(getName(smell.getCentre()));
+        Set<String> elements = smell.getAffectedElements().stream().map(this::getName).collect(Collectors.toSet());
+        //elements.addAll(smell.getInDep().stream().map(this::getName).collect(Collectors.toSet()));
+        //elements.add(getName(smell.getCentre()));
         return elements;
     }
 
@@ -140,8 +141,8 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
      */
     @Override
     public Set<String> visit(UDSmell smell) {
-        Set<String> elements = smell.getBadDep().stream().map(this::getName).collect(Collectors.toSet());
-        elements.add(getName(smell.getCentre()));
+        Set<String> elements = smell.getAffectedElements().stream().map(this::getName).collect(Collectors.toSet());
+        //elements.add(getName(smell.getCentre()));
         return elements;
     }
 
@@ -150,7 +151,7 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
      * on the smells.
      * Two JaccardTriples are the same if any of the two smells are the same (respecting positions).
      */
-    private static class JaccardTriple extends Triple<ArchitecturalSmell, ArchitecturalSmell, Double> implements Comparable<JaccardTriple>{
+    static class JaccardTriple extends Triple<ArchitecturalSmell, ArchitecturalSmell, Double> implements Comparable<JaccardTriple>{
 
         public JaccardTriple(ArchitecturalSmell smell, ArchitecturalSmell smell2, Double aDouble) {
             super(smell, smell2, aDouble);
@@ -199,15 +200,13 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
                     boolean thisMaintainedShape = ((CDSmell) a).getShape() == ((CDSmell) b).getShape();
                     boolean otherMaintainedShape = ((CDSmell) o.a).getShape() == ((CDSmell) o.b).getShape();
                     if (thisMaintainedShape && !otherMaintainedShape)
-                        return -1;
+                        return 1;
                     else if (otherMaintainedShape && !thisMaintainedShape)
-                        return  1;
-                    else
-                        return 0;
+                        return -1;
                 }
             }
 
-            return c_comparison * -1; // reverse the comparator
+            return c_comparison; // reverse the comparator
         }
     }
 }

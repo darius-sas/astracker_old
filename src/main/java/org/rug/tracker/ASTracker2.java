@@ -6,6 +6,7 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
+import org.rug.data.Analysis;
 import org.rug.data.Triple;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.slf4j.Logger;
@@ -66,7 +67,7 @@ public class ASTracker2 {
      * A JaccardSimilarityLinker is used to select the single successor of the given smell.
      */
     public ASTracker2(){
-        this(new JaccardSimilarityLinker(), false);
+        this(new JaccardSimilarityLinker(), true);
     }
 
     /**
@@ -90,8 +91,6 @@ public class ASTracker2 {
                         .toStream().map(o -> (ArchitecturalSmell)o).collect(Collectors.toList());
 
             LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch = scorer.bestMatch(currentVersionSmells, nextVersionSmells);
-
-            //TODO add here plotting of matching
 
             // Add smells that respect the threshold of the scorer as successors, or as newly arose smells if they
             // do not respect the threshold
