@@ -19,15 +19,18 @@ public class Analysis {
 
     private final static Logger logger = LoggerFactory.getLogger(Analysis.class);
 
-    public static void writeMatchScores(Collection<? extends Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch, String version){
+    public static void writeMatchScores(Collection<? extends Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> matches,
+                                        Collection<? extends  Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch,
+                                        String version){
         try{
             BufferedWriter writer = Files.newBufferedWriter(Paths.get(String.format("data/jaccard-%s.csv", version)));
             CSVPrinter printer = new CSVPrinter(writer,
                     CSVFormat.DEFAULT.withHeader("curID", "curAffected", "curType", "curShape",
                                                  "nextId", "nextAffected", "nextType", "nextShape",
+                                                 "match",
                                                  "jaccard"));
 
-            for (Triple<ArchitecturalSmell, ArchitecturalSmell, Double> triple : bestMatch) {
+            for (Triple<ArchitecturalSmell, ArchitecturalSmell, Double> triple : matches) {
                 List<String> affectedA = triple.getA().getAffectedElements().stream().map(v -> v.value("name").toString()).collect(Collectors.toList());
                 List<String> affectedB = triple.getB().getAffectedElements().stream().map(v -> v.value("name").toString()).collect(Collectors.toList());
 
@@ -37,6 +40,7 @@ public class Analysis {
                 printer.printRecord(
                         String.valueOf(triple.getA().getId()), affectedA, triple.getA().getType().toString(), shapeA,
                         String.valueOf(triple.getB().getId()), affectedB, triple.getB().getType().toString(), shapeB,
+                        bestMatch.contains(triple),
                         triple.getC());
             }
             printer.close();

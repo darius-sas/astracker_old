@@ -92,7 +92,7 @@ public class ASTracker2 {
 
             LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch = scorer.bestMatch(currentVersionSmells, nextVersionSmells);
 
-            Analysis.writeMatchScores(scorer.getUnfilteredMatch(), nextVersion);
+            Analysis.writeMatchScores(scorer.getUnfilteredMatch(), bestMatch, nextVersion);
 
             // Add smells that respect the threshold of the scorer as successors, or as newly arose smells if they
             // do not respect the threshold
