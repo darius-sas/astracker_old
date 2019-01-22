@@ -1,5 +1,6 @@
 package org.rug.tracker;
 
+import org.apache.tinkerpop.gremlin.process.traversal.Path;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Graph;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -38,6 +40,10 @@ public class ASTracker2 {
     private static final String REMOVED = "removed";
     private static final String END = "end";
     private static final String SIMILARITY = "similarity";
+    private static final String CHARACTERISTIC = "characteristic";
+    private static final String HAS_CHARACTERISTIC = "hasCharacteristic";
+    private static final String COMPONENT = "component";
+    private static final String AFFECTS = "affects";
 
     private Graph trackGraph;
     private Vertex tail;
@@ -158,13 +164,34 @@ public class ASTracker2 {
         GraphTraversalSource g1 = trackGraph.traversal();
         GraphTraversalSource gs = simplifiedGraph.traversal();
         // Get all heads
-        g1.V().hasLabel(HEAD).repeat(__.in().aggregate("smells")).until(__.otherV().hasLabel(END));
-        // build node in new graph
-        // write properties for all iterations of the smell
-        // Collapse on evolved edges
-        g1.V().hasLabel(HEAD).out(STARTED_IN).match(null);
-        // Create characteristic vertex
-        return null;
+        Set<Path> dynasties = g1.V().out(STARTED_IN).repeat(__.in()).until(__.in().hasLabel(SMELL)).path().toSet();
+        for (Path p : dynasties){
+            Vertex smellVertex = gs.addV(SMELL).next();
+            for (Object o : p){
+                if (o instanceof Vertex) {
+                    Vertex v = (Vertex) o;
+                    if (((Vertex) o).label().equals(HEAD)) {
+                        smellVertex.property(UNIQUE_SMELL_ID, v.value(UNIQUE_SMELL_ID));
+                    } else {
+                        ArchitecturalSmell as = v.value(SMELL_OBJECT);
+                        as.calculateCharacteristics();
+                        Vertex characteristics = gs.addV(CHARACTERISTIC).next();
+                        as.getCharacteristicsMap().forEach(characteristics::property);
+                        gs.addE(HAS_CHARACTERISTIC).from(smellVertex).to(characteristics)
+                                .property(VERSION, v.value(VERSION)).next();
+                        as.getAffectedElements().stream()
+                                .map(vertex -> v.property(NAME))
+                                .forEach(name -> gs.V(smellVertex)
+                                        .choose(__.not(__.out().has(NAME, name)),
+                                                gs.addV(COMPONENT).property(NAME, name).as("c"),
+                                                __.out().as("c"))
+                                                .addE(AFFECTS).from(smellVertex).to("c")
+                                                .property(VERSION, v.value(VERSION)).next());
+                    }
+                }
+            }
+        }
+        return simplifiedGraph;
     }
 
     public void writeSimplifiedGraph(String file){

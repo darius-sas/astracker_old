@@ -32,8 +32,8 @@ class ASTracker2Test {
             tracker.track(graph, version);
             Analysis.recordScorer(tracker); //TODO
         });
-        
-        tracker.writeTrackGraph("src/test/graphimages/trackgraph.graphml");
+        tracker.writeSimplifiedGraph("src/test/graphimages/simplified-trackgraph.graphml");
+        //tracker.writeTrackGraph("src/test/graphimages/trackgraph.graphml");
 
     }
 
