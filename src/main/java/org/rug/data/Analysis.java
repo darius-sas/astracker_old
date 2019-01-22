@@ -4,6 +4,8 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.smells.CDSmell;
+import org.rug.tracker.ASTracker;
+import org.rug.tracker.ASTracker2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,4 +52,9 @@ public class Analysis {
         }
 
     }
+
+    public static void recordScorer(ASTracker2 tracker){
+
+    }
+
 }

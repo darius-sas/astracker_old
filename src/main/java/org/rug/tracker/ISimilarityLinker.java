@@ -23,6 +23,8 @@ public interface ISimilarityLinker {
      */
     LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch(List<ArchitecturalSmell> currentVersionSmells, List<ArchitecturalSmell> nextVersionSmells);
 
+    LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch();
+
     List<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> getUnfilteredMatch();
 
 }

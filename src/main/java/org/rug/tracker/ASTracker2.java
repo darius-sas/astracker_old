@@ -92,8 +92,6 @@ public class ASTracker2 {
 
             LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch = scorer.bestMatch(currentVersionSmells, nextVersionSmells);
 
-            Analysis.writeMatchScores(scorer.getUnfilteredMatch(), bestMatch, nextVersion);
-
             // Add smells that respect the threshold of the scorer as successors, or as newly arose smells if they
             // do not respect the threshold
             bestMatch.forEach(t -> {
@@ -146,6 +144,10 @@ public class ASTracker2 {
         g.addE(REMOVED).from(end).to(lastHeir).next();
     }
 
+    public ISimilarityLinker getScorer() {
+        return scorer;
+    }
+
     /**
      * Builds the simplified of the tracking graph and returns the results.
      * The simplified graph basically collapses all SMELL vertices by walking the EVOLVED_FROM edges.
@@ -155,7 +157,10 @@ public class ASTracker2 {
         Graph simplifiedGraph = TinkerGraph.open();
         GraphTraversalSource g1 = trackGraph.traversal();
         GraphTraversalSource gs = simplifiedGraph.traversal();
-
+        // Get all heads
+        g1.V().hasLabel(HEAD).repeat(__.in().aggregate("smells")).until(__.otherV().hasLabel(END));
+        // build node in new graph
+        // write properties for all iterations of the smell
         // Collapse on evolved edges
         g1.V().hasLabel(HEAD).out(STARTED_IN).match(null);
         // Create characteristic vertex

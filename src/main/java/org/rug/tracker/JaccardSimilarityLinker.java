@@ -27,7 +27,7 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
     private final double moreElementsThreshold;
     private final int fewElements;
     private List<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> unfilteredMatchScore;
-
+    private LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch;
     /**
      * Builds this linker with the given threshold.
      * @param fewElementsThreshold the threshold value to use for discarding couples with not enough similarity. This
@@ -73,12 +73,14 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
         });
         unfilteredMatchScore = new ArrayList<>(matchList);
         matchList.sort(Comparator.comparing(t -> (JaccardTriple)t).reversed());
+        bestMatch = new JaccardTripleSet(matchList);
 
-        // A linked hash set will only add the elements of matchlist that are unique (using equals()).
-        //matchList.sort(Comparator.comparingDouble(t -> ((JaccardTriple)t).getC()).reversed());
+        return bestMatch;
+    }
 
-
-        return new JaccardTripleSet(matchList);
+    @Override
+    public LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch() {
+        return bestMatch;
     }
 
     /**

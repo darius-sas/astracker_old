@@ -2,6 +2,7 @@ package org.rug.tracker;
 
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.junit.jupiter.api.Test;
+import org.rug.data.Analysis;
 import org.rug.data.ArcanDependencyGraphParser;
 import org.rug.data.Triple;
 import org.rug.data.smells.ArchitecturalSmell;
@@ -24,12 +25,14 @@ class ASTracker2Test {
     void trackTest(){
         SortedMap<String, Graph> versionedSystem = ArcanDependencyGraphParser.parseGraphML("./arcanrunner/outputs/antlr");
 
-        ASTracker2 tracker = new ASTracker2();
+        ISimilarityLinker scorer = new JaccardSimilarityLinker();
+        ASTracker2 tracker = new ASTracker2(scorer, true);
         versionedSystem.forEach( (version, graph) -> {
             logger.info("Tracking version {}", version);
             tracker.track(graph, version);
+            Analysis.recordScorer(tracker); //TODO
         });
-
+        
         tracker.writeTrackGraph("src/test/graphimages/trackgraph.graphml");
 
     }
