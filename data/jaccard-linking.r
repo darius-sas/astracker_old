@@ -1,21 +1,7 @@
 library(ggplot2)
 library(stringr)
 
-files <- list.files(".", "*.csv")
-base_size <- 12
-
-for (i in 1:length(files)) {
-
-  f = files[i]
-  
-  f_version <- str_extract(f, '[0-9]+\\.[0-9]+(\\.[0-9]+)?')
-  c_version <- ""
-  if (i > 1) {
-    c_version <- str_extract(files[i - 1], '[0-9]+\\.[0-9]+(\\.[0-9]+)?')
-  }
-  
-  print(paste("Reading file", f))
-  
+getPlot <- function(f){
   df <- read.csv(f)
   df$jaccard <- as.numeric(df$jaccard)
   df$curID <- as.character(df$curID)
@@ -37,5 +23,24 @@ for (i in 1:length(files)) {
           axis.text.y = element_text(size = base_size *.5))+
     geom_point(data = subset(df, match == "true"), colour="cyan3", shape=16, size=2, na.rm = T)
   
+  return(p)
+}
+
+
+files <- list.files(".", "*.csv")
+base_size <- 12
+
+for (i in 1:length(files)) {
+
+  f = files[i]
+  
+  f_version <- str_extract(f, '[0-9]+\\.[0-9]+(\\.[0-9]+)?')
+  c_version <- ""
+  if (i > 1) {
+    c_version <- str_extract(files[i - 1], '[0-9]+\\.[0-9]+(\\.[0-9]+)?')
+  }
+  
+  print(paste("Reading file", f))
+  getPlot(f)
   ggsave(paste('similarity-score-', f_version, '.pdf', sep = ''), width = 55, height = 35, units="cm")
 }
