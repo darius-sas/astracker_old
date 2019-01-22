@@ -32,13 +32,6 @@ class ASTracker2Test {
 
         tracker.writeTrackGraph("src/test/graphimages/trackgraph.graphml");
 
-        ASTracker2 tracker2 = new ASTracker2(new JaccardSimilarityLinker(), true);
-        versionedSystem.forEach( (version, graph) -> {
-            logger.info("Tracking version {}", version);
-            tracker2.track(graph, version);
-        });
-
-        tracker2.writeTrackGraph("src/test/graphimages/trackgraph-nonconsec.graphml");
     }
 
     public static Set<Integer> duplicate(List<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch){

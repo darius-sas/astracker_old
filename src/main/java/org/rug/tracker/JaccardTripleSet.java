@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class JaccardTripleSet extends LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> {
+class JaccardTripleSet extends LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> {
 
     private Set<Long> currentIds;
     private Set<Long> nextIds;

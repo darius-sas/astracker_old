@@ -26,6 +26,7 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
     private final double fewElementsThreshold;
     private final double moreElementsThreshold;
     private final int fewElements;
+    private List<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> unfilteredMatchScore;
 
     /**
      * Builds this linker with the given threshold.
@@ -58,25 +59,25 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
     @Override
     public LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch(List<ArchitecturalSmell> currentVersionSmells, List<ArchitecturalSmell> nextVersionSmells) {
         List<JaccardTriple> matchList = new ArrayList<>();
-        List<JaccardTriple> matchListPlot = new ArrayList<>();
-        double variableThreshold;
         for(ArchitecturalSmell s1 : currentVersionSmells) {
             for (ArchitecturalSmell s2 : nextVersionSmells) {
                 if (s1.getType() == s2.getType()) {
                     double similarityScore = calculateJaccardSimilarity(s1, s2);
-                    JaccardTriple t = new JaccardTriple(s1, s2, similarityScore);
-                    variableThreshold = s1.getAffectedElements().size() <= fewElements ? fewElementsThreshold : moreElementsThreshold;
-                    matchListPlot.add(t);
-                    if (similarityScore >= variableThreshold)
-                        matchList.add(new JaccardTriple(s1, s2, similarityScore));
+                    matchList.add(new JaccardTriple(s1, s2, similarityScore));
                 }
             }
         }
-        Analysis.writeMatchScores(matchListPlot);
+        matchList.removeIf( t ->  {
+            double variableThreshold = t.getA().getAffectedElements().size() <= fewElements ? fewElementsThreshold : moreElementsThreshold;
+            return variableThreshold > t.getC();
+        });
+        unfilteredMatchScore = new ArrayList<>(matchList);
+        matchList.sort(Comparator.comparing(t -> (JaccardTriple)t).reversed());
 
         // A linked hash set will only add the elements of matchlist that are unique (using equals()).
         //matchList.sort(Comparator.comparingDouble(t -> ((JaccardTriple)t).getC()).reversed());
-        matchList.sort(Comparator.comparing(t -> (JaccardTriple)t).reversed());
+
+
         return new JaccardTripleSet(matchList);
     }
 
@@ -109,6 +110,11 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
 
     private String getName(Vertex vertex) {
         return vertex.value("name").toString();
+    }
+
+    @Override
+    public List<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> getUnfilteredMatch() {
+        return unfilteredMatchScore;
     }
 
     /**
@@ -169,7 +175,7 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
             if (this == other)
                 return true;
 
-            return this.a.equals(other.a) || this.b.equals(other.b);
+            return this.c.compareTo(other.c) == 0 && (this.a.equals(other.a) || this.b.equals(other.b));
         }
 
         @Override
@@ -186,27 +192,26 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
          * A Jaccard triple is compared with another triple as follows: first compare the score with another triple,
          * if the score is the same then check whether the evolution of the CD smell has maintained the shape in the
          * two compared objects. If it did in both, or in neither, return 0 (the two triples have the same order),
-         * otherwise, return -1 if only this triple has maintained the shape or 1 if only the other did.
+         * otherwise, return 1 if only this triple has maintained the shape or -1 if only the other did.
          * @param o the other triple to use for comparison with this
          * @return see above.
          */
         @Override
         public int compareTo(JaccardTriple o) {
-            int c_comparison = this.c.compareTo(o.c);
-            if (c_comparison == 0 && this.equals(o)){
-                // Prioritize the couple of smells that have the same shape if the jaccard score is the same
-                if (a instanceof CDSmell && b instanceof CDSmell &&
-                        o.a instanceof CDSmell && o.b instanceof CDSmell){
-                    boolean thisMaintainedShape = ((CDSmell) a).getShape() == ((CDSmell) b).getShape();
-                    boolean otherMaintainedShape = ((CDSmell) o.a).getShape() == ((CDSmell) o.b).getShape();
-                    if (thisMaintainedShape && !otherMaintainedShape)
-                        return 1;
-                    else if (otherMaintainedShape && !thisMaintainedShape)
-                        return -1;
-                }
-            }
+//            if (this.equals(o)){ // If this is true then this method must return 0, otherwise it violates the contract
+//                // Prioritize the couple of smells that have the same shape if they are equals
+//                if (a instanceof CDSmell && b instanceof CDSmell &&
+//                        o.a instanceof CDSmell && o.b instanceof CDSmell){
+//                    boolean thisMaintainedShape = ((CDSmell) a).getShape() == ((CDSmell) b).getShape();
+//                    boolean otherMaintainedShape = ((CDSmell) o.a).getShape() == ((CDSmell) o.b).getShape();
+//                    if (thisMaintainedShape && !otherMaintainedShape)
+//                        return 1;
+//                    else if (otherMaintainedShape && !thisMaintainedShape)
+//                        return -1;
+//                }
+//            }
 
-            return c_comparison; // reverse the comparator
+            return this.c.compareTo(o.c);
         }
     }
 }

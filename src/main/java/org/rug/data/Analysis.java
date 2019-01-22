@@ -2,7 +2,6 @@ package org.rug.data;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.csv.CSVRecord;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.smells.CDSmell;
 import org.slf4j.Logger;
@@ -20,14 +19,25 @@ public class Analysis {
 
     private final static Logger logger = LoggerFactory.getLogger(Analysis.class);
 
-    private static int V = 0;
-
-    public static void writeMatchScores(Collection<? extends Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch){
+    public static void writeMatchScores(Collection<? extends Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch, String version){
         try{
-            BufferedWriter writer = Files.newBufferedWriter(Paths.get(String.format("data/jaccard-%s.csv", V++)));
-            CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("current", "next", "jaccard"));
+            BufferedWriter writer = Files.newBufferedWriter(Paths.get(String.format("data/jaccard-%s.csv", version)));
+            CSVPrinter printer = new CSVPrinter(writer,
+                    CSVFormat.DEFAULT.withHeader("curID", "curAffected", "curType", "curShape",
+                                                 "nextId", "nextAffected", "nextType", "nextShape",
+                                                 "jaccard"));
+
             for (Triple<ArchitecturalSmell, ArchitecturalSmell, Double> triple : bestMatch) {
-                printer.printRecord(formatSmell(triple.getA()), formatSmell(triple.getB()), triple.getC());
+                List<String> affectedA = triple.getA().getAffectedElements().stream().map(v -> v.value("name").toString()).collect(Collectors.toList());
+                List<String> affectedB = triple.getB().getAffectedElements().stream().map(v -> v.value("name").toString()).collect(Collectors.toList());
+
+                String shapeA = triple.getA() instanceof CDSmell ? ((CDSmell) triple.getA()).getShape().toString() : "NA";
+                String shapeB = triple.getB() instanceof CDSmell ? ((CDSmell) triple.getB()).getShape().toString() : "NA";
+
+                printer.printRecord(
+                        String.valueOf(triple.getA().getId()), affectedA, triple.getA().getType().toString(), shapeA,
+                        String.valueOf(triple.getB().getId()), affectedB, triple.getB().getType().toString(), shapeB,
+                        triple.getC());
             }
             printer.close();
             writer.close();
@@ -35,12 +45,5 @@ public class Analysis {
             logger.error("Could not print to CSV: {}", e.getMessage());
         }
 
-    }
-
-    private static String formatSmell(ArchitecturalSmell smell){
-        List<String> smellNodes = smell.getAffectedElements().stream().map(v -> v.value("name").toString()).collect(Collectors.toList());
-        if (smell instanceof CDSmell)
-            return String.format("%s %s %s %s", smell.getId(), smellNodes, smell.getType(), ((CDSmell) smell).getShape());
-        return String.format("%s %s %s", smell.getId(), smellNodes, smell.getType());
     }
 }
