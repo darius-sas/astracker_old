@@ -18,5 +18,6 @@ public class CDCharacteristicsSet extends CharacteristicsSet {
         characteristics.add(new AverageEdgeWeight());
         characteristics.add(new AffectedDesign());
         characteristics.add(new ParentCentrality());
+        characteristics.add(new Shape());
     }
 }

@@ -11,13 +11,13 @@ public class InstabilityGap extends AbstractSmellCharacteristic {
     }
 
     @Override
-    public Double visit(UDSmell smell) {
+    public String visit(UDSmell smell) {
         double centreInstability = smell.getCentre().value("instability");
         double badDepAvrgInstability = smell.getTraversalSource().V(smell.getBadDep())
                 .values("instability")
                 .toStream()
                 .mapToDouble(o -> Double.parseDouble(o.toString()))
                 .average().orElse(0);
-        return centreInstability - badDepAvrgInstability;
+        return String.valueOf(centreInstability - badDepAvrgInstability);
     }
 }

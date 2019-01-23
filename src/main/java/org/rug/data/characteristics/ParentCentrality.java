@@ -18,8 +18,8 @@ public class ParentCentrality extends AbstractSmellCharacteristic {
      * @param smell the smell to visit the characteristic on.
      */
     @Override
-    public Double visit(CDSmell smell) {
-        return 0d;
+    public String visit(CDSmell smell) {
+        return NO_VALUE;
     }
 
 

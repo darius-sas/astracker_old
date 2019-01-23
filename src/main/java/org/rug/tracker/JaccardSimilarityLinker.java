@@ -1,7 +1,6 @@
 package org.rug.tracker;
 
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.rug.data.Analysis;
 import org.rug.data.SmellVisitor;
 import org.rug.data.Triple;
 import org.rug.data.smells.ArchitecturalSmell;

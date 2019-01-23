@@ -27,7 +27,7 @@ public abstract class ArchitecturalSmell {
     protected Set<Vertex> affectedElements;
     protected Graph affectedGraph;
 
-    protected Map<String, Double> characteristicsMap;
+    protected Map<String, String> characteristicsMap;
 
     private Type type;
     private Level level;
@@ -107,7 +107,7 @@ public abstract class ArchitecturalSmell {
     public void calculateCharacteristics(){
         Set<ISmellCharacteristic> characteristicsSets = this.type.getCharacteristicsSet();
         for (ISmellCharacteristic characteristic : characteristicsSets){
-            double value = this.accept(characteristic);
+            String value = this.accept(characteristic);
             characteristicsMap.put(characteristic.getName(), value);
         }
     }
@@ -124,7 +124,7 @@ public abstract class ArchitecturalSmell {
      * @return an unmodifiable map containing the results of the characteristics.
      * The keys of the map are the name of the characteristics whereas the values is the computed value for that key.
      */
-    public Map<String, Double> getCharacteristicsMap() {
+    public Map<String, String> getCharacteristicsMap() {
         return characteristicsMap;
     }
 

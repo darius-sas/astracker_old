@@ -7,7 +7,6 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
-import org.rug.data.Analysis;
 import org.rug.data.Triple;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.slf4j.Logger;
@@ -157,7 +156,7 @@ public class ASTracker2 {
     /**
      * Builds the simplified of the tracking graph and returns the results.
      * The simplified graph basically collapses all SMELL vertices by walking the EVOLVED_FROM edges.
-     * @return the graph representing the tracked smells including their characteristics (does not trigger the calculation).
+     * @return the graph representing the tracked smells including their characteristics (does trigger the calculation).
      */
     public Graph getSimplifiedTrackGraph(){
         Graph simplifiedGraph = TinkerGraph.open();
@@ -171,22 +170,31 @@ public class ASTracker2 {
                 if (o instanceof Vertex) {
                     Vertex v = (Vertex) o;
                     if (((Vertex) o).label().equals(HEAD)) {
-                        smellVertex.property(UNIQUE_SMELL_ID, v.value(UNIQUE_SMELL_ID));
+                        smellVertex.property(UNIQUE_SMELL_ID, v.value(UNIQUE_SMELL_ID), VERSION, v.value(VERSION));
                     } else {
                         ArchitecturalSmell as = v.value(SMELL_OBJECT);
+                        if (!smellVertex.property("smellType").isPresent()){
+                            smellVertex.property("smellType", as.getType().toString());
+                        }
                         as.calculateCharacteristics();
                         Vertex characteristics = gs.addV(CHARACTERISTIC).next();
                         as.getCharacteristicsMap().forEach(characteristics::property);
                         gs.addE(HAS_CHARACTERISTIC).from(smellVertex).to(characteristics)
                                 .property(VERSION, v.value(VERSION)).next();
-                        as.getAffectedElements().stream()
-                                .map(vertex -> v.property(NAME))
-                                .forEach(name -> gs.V(smellVertex)
-                                        .choose(__.not(__.out().has(NAME, name)),
-                                                gs.addV(COMPONENT).property(NAME, name).as("c"),
-                                                __.out().as("c"))
-                                                .addE(AFFECTS).from(smellVertex).to("c")
-                                                .property(VERSION, v.value(VERSION)).next());
+
+                        Set<String> affectedElements = as.getAffectedElements().stream()
+                                .map(vertex -> vertex.value(NAME).toString())
+                                .collect(Collectors.toSet());
+                        affectedElements.forEach(name -> {
+                            if (!gs.V().has(NAME, name).hasNext()) {
+                                gs.addV(COMPONENT).property(NAME, name).next();
+                            }});
+                        affectedElements.forEach(name ->
+                                gs.addE(AFFECTS)
+                                        .from(smellVertex).to(gs.V().has(NAME,name).next())
+                                        .property(VERSION, v.value(VERSION))
+                                        .next());
+
                     }
                 }
             }

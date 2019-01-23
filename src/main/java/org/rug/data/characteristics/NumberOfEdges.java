@@ -20,11 +20,11 @@ public class NumberOfEdges extends AbstractSmellCharacteristic {
     }
 
     @Override
-    public Double visit(CDSmell smell) {
+    public String visit(CDSmell smell) {
         return countEdges(smell.getAffectedElements(), smell);
     }
 
-    public Double visit(UDSmell smell) {
+    public String visit(UDSmell smell) {
         Set<Vertex> vertices = new HashSet<>();
         vertices.add(smell.getCentre());
         vertices.addAll(smell.getBadDep());
@@ -32,7 +32,7 @@ public class NumberOfEdges extends AbstractSmellCharacteristic {
     }
 
     @Override
-    public Double visit(HLSmell smell) {
+    public String visit(HLSmell smell) {
         Set<Vertex> vertices = new HashSet<>();
         vertices.add(smell.getCentre());
         vertices.addAll(smell.getInDep());
@@ -46,10 +46,10 @@ public class NumberOfEdges extends AbstractSmellCharacteristic {
      * @param smell the smell to get the graph from
      * @return the number of edges among the given vertices or 0 if no edges are present.
      */
-    private double countEdges(Set<Vertex> vertices, ArchitecturalSmell smell){
+    private String countEdges(Set<Vertex> vertices, ArchitecturalSmell smell){
         return smell.getTraversalSource().V(vertices)
                 .bothE()
                 .where(__.otherV().is(P.within(vertices)))
-                .count().tryNext().orElse(0L);
+                .count().tryNext().orElse(0L).toString();
     }
 }

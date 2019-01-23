@@ -18,8 +18,8 @@ public class Size extends AbstractSmellCharacteristic {
      * @param smell the CD smell to visit the characteristic on.
      */
     @Override
-    public Double visit(CDSmell smell) {
-        return (double) smell.getAffectedElements().size();
+    public String visit(CDSmell smell) {
+        return String.valueOf(smell.getAffectedElements().size());
     }
 
     /**
@@ -28,8 +28,8 @@ public class Size extends AbstractSmellCharacteristic {
      * @param smell the HL smell to visit the characteristic on.
      */
     @Override
-    public Double visit(HLSmell smell) {
-        return (double)(smell.getOutDep().size() + smell.getInDep().size());
+    public String visit(HLSmell smell) {
+        return String.valueOf((smell.getOutDep().size() + smell.getInDep().size()));
     }
 
     /**
@@ -38,7 +38,7 @@ public class Size extends AbstractSmellCharacteristic {
      * @param smell the UD smell to visit the characteristic on.
      */
     @Override
-    public Double visit(UDSmell smell) {
-        return (double)smell.getBadDep().size();
+    public String visit(UDSmell smell) {
+        return String.valueOf((double)smell.getBadDep().size());
     }
 }

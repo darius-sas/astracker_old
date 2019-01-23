@@ -23,8 +23,15 @@ public interface ISimilarityLinker {
      */
     LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch(List<ArchitecturalSmell> currentVersionSmells, List<ArchitecturalSmell> nextVersionSmells);
 
+    /**
+     * Returns the last best match set computed. See bestMatch(...) for more info.
+     */
     LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch();
 
+    /**
+     * Returns the list of matches resulting from the computation of bestMatch(...) that is neither filtered nor sorted.
+     * @return A list of triples
+     */
     List<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> getUnfilteredMatch();
 
 }

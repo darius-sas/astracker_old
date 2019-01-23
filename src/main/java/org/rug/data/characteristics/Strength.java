@@ -11,8 +11,7 @@ public class Strength extends AbstractSmellCharacteristic {
     }
 
     @Override
-    public Double visit(UDSmell smell) {
-        return 0d;
-        //return smell.getCentre().value("DUD"); //TODO property is not found for some smells... strange
+    public String visit(UDSmell smell) {
+        return smell.getCentre().property("DUD").orElse(NO_VALUE).toString();
     }
 }

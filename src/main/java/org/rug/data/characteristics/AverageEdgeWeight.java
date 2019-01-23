@@ -14,16 +14,16 @@ public class AverageEdgeWeight extends AbstractSmellCharacteristic {
     }
 
     @Override
-    public Double visit(CDSmell smell) {
+    public String visit(CDSmell smell) {
         /*
          Get all the edges between the affected nodes that have EdgeLabel.DEPENDSON label, then get their Weight and
          average the value across all the retrieved edges. Return 0 if the average is not present.
          */
-        return smell.getTraversalSource().V(smell.getAffectedElements())
+        return String.valueOf(smell.getTraversalSource().V(smell.getAffectedElements())
                 .bothE(EdgeLabel.DEPENDSON.toString())
                 .where(__.otherV().is(P.within(smell.getAffectedElements())))
                 .toStream()
                 .mapToInt(edge -> Integer.parseInt(edge.value("Weight").toString()))
-                .average().orElse(0);
+                .average().orElse(0));
     }
 }

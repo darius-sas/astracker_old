@@ -9,6 +9,7 @@ import org.rug.data.smells.UDSmell;
  */
 public abstract class AbstractSmellCharacteristic implements ISmellCharacteristic{
     private String name;
+    protected final static String NO_VALUE = "0";
 
     /**
      * Sets up the name of this smell characteristic.
@@ -36,8 +37,8 @@ public abstract class AbstractSmellCharacteristic implements ISmellCharacteristi
      * @return the value computed.
      */
     @Override
-    public Double visit(CDSmell smell) {
-        return 0d;
+    public String visit(CDSmell smell) {
+        return NO_VALUE;
     }
 
     /**
@@ -48,8 +49,8 @@ public abstract class AbstractSmellCharacteristic implements ISmellCharacteristi
      * @return the value computed.
      */
     @Override
-    public Double visit(HLSmell smell) {
-        return 0d;
+    public String visit(HLSmell smell) {
+        return NO_VALUE;
     }
 
     /**
@@ -60,7 +61,7 @@ public abstract class AbstractSmellCharacteristic implements ISmellCharacteristi
      * @return the value computed.
      */
     @Override
-    public Double visit(UDSmell smell) {
-        return 0d;
+    public String visit(UDSmell smell) {
+        return NO_VALUE;
     }
 }

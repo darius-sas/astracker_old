@@ -21,12 +21,12 @@ public class OverlapRatio extends AbstractSmellCharacteristic {
     }
 
     @Override
-    public Double visit(CDSmell smell) {
+    public String visit(CDSmell smell) {
         return calculateOverlapRatio(smell.getAffectedElements(), smell);
     }
 
     @Override
-    public Double visit(HLSmell smell) {
+    public String visit(HLSmell smell) {
         Set<Vertex> vertices = new HashSet<>();
         vertices.addAll(smell.getInDep());
         vertices.addAll(smell.getOutDep());
@@ -35,7 +35,7 @@ public class OverlapRatio extends AbstractSmellCharacteristic {
     }
 
     @Override
-    public Double visit(UDSmell smell) {
+    public String visit(UDSmell smell) {
         Set<Vertex> vertices = new HashSet<>();
         vertices.add(smell.getCentre());
         vertices.addAll(smell.getBadDep());
@@ -48,8 +48,8 @@ public class OverlapRatio extends AbstractSmellCharacteristic {
      * @param smell the reference smell
      * @return the ratio of affected elements from vertices by more than one smell
      */
-    private double calculateOverlapRatio(Set<Vertex> vertices, ArchitecturalSmell smell){
-        double elementsAffectedByMoreThanOneSmell = 0;
+    private String calculateOverlapRatio(Set<Vertex> vertices, ArchitecturalSmell smell){
+        double elementsAffectedByMoreThanOneSmell = 0d;
         GraphTraversalSource g = smell.getTraversalSource();
         for (Vertex c : vertices) {
             if(g.V(c).in().hasLabel(VertexLabel.SMELL.toString())
@@ -57,6 +57,6 @@ public class OverlapRatio extends AbstractSmellCharacteristic {
                     .count().next() > 0)
                 elementsAffectedByMoreThanOneSmell++;
         }
-        return elementsAffectedByMoreThanOneSmell / vertices.size();
+        return String.valueOf(elementsAffectedByMoreThanOneSmell / vertices.size());
     }
 }
