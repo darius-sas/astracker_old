@@ -17,6 +17,7 @@ import java.text.DecimalFormat;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 /**
@@ -113,6 +114,8 @@ public class ASTracker2 {
                 g1.addE(LATEST_VERSION).from(tail).to(successor).next();
                 currentVersionSmells.remove(t.getA());
                 nextVersionSmells.remove(t.getB());
+                t.getA().calculateCharacteristics();
+                t.getB().calculateCharacteristics();
             });
             if (!trackNonConsecutiveVersions)
                 currentVersionSmells.forEach(this::endDynasty);
@@ -182,7 +185,6 @@ public class ASTracker2 {
                         if (!smellVertex.property(SMELL_TYPE).isPresent()){
                             smellVertex.property(SMELL_TYPE, as.getType().toString());
                         }
-                        as.calculateCharacteristics();
                         Vertex characteristics = gs.addV(CHARACTERISTIC).next();
                         as.getCharacteristicsMap().forEach(characteristics::property);
                         gs.addE(HAS_CHARACTERISTIC).from(smellVertex).to(characteristics)
@@ -190,7 +192,7 @@ public class ASTracker2 {
 
                         Set<String> affectedElements = as.getAffectedElements().stream()
                                 .map(vertex -> vertex.value(NAME).toString())
-                                .collect(Collectors.toSet());
+                                .collect(Collectors.toCollection(TreeSet::new));
                         affectedElements.forEach(name -> {
                             if (!gs.V().has(NAME, name).hasNext()) {
                                 gs.addV(COMPONENT).property(NAME, name).next();
@@ -222,6 +224,17 @@ public class ASTracker2 {
             GraphTraversalSource g = trackGraph.traversal();
             g.V(tail).out().forEachRemaining( v -> g.addE(END).from(g.addV(END).next()).to(v).next());
             tail.remove();
+
+             g.V().has(SMELL_OBJECT).forEachRemaining(vertex -> {
+                 ArchitecturalSmell as = vertex.value(SMELL_OBJECT);
+                 vertex.property(SMELL_TYPE, as.getType().toString());
+                 as.getCharacteristicsMap().forEach(vertex::property);
+                 Set<String> affectedElements = as.getAffectedElements().stream()
+                         .map(v -> v.value(NAME).toString())
+                         .collect(Collectors.toCollection(TreeSet::new));
+                 vertex.property("affectedElements", affectedElements.toString());
+             });
+
             trackGraph.io(IoCore.graphml()).writeGraph(file);
         } catch (IOException e) {
             logger.error("Could not write track graph on file: {}", e.getMessage());

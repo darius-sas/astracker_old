@@ -33,7 +33,7 @@ class ASTracker2Test {
         });
         logger.info("Tracking completed. Generating simplified graph...");
         tracker.writeSimplifiedGraph("src/test/graphimages/simplified-trackgraph.graphml");
-        //tracker.writeTrackGraph("src/test/graphimages/trackgraph.graphml");
+        tracker.writeTrackGraph("src/test/graphimages/trackgraph.graphml");
 
     }
 
