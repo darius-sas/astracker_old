@@ -36,13 +36,14 @@ public class ASTracker2 {
     private static final String UNIQUE_SMELL_ID = "uniqueSmellID";
     private static final String REAPPEARED = "reappeared";
     private static final String STARTED_IN = "startedIn";
-    private static final String REMOVED = "removed";
     private static final String END = "end";
     private static final String SIMILARITY = "similarity";
     private static final String CHARACTERISTIC = "characteristic";
     private static final String HAS_CHARACTERISTIC = "hasCharacteristic";
     private static final String COMPONENT = "component";
     private static final String AFFECTS = "affects";
+    private static final String SMELL_TYPE = "smellType";
+    private static final String AGE = "age";
 
     private Graph trackGraph;
     private Vertex tail;
@@ -146,7 +147,7 @@ public class ASTracker2 {
         Vertex lastHeir = g.V().has(SMELL_OBJECT, smell).next();
         Vertex end = g.addV(END).next();
         g.V(tail).outE().where(__.otherV().is(lastHeir)).drop().iterate();
-        g.addE(REMOVED).from(end).to(lastHeir).next();
+        g.addE(END).from(end).to(lastHeir).next();
     }
 
     public ISimilarityLinker getScorer() {
@@ -162,19 +163,24 @@ public class ASTracker2 {
         Graph simplifiedGraph = TinkerGraph.open();
         GraphTraversalSource g1 = trackGraph.traversal();
         GraphTraversalSource gs = simplifiedGraph.traversal();
-        // Get all heads
-        Set<Path> dynasties = g1.V().out(STARTED_IN).repeat(__.in()).until(__.in().hasLabel(SMELL)).path().toSet();
+
+        g1.V(tail).out().forEachRemaining( v -> g1.addE(END).from(g1.addV(END).next()).to(v).next());
+        g1.V(tail).outE().drop().iterate();
+        tail.remove();
+
+        Set<Path> dynasties = g1.V().out(STARTED_IN).repeat(__.in(EVOLVED_FROM, REAPPEARED, END)).emit().path().toSet();;
         for (Path p : dynasties){
             Vertex smellVertex = gs.addV(SMELL).next();
-            for (Object o : p){
+            int age = 0;
+            for (Object o : p){ // beware: the path unfolds the visited vertices backwards
                 if (o instanceof Vertex) {
                     Vertex v = (Vertex) o;
                     if (((Vertex) o).label().equals(HEAD)) {
                         smellVertex.property(UNIQUE_SMELL_ID, v.value(UNIQUE_SMELL_ID), VERSION, v.value(VERSION));
-                    } else {
+                    } else if (((Vertex) o).label().equals(SMELL)){
                         ArchitecturalSmell as = v.value(SMELL_OBJECT);
-                        if (!smellVertex.property("smellType").isPresent()){
-                            smellVertex.property("smellType", as.getType().toString());
+                        if (!smellVertex.property(SMELL_TYPE).isPresent()){
+                            smellVertex.property(SMELL_TYPE, as.getType().toString());
                         }
                         as.calculateCharacteristics();
                         Vertex characteristics = gs.addV(CHARACTERISTIC).next();
@@ -194,10 +200,11 @@ public class ASTracker2 {
                                         .from(smellVertex).to(gs.V().has(NAME,name).next())
                                         .property(VERSION, v.value(VERSION))
                                         .next());
-
+                        age++;
                     }
                 }
             }
+            smellVertex.property(AGE, age);
         }
         return simplifiedGraph;
     }
@@ -220,4 +227,5 @@ public class ASTracker2 {
             logger.error("Could not write track graph on file: {}", e.getMessage());
         }
     }
+
 }

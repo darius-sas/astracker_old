@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
+@Deprecated
 public class ASTracker {
 
     Map<String, List<String>> idMap;
