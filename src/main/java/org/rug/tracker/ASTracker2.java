@@ -171,7 +171,10 @@ public class ASTracker2 {
         g1.V(tail).outE().drop().iterate();
         tail.remove();
 
-        Set<Path> dynasties = g1.V().out(STARTED_IN).repeat(__.in(EVOLVED_FROM, REAPPEARED, END)).emit().path().toSet();;
+        Set<Path> dynasties = g1.V().hasLabel(HEAD).out(STARTED_IN)
+                .repeat(__.in(EVOLVED_FROM, REAPPEARED, END))
+                .until(__.hasLabel(END))
+                .path().toSet();
         for (Path p : dynasties){
             Vertex smellVertex = gs.addV(SMELL).next();
             int age = 0;
