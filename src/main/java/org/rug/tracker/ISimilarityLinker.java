@@ -1,6 +1,6 @@
 package org.rug.tracker;
 
-import org.rug.data.Triple;
+import org.rug.data.util.Triple;
 import org.rug.data.smells.ArchitecturalSmell;
 
 import java.util.LinkedHashSet;

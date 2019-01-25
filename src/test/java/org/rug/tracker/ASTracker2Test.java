@@ -3,8 +3,10 @@ package org.rug.tracker;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.junit.jupiter.api.Test;
 import org.rug.data.ArcanDependencyGraphParser;
-import org.rug.data.Triple;
+import org.rug.data.util.Triple;
 import org.rug.data.smells.ArchitecturalSmell;
+import org.rug.persistence.PersistenceWriter;
+import org.rug.persistence.SmellSimilarityDataGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,14 +28,16 @@ class ASTracker2Test {
 
         ISimilarityLinker scorer = new JaccardSimilarityLinker();
         ASTracker2 tracker = new ASTracker2(scorer, true);
+        var generator = new SmellSimilarityDataGenerator("data/jaccard-scores-antlr.csv");
         versionedSystem.forEach( (version, graph) -> {
             logger.info("Tracking version {}", version);
             tracker.track(graph, version);
-            //Analysis.recordScorer(tracker); //TODO
+            generator.accept(tracker);
         });
-        logger.info("Tracking completed. Generating simplified graph...");
-        tracker.writeSimplifiedGraph("src/test/graphimages/simplified-trackgraph.graphml");
-        tracker.writeTrackGraph("src/test/graphimages/trackgraph.graphml");
+        PersistenceWriter.writeCSV(generator);
+        //logger.info("Tracking completed. Generating simplified graph...");
+        //tracker.writeSimplifiedGraph("src/test/graphimages/simplified-trackgraph.graphml");
+        //tracker.writeTrackGraph("src/test/graphimages/trackgraph.graphml");
 
     }
 

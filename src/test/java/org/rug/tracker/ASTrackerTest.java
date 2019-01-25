@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.smells.CDSmell;
 import org.rug.data.smells.factories.*;
-import org.rug.data.VSetPair;
+import org.rug.data.util.VSetPair;
 
 import java.io.IOException;
 import java.util.List;

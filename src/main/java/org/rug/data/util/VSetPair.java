@@ -1,4 +1,4 @@
-package org.rug.data;
+package org.rug.data.util;
 
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 

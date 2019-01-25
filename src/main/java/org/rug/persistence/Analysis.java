@@ -1,10 +1,10 @@
-package org.rug.data;
+package org.rug.persistence;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.rug.data.util.Triple;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.smells.CDSmell;
-import org.rug.tracker.ASTracker;
 import org.rug.tracker.ASTracker2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +25,7 @@ public class Analysis {
                                         Collection<? extends  Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch,
                                         String version){
         try{
+
             BufferedWriter writer = Files.newBufferedWriter(Paths.get(String.format("data/jaccard-%s.csv", version)));
             CSVPrinter printer = new CSVPrinter(writer,
                     CSVFormat.DEFAULT.withHeader("curID", "curAffected", "curType", "curShape",
