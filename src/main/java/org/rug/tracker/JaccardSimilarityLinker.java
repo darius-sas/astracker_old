@@ -2,7 +2,7 @@ package org.rug.tracker;
 
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.SmellVisitor;
-import org.rug.data.Triple;
+import org.rug.data.util.Triple;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.smells.CDSmell;
 import org.rug.data.smells.HLSmell;
@@ -37,6 +37,7 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
         this.fewElementsThreshold = fewElementsThreshold;
         this.moreElementsThreshold = moreElementsThreshold;
         this.fewElements = fewElements;
+        this.unfilteredMatchScore = new ArrayList<>();
     }
 
     /**
@@ -70,7 +71,8 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
             double variableThreshold = t.getA().getAffectedElements().size() <= fewElements ? fewElementsThreshold : moreElementsThreshold;
             return variableThreshold > t.getC();
         });
-        unfilteredMatchScore = new ArrayList<>(matchList);
+        unfilteredMatchScore.clear();
+        unfilteredMatchScore.addAll(matchList);
         matchList.sort(Comparator.comparing(t -> (JaccardTriple)t).reversed());
         bestMatch = new JaccardTripleSet(matchList);
 

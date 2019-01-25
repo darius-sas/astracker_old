@@ -7,7 +7,7 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
-import org.rug.data.Triple;
+import org.rug.data.util.Triple;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +45,7 @@ public class ASTracker2 {
     private static final String AFFECTS = "affects";
     private static final String SMELL_TYPE = "smellType";
     private static final String AGE = "age";
+    private static final String NA = "NA";
 
     private Graph trackGraph;
     private Vertex tail;
@@ -153,14 +154,36 @@ public class ASTracker2 {
         g.addE(END).from(end).to(lastHeir).next();
     }
 
+    /**
+     * Get the scorer used to instantiate this instance.
+     * @return The scorer used to link the smells between versions.
+     */
     public ISimilarityLinker getScorer() {
         return scorer;
     }
 
     /**
+     * Returns the latest version of update of this tracker.
+     * @return a string representing the version or {@link #NA} if no current version is available.
+     */
+    public String currentVersion(){
+        return tail.property(LATEST_VERSION).orElse(NA).toString();
+    }
+
+    /**
+     * Returns the latest version of the given smell.
+     * @return the latest version tracked by this tracker of the very given smell instance (does not look for heirs).
+     * Should the smell not be found {@link #NA} will be returned.
+     */
+    public String getVersionOf(ArchitecturalSmell smell) {
+        return trackGraph.traversal().V().has(SMELL_OBJECT, smell).next().property(VERSION).orElse(NA).toString();
+    }
+
+    /**
      * Builds the simplified of the tracking graph and returns the results.
      * The simplified graph basically collapses all SMELL vertices by walking the EVOLVED_FROM edges.
-     * @return the graph representing the tracked smells including their characteristics (does trigger the calculation).
+     * This operation drops the tail and all of its outgoing edges from the graph.
+     * @return the graph representing the tracked smells including their characteristics.
      */
     public Graph getSimplifiedTrackGraph(){
         Graph simplifiedGraph = TinkerGraph.open();
@@ -214,6 +237,11 @@ public class ASTracker2 {
         return simplifiedGraph;
     }
 
+    /**
+     * Writes the simplified graph on file. This operation removes the tail from the graph.
+     * @param file the file to write the graph on.
+     * @see #getSimplifiedTrackGraph()
+     */
     public void writeSimplifiedGraph(String file){
         try {
             getSimplifiedTrackGraph().io(IoCore.graphml()).writeGraph(file);
@@ -222,6 +250,10 @@ public class ASTracker2 {
         }
     }
 
+    /**
+     * Writes the current trackgraph on file. This operation removes the tail from the graph.
+     * @param file the file to write the graph on.
+     */
     public void writeTrackGraph(String file){
         try {
             GraphTraversalSource g = trackGraph.traversal();

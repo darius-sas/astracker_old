@@ -1,4 +1,4 @@
-package org.rug.data;
+package org.rug.data.util;
 
 /**
  * A class representing generic triple of objects
