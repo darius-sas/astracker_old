@@ -20,7 +20,7 @@ getPlot <- function(f){
     scale_x_discrete(expand = c(0, 0)) + scale_y_discrete(expand = c(0, 0)) +
     theme(axis.ticks = element_blank(),
           axis.text.x = element_text(size = base_size *.8, angle = 90),
-          axis.text.y = element_text(size = base_size *.5))+
+          axis.text.y = element_text(size = base_size *.5)) +
     geom_point(data = subset(df, match == "true"), colour="cyan3", shape=16, size=2, na.rm = T)
   
   return(p)
