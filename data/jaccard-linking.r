@@ -39,11 +39,13 @@ draw_similarity_score_plots <- function(data_file, base_size = 12){
 }
 # TODO complete plotting, check version 3.0 antlr what's happening
 ff <- "jaccard-scores-antlr.csv"
+ff <- "jaccard-scores-antlr-consecutives-only.csv"
 print(paste("Reading file", ff))
 plots <- draw_similarity_score_plots(ff)
-pdf("similarity-scores.pdf")
+pdf("similarity-scores-consecutives-only.pdf", width = 20, height = 15)
 invisible(lapply(plots, print))
 dev.off()
+# https://stackoverflow.com/questions/20500706/saving-multiple-ggplots-from-ls-into-one-and-separate-files-in-r
 #do.call(grid.arrange, args=c(plots, ncol=1))
 
 
