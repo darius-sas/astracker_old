@@ -32,7 +32,7 @@ public class SmellSimilarityDataGenerator extends DataGenerator<ASTracker2> {
     public String[] getHeader() {
         return new String[]{
                 "currentVersion", "nextVersion",
-                "curID", "curAffected", "curType", "curShape",
+                "curId", "curAffected", "curType", "curShape",
                 "nextId", "nextAffected", "nextType", "nextShape",
                 "matched",
                 "similarityScore"};

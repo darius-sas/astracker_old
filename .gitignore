@@ -1,5 +1,8 @@
 # My ignore
 /src/test/graphimages/*
+/data/*.pdf
+/data/.Rhistory
+/data/*.csv
 
 
 # Created by https://www.gitignore.io/api/java,intellij

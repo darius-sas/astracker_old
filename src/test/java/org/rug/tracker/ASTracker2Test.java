@@ -27,8 +27,8 @@ class ASTracker2Test {
         SortedMap<String, Graph> versionedSystem = ArcanDependencyGraphParser.parseGraphML("./arcanrunner/outputs/antlr");
 
         ISimilarityLinker scorer = new JaccardSimilarityLinker();
-        ASTracker2 tracker = new ASTracker2(scorer, true);
-        var generator = new SmellSimilarityDataGenerator("data/jaccard-scores-antlr.csv");
+        ASTracker2 tracker = new ASTracker2(scorer, false);
+        var generator = new SmellSimilarityDataGenerator("data/jaccard-scores-antlr-consecutives-only.csv");
         versionedSystem.forEach( (version, graph) -> {
             logger.info("Tracking version {}", version);
             tracker.track(graph, version);
