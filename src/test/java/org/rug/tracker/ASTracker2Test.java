@@ -36,8 +36,8 @@ class ASTracker2Test {
         });
         PersistenceWriter.writeCSV(generator);
         //logger.info("Tracking completed. Generating simplified graph...");
-        //tracker.writeSimplifiedGraph("src/test/graphimages/simplified-trackgraph.graphml");
-        //tracker.writeTrackGraph("src/test/graphimages/trackgraph.graphml");
+        tracker.writeSimplifiedGraph("src/test/graphimages/simplified-trackgraph-consecutives.graphml");
+        tracker.writeTrackGraph("src/test/graphimages/trackgraph-consecutives.graphml");
 
     }
 
