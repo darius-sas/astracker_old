@@ -41,23 +41,4 @@ class ASTracker2Test {
 
     }
 
-    public static Set<Integer> duplicate(List<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch){
-        Function<List<Integer>, Set<Integer>> findDuplicates = (List<Integer> listContainingDuplicates) ->
-        {
-            Set<Integer> setToReturn = new HashSet<>();
-            Set<Integer> set1 = new HashSet<>();
-
-            for (Integer yourInt : listContainingDuplicates)
-            {
-                if (!set1.add(yourInt))
-                {
-                    setToReturn.add(yourInt);
-                }
-            }
-            return setToReturn;
-        };
-
-        return findDuplicates.apply(bestMatch.stream().mapToInt(t -> (int)t.getA().getId()).boxed().collect(Collectors.toList()));
-    }
-
 }

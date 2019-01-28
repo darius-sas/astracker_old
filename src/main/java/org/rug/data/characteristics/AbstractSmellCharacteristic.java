@@ -30,8 +30,7 @@ public abstract class AbstractSmellCharacteristic implements ISmellCharacteristi
 
 
     /**
-     * Calculates this characteristic and returns the value computed. The value can also be retrieved later by invoking
-     * the method <code>getValue()</code>
+     * Calculates this characteristic and returns the value computed.
      *
      * @param smell the CD smell to visit the characteristic on.
      * @return the value computed.
@@ -42,8 +41,7 @@ public abstract class AbstractSmellCharacteristic implements ISmellCharacteristi
     }
 
     /**
-     * Calculates this characteristic and returns the value computed. The value can also be retrieved later by invoking
-     * the method <code>getValue()</code>
+     * Calculates this characteristic and returns the value computed.
      *
      * @param smell the HL smell to visit the characteristic on.
      * @return the value computed.
@@ -54,8 +52,7 @@ public abstract class AbstractSmellCharacteristic implements ISmellCharacteristi
     }
 
     /**
-     * Calculates this characteristic and returns the value computed. The value can also be retrieved later by invoking
-     * the method <code>getValue()</code>
+     * Calculates this characteristic and returns the value computed.
      *
      * @param smell the UD smell to visit the characteristic on.
      * @return the value computed.
