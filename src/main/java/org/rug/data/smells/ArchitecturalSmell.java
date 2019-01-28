@@ -228,42 +228,6 @@ public abstract class ArchitecturalSmell {
         return (int)id + smellNodes.hashCode() ^ 2 + affectedElements.hashCode() ^ 3 + super.hashCode() ^ 4;
     }
 
-    /**
-     * Given the graph of a system, this methods builds a list of Architectural Smells that affect this system.
-     * @param graph the graph of the system.
-     * @return a list containing the parsed smells.
-     */
-    @SuppressWarnings("unchecked")
-    public static List<ArchitecturalSmell> getArchitecturalSmellsIn(Graph graph){
-        List<ArchitecturalSmell> architecturalSmells = new ArrayList<>();
-        graph.traversal().V().hasLabel(VertexLabel.SMELL.toString()).toList()
-                .forEach(smellVertex -> {
-                    String smellTypeProperty = smellVertex.value("smellType");
-                    if (smellTypeProperty != null) {
-                        Type smellType = Type.fromString(smellTypeProperty);
-                        if(!smellVertex.property(CDSmell.VISITED_SMELL_NODE).orElse("false").equals("true")) {
-                            ArchitecturalSmell as = smellType.getInstance(smellVertex);
-                            if (as != null)
-                                architecturalSmells.add(as);
-                            else
-                                logger.warn("AS type '{}' with id '{}' was ignored since no implementation exists for it.", smellVertex.value("smellType").toString(), smellVertex.id());
-                        }
-                    }else {
-                        logger.warn("No 'smellType' property found for smell vertex {}.", smellVertex);
-                    }
-                });
-        return architecturalSmells;
-    }
-
-    /**
-     * Maps every architectural smell in the given list to its id.
-     * @param list the list of AS to use
-     * @return a map where the keys are the ids of the smell and the values are the smell instances.
-     */
-    public static Map<Long, ArchitecturalSmell> toMap(List<ArchitecturalSmell> list){
-        return list.stream().collect(Collectors.toMap(ArchitecturalSmell::getId, smell -> smell));
-    }
-
 
     /**
      * Represents a type of AS and maps them to their instantiation and characteristics set.

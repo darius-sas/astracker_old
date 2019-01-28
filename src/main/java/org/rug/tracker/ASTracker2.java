@@ -7,6 +7,7 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
+import org.rug.data.ArcanDependencyGraphParser;
 import org.rug.data.util.Triple;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.slf4j.Logger;
@@ -14,10 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -84,7 +82,7 @@ public class ASTracker2 {
      * @param nextVersion the version of the given system
      */
     public void track(Graph systemGraph, String nextVersion){
-        List<ArchitecturalSmell> nextVersionSmells = ArchitecturalSmell.getArchitecturalSmellsIn(systemGraph);
+        List<ArchitecturalSmell> nextVersionSmells = new ArrayList<>(ArcanDependencyGraphParser.getArchitecturalSmellsIn(systemGraph));
 
         GraphTraversalSource g1 = trackGraph.traversal();
 
@@ -100,8 +98,6 @@ public class ASTracker2 {
 
             LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch = scorer.bestMatch(currentVersionSmells, nextVersionSmells);
 
-            // Add smells that respect the threshold of the scorer as successors, or as newly arose smells if they
-            // do not respect the threshold
             bestMatch.forEach(t -> {
                 // If this fails it means that a successor has already been found.
                 Vertex predecessor = g1.V(tail).out().has(SMELL_OBJECT, t.getA()).next();

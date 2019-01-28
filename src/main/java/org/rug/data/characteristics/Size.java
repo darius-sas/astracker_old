@@ -29,7 +29,7 @@ public class Size extends AbstractSmellCharacteristic {
      */
     @Override
     public String visit(HLSmell smell) {
-        return String.valueOf((smell.getOutDep().size() + smell.getInDep().size()));
+        return String.valueOf(smell.getOutDep().size() + smell.getInDep().size());
     }
 
     /**
@@ -39,6 +39,6 @@ public class Size extends AbstractSmellCharacteristic {
      */
     @Override
     public String visit(UDSmell smell) {
-        return String.valueOf((double)smell.getBadDep().size());
+        return String.valueOf(smell.getBadDep().size());
     }
 }

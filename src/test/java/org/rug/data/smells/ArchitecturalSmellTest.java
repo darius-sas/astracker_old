@@ -25,7 +25,7 @@ class ArchitecturalSmellTest {
         SortedMap<String, Graph> versionedSystem = ArcanDependencyGraphParser.parseGraphML("./arcanrunner/outputs/antlr/");
 
         for (Map.Entry<String, Graph> entry : versionedSystem.entrySet()){
-            List<ArchitecturalSmell> smellsInTheSystem = ArchitecturalSmell.getArchitecturalSmellsIn(entry.getValue());
+            List<ArchitecturalSmell> smellsInTheSystem = ArcanDependencyGraphParser.getArchitecturalSmellsIn(entry.getValue());
             Set<Vertex> smellVertices = entry.getValue().traversal().V()
                     .hasLabel(VertexLabel.SMELL.toString())
                     .toSet();

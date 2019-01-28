@@ -12,7 +12,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="Arcan" target="1.5" />
+      <module name="Arcan" target="1.8" />
       <module name="ASTracker" target="1.8" />
       <module name="trackas" target="10" />
     </bytecodeTargetLevel>

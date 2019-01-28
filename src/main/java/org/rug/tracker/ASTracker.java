@@ -5,6 +5,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.rug.data.ArcanDependencyGraphParser;
 import org.rug.data.labels.EdgeLabel;
 import org.rug.data.util.VSetPair;
 import org.rug.data.labels.VertexLabel;
@@ -32,7 +33,7 @@ public class ASTracker {
         GraphTraversalSource g1 = graphV1.traversal();
         GraphTraversalSource g2 = graphV2.traversal();
 
-        Map<Long, ArchitecturalSmell> smellsInV2map = ArchitecturalSmell.toMap(smellsInV2);
+        Map<Long, ArchitecturalSmell> smellsInV2map = ArcanDependencyGraphParser.toMap(smellsInV2);
 
         for (CDSmell smell : smellsInV1){
             // Get affected nodes names

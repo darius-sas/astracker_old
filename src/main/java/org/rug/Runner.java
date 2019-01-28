@@ -15,7 +15,7 @@ public class Runner {
         SortedMap<String, Graph> versionedSystem = ArcanDependencyGraphParser.parseGraphML(inputFileOrDir);
         ASTracker tracker = new ASTracker();
         for (Map.Entry<String, Graph> entry : versionedSystem.entrySet()){
-            List<ArchitecturalSmell> smellsInTheSystem = ArchitecturalSmell.getArchitecturalSmellsIn(entry.getValue());
+            List<ArchitecturalSmell> smellsInTheSystem = ArcanDependencyGraphParser.getArchitecturalSmellsIn(entry.getValue());
 
             // Calculate smell characteristics
             smellsInTheSystem.forEach(ArchitecturalSmell::calculateCharacteristics);

@@ -4,6 +4,7 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.junit.jupiter.api.Test;
+import org.rug.data.ArcanDependencyGraphParser;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.smells.CDSmell;
 import org.rug.data.smells.factories.*;
@@ -63,7 +64,7 @@ class ASTrackerTest {
         ChainCDEvolver chainEv = new ChainCDEvolver(g2);
         StarCDEvolver starEv = new StarCDEvolver(g2);
         CircleCDEvolver circEv = new CircleCDEvolver(g2);
-        List<CDSmell> smellsInV1 = ArchitecturalSmell.getArchitecturalSmellsIn(g1).stream().filter(smell -> smell instanceof CDSmell).map(s -> (CDSmell)s).collect(Collectors.toList());
+        List<CDSmell> smellsInV1 = ArcanDependencyGraphParser.getArchitecturalSmellsIn(g1).stream().filter(smell -> smell instanceof CDSmell).map(s -> (CDSmell)s).collect(Collectors.toList());
 
         int elementsToAddtoEachSmell = 3;
         for (CDSmell.Shape shape : CDSmell.Shape.values()){
@@ -83,7 +84,7 @@ class ASTrackerTest {
             }
         }
 
-        List<ArchitecturalSmell> smellsInV2 = ArchitecturalSmell.getArchitecturalSmellsIn(g2);
+        List<ArchitecturalSmell> smellsInV2 = ArcanDependencyGraphParser.getArchitecturalSmellsIn(g2);
         ASTracker tracker = new ASTracker();
 
         tracker.trackCD2(g1, g2, smellsInV1, smellsInV2);

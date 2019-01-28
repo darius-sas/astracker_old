@@ -1,12 +1,9 @@
 package org.rug.data;
 
-import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Graph;
-import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.junit.jupiter.api.Test;
-import org.rug.data.labels.EdgeLabel;
 import org.rug.data.labels.VertexLabel;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.smells.CDSmell;
@@ -14,7 +11,6 @@ import org.rug.data.smells.factories.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -119,7 +115,7 @@ class SyntethicSystemFactoryTest {
                     .addStar(elements);
         }
 
-        List<ArchitecturalSmell> asInSystem = ArchitecturalSmell.getArchitecturalSmellsIn(factory.getGraph());
+        List<ArchitecturalSmell> asInSystem = ArcanDependencyGraphParser.getArchitecturalSmellsIn(factory.getGraph());
 
         assertTrue(asInSystem.size() == smellsToAddperType * 4, "Actual size is " + asInSystem.size());
 
@@ -158,7 +154,7 @@ class SyntethicSystemFactoryTest {
             }
         }
 
-        asInSystem = ArchitecturalSmell.getArchitecturalSmellsIn(factory.getGraph());
+        asInSystem = ArcanDependencyGraphParser.getArchitecturalSmellsIn(factory.getGraph());
 
         for (ArchitecturalSmell smell : asInSystem){
             if (smell instanceof CDSmell && ((CDSmell) smell).getShape().equals(CDSmell.Shape.STAR))
@@ -174,7 +170,7 @@ class SyntethicSystemFactoryTest {
             cdEvolver.shapeShift((CDSmell)smell);
         }
 
-        List<ArchitecturalSmell> newSmellsInSystem = ArchitecturalSmell.getArchitecturalSmellsIn(factory.getGraph());
+        List<ArchitecturalSmell> newSmellsInSystem = ArcanDependencyGraphParser.getArchitecturalSmellsIn(factory.getGraph());
 
         assertEquals(0, newSmellsInSystem.stream().filter(smell -> !(((CDSmell)smell).getShape() == CDSmell.Shape.CHAIN)).count());
         assertEquals(smellsToAddperType * 4, newSmellsInSystem.stream().filter(smell -> (((CDSmell)smell).getShape() == CDSmell.Shape.CHAIN)).count());

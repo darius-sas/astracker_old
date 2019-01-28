@@ -43,7 +43,6 @@ public abstract class CharacteristicsSet {
         characteristics.add(new AverageNumNOfChanges());
         characteristics.add(new OverlapRatio());
         characteristics.add(new PageRank());
-        characteristics.add(new NumberOfNodes());
         characteristics.add(new NumberOfEdges());
         characteristics.add(new AffectedComponentsType());
     }

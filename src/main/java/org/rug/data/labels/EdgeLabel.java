@@ -5,6 +5,11 @@ import org.rug.data.smells.ArchitecturalSmell;
 public enum EdgeLabel {
     PARTOFCYCLE("partOfCycle"),
     DEPENDSON("dependsOn"),
+    BELONGSTO("belongsTo"),
+    ISIMPLEMENTATIONOF("isImplementationOf"),
+    ISCHILDOF("isChildOf"),
+    ISAFFERENTOF("isAfferentOf"),
+    ISEFFERENTOF("isEfferentOf"),
     PARTOFSTAR("partOfStar"),
     ISCENTREOFSTAR("isCentreOfStar"),
     ISTINYSHAPED("isTinyShaped"),
