@@ -1,7 +1,6 @@
 package org.rug.data.characteristics;
 
 import org.apache.tinkerpop.gremlin.process.computer.ComputerResult;
-import org.apache.tinkerpop.gremlin.process.computer.VertexProgram;
 import org.apache.tinkerpop.gremlin.process.computer.ranking.pagerank.PageRankVertexProgram;
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
@@ -24,18 +23,33 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.function.DoubleBinaryOperator;
 import java.util.stream.Collectors;
 
 public class PageRank extends AbstractSmellCharacteristic {
 
     private final static Logger logger = LoggerFactory.getLogger(PageRank.class);
 
+    private final DoubleBinaryOperator aggregationFunction;
+
 
     /**
      * Sets up the name of this smell characteristic.
+     * The page rank of the smell will be the maximum value among its affected components.
      */
-    protected PageRank() {
+    public PageRank() {
         super("pageRank");
+        this.aggregationFunction = Double::max;
+    }
+
+    /**
+     * Initialiazes a characteristic calculator with the given name and aggregation function
+     * @param name the name of the characteristic
+     * @param aggregationFunction the aggregation function to use
+     */
+    public PageRank(String name, DoubleBinaryOperator aggregationFunction){
+        super(name);
+        this.aggregationFunction = aggregationFunction;
     }
 
     /**
@@ -81,9 +95,14 @@ public class PageRank extends AbstractSmellCharacteristic {
 
         var pageRank = 0d;
         Graph g = getPageRankGraph(smell);
-        Set<String> affectedElements = smell.getAffectedElements().stream().map(vertex -> vertex.value("name").toString()).collect(Collectors.toSet());
+        Set<String> affectedElements = smell.getAffectedElements()
+                .stream().map(vertex -> vertex.value("name").toString())
+                .collect(Collectors.toSet());
         pageRank = g.traversal().V().has("name", P.within(affectedElements))
-                .values("centrality").max().next().doubleValue();
+                .values("centrality").toSet()
+                .stream()
+                .mapToDouble(value -> (Double)value)
+                .reduce(aggregationFunction).getAsDouble();
 
         return String.valueOf(pageRank);
     }
@@ -93,7 +112,7 @@ public class PageRank extends AbstractSmellCharacteristic {
      * @param src the graph to clone
      * @return the clone
      */
-    private Graph clone(Graph src, List<String> vLabels, List<String> eLabels){
+    private static Graph clone(Graph src, List<String> vLabels, List<String> eLabels){
         Graph des = TinkerGraph.open();
         Map<Object, Object> mapId = new HashMap<>();
 
@@ -124,31 +143,34 @@ public class PageRank extends AbstractSmellCharacteristic {
     private static Map<Graph, Map<ArchitecturalSmell.Level, Graph>> cachedPageRankGraphs = new HashMap<>();
 
     private static Graph getPageRankGraph(ArchitecturalSmell smell){
-        if (!cachedPageRankGraphs.containsKey(smell.getAffectedGraph())) {
+        Graph smellGraph = smell.getAffectedGraph();
+        if (!cachedPageRankGraphs.containsKey(smellGraph)){
             var innerMap = new HashMap<ArchitecturalSmell.Level, Graph>();
+
+            Graph explodedGraph = explodeGraph(smellGraph);
 
             var programClasses = PageRankVertexProgram
                     .build().property("centrality")
-                    .edges(__.outE(EdgeLabel.DEPENDSON.toString()).asAdmin()).create(smell.getAffectedGraph());
+                    .edges(__.outE(EdgeLabel.DEPENDSON.toString()).asAdmin()).create(explodedGraph);
             var programPackage = PageRankVertexProgram
                     .build().property("centrality")
-                    .edges(__.outE(EdgeLabel.PACKAGEISAFFERENTOF.toString()).asAdmin()).create(smell.getAffectedGraph());
+                    .edges(__.outE(EdgeLabel.PACKAGEISAFFERENTOF.toString()).asAdmin()).create(explodedGraph);
 
             try {
-                Future<ComputerResult> futureClasses = smell.getAffectedGraph()
-                        .compute().workers(4)
+                Future<ComputerResult> futureClasses = explodedGraph
+                        .compute().workers(4) // max workers is 4
                         .program(programClasses)
-                        .submit(); // max workers is 4
+                        .submit();
                 Graph g = futureClasses.get().graph();
                 innerMap.put(ArchitecturalSmell.Level.CLASS, g);
 
-                Future<ComputerResult> futurePackage = smell.getAffectedGraph()
+                Future<ComputerResult> futurePackage = explodedGraph
                         .compute().workers(4)
                         .program(programPackage)
                         .submit();
                 g = futurePackage.get().graph();
                 innerMap.put(ArchitecturalSmell.Level.PACKAGE, g);
-                cachedPageRankGraphs.put(smell.getAffectedGraph(), innerMap);
+                cachedPageRankGraphs.put(smellGraph, innerMap);
 
             } catch (InterruptedException e) {
                 logger.error("InterruptedException while retrieving computer result: {}", e.getMessage());
@@ -158,6 +180,28 @@ public class PageRank extends AbstractSmellCharacteristic {
                 e.printStackTrace();
             }
         }
-        return cachedPageRankGraphs.get(smell.getAffectedGraph()).get(smell.getLevel());
+        return cachedPageRankGraphs.get(smellGraph).get(smell.getLevel());
+    }
+
+    /**
+     * Expands the dependsOn edges using the Weight property. For every dependsOn/packageIsAfferentOf edge e with Weight = n, n new edges
+     * will be added to the graph between the nodes connected by e. The original graph is not modified.
+     * @param src the starting graph to expand. This graph is not modified
+     * @return a new graph containing the exploded edges.
+     */
+    private static Graph explodeGraph(Graph src){
+        Graph dst = clone(src, List.of(VertexLabel.CLASS.toString(), VertexLabel.PACKAGE.toString()),
+                List.of(EdgeLabel.DEPENDSON.toString(), EdgeLabel.PACKAGEISAFFERENTOF.toString()));
+
+        dst.traversal().E().has("Weight").toSet().forEach(edge -> {
+            int weight = edge.value("Weight");
+            for (int i = 0; i < weight; i++) {
+                dst.traversal().addE(EdgeLabel.DEPENDSON.toString())
+                        .from(edge.outVertex()).to(edge.inVertex()).next();
+            }
+            dst.edges(edge).next().remove();
+        });
+
+        return dst;
     }
 }
