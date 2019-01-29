@@ -23,14 +23,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.function.DoubleBinaryOperator;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 public class PageRank extends AbstractSmellCharacteristic {
 
     private final static Logger logger = LoggerFactory.getLogger(PageRank.class);
 
-    private final DoubleBinaryOperator aggregationFunction;
+    private final Function<DoubleStream, Double> rankSelector;
 
 
     /**
@@ -38,18 +39,18 @@ public class PageRank extends AbstractSmellCharacteristic {
      * The page rank of the smell will be the maximum value among its affected components.
      */
     public PageRank() {
-        super("pageRank");
-        this.aggregationFunction = Double::max;
+        super("pageRankMax");
+        this.rankSelector = (x) -> x.max().getAsDouble();
     }
 
     /**
      * Initialiazes a characteristic calculator with the given name and aggregation function
      * @param name the name of the characteristic
-     * @param aggregationFunction the aggregation function to use
+     * @param rankSelector the aggregation function to use
      */
-    public PageRank(String name, DoubleBinaryOperator aggregationFunction){
+    public PageRank(String name, Function<DoubleStream, Double> rankSelector){
         super(name);
-        this.aggregationFunction = aggregationFunction;
+        this.rankSelector = rankSelector;
     }
 
     /**
@@ -98,11 +99,9 @@ public class PageRank extends AbstractSmellCharacteristic {
         Set<String> affectedElements = smell.getAffectedElements()
                 .stream().map(vertex -> vertex.value("name").toString())
                 .collect(Collectors.toSet());
-        pageRank = g.traversal().V().has("name", P.within(affectedElements))
+        pageRank = rankSelector.apply(g.traversal().V().has("name", P.within(affectedElements))
                 .values("centrality").toSet()
-                .stream()
-                .mapToDouble(value -> (Double)value)
-                .reduce(aggregationFunction).getAsDouble();
+                .stream().mapToDouble(value -> (Double)value));
 
         return String.valueOf(pageRank);
     }

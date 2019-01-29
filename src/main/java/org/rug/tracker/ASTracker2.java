@@ -78,11 +78,11 @@ public class ASTracker2 {
 
     /**
      * Computes the tracking algorithm on the given system and saves internally the results
-     * @param systemGraph the graph representing the system as computed by Arcan
-     * @param nextVersion the version of the given system
+     * @param smellsInVersion the architectural smells identified in version
+     * @param version the version of the given system
      */
-    public void track(Graph systemGraph, String nextVersion){
-        List<ArchitecturalSmell> nextVersionSmells = new ArrayList<>(ArcanDependencyGraphParser.getArchitecturalSmellsIn(systemGraph));
+    public void track(List<ArchitecturalSmell> smellsInVersion, String version){
+        List<ArchitecturalSmell> nextVersionSmells = new ArrayList<>(smellsInVersion);
 
         GraphTraversalSource g1 = trackGraph.traversal();
 
@@ -102,7 +102,7 @@ public class ASTracker2 {
                 // If this fails it means that a successor has already been found.
                 Vertex predecessor = g1.V(tail).out().has(SMELL_OBJECT, t.getA()).next();
                 Vertex successor = g1.addV(SMELL)
-                        .property(VERSION, nextVersion)
+                        .property(VERSION, version)
                         .property(SMELL_OBJECT, t.getB()).next();
 
                 g1.V(tail).outE().where(__.otherV().is(predecessor)).drop().iterate();
@@ -111,14 +111,12 @@ public class ASTracker2 {
                 g1.addE(LATEST_VERSION).from(tail).to(successor).next();
                 currentVersionSmells.remove(t.getA());
                 nextVersionSmells.remove(t.getB());
-                t.getA().calculateCharacteristics();
-                t.getB().calculateCharacteristics();
             });
             if (!trackNonConsecutiveVersions)
                 currentVersionSmells.forEach(this::endDynasty);
         }
-        nextVersionSmells.forEach(s -> addNewDynasty(s, nextVersion));
-        tail.property(LATEST_VERSION, nextVersion);
+        nextVersionSmells.forEach(s -> addNewDynasty(s, version));
+        tail.property(LATEST_VERSION, version);
     }
 
     /**
@@ -145,7 +143,7 @@ public class ASTracker2 {
     private void endDynasty(ArchitecturalSmell smell){
         GraphTraversalSource g = trackGraph.traversal();
         Vertex lastHeir = g.V().has(SMELL_OBJECT, smell).next();
-        Vertex end = g.addV(END).next();
+        Vertex end = g.addV(END).property(VERSION, currentVersion()).next();
         g.V(tail).outE().where(__.otherV().is(lastHeir)).drop().iterate();
         g.addE(END).from(end).to(lastHeir).next();
     }
@@ -186,7 +184,7 @@ public class ASTracker2 {
         GraphTraversalSource g1 = trackGraph.traversal();
         GraphTraversalSource gs = simplifiedGraph.traversal();
 
-        g1.V(tail).out().forEachRemaining( v -> g1.addE(END).from(g1.addV(END).next()).to(v).next());
+        g1.V(tail).out().forEachRemaining( v -> g1.addE(END).from(g1.addV(END).property(VERSION, tail.value(LATEST_VERSION)).next()).to(v).next());
         g1.V(tail).outE().drop().iterate();
         tail.remove();
 
@@ -201,7 +199,8 @@ public class ASTracker2 {
                 if (o instanceof Vertex) {
                     Vertex v = (Vertex) o;
                     if (((Vertex) o).label().equals(HEAD)) {
-                        smellVertex.property(UNIQUE_SMELL_ID, v.value(UNIQUE_SMELL_ID), VERSION, v.value(VERSION));
+                        smellVertex.property(UNIQUE_SMELL_ID, v.value(UNIQUE_SMELL_ID),
+                                "firstAppeared", v.values(VERSION));
                     } else if (((Vertex) o).label().equals(SMELL)){
                         ArchitecturalSmell as = v.value(SMELL_OBJECT);
                         if (!smellVertex.property(SMELL_TYPE).isPresent()){
@@ -212,23 +211,22 @@ public class ASTracker2 {
                         gs.addE(HAS_CHARACTERISTIC).from(smellVertex).to(characteristics)
                                 .property(VERSION, v.value(VERSION)).next();
 
-                        Set<String> affectedElements = as.getAffectedElements().stream()
-                                .map(vertex -> vertex.value(NAME).toString())
-                                .collect(Collectors.toCollection(TreeSet::new));
-                        affectedElements.forEach(name -> {
+                        as.getAffectedElements().stream().map(e -> e.value(NAME)).forEach(name -> {
                             if (!gs.V().has(NAME, name).hasNext()) {
-                                gs.addV(COMPONENT).property(NAME, name).next();
-                            }});
-                        affectedElements.forEach(name ->
-                                gs.addE(AFFECTS)
-                                        .from(smellVertex).to(gs.V().has(NAME,name).next())
-                                        .property(VERSION, v.value(VERSION))
-                                        .next());
+                                gs.addV(COMPONENT).property(NAME, name, "type", as.getLevel().toString()).next();
+                            }
+                            gs.addE(AFFECTS)
+                                    .from(smellVertex).to(gs.V().has(NAME, name).next())
+                                    .property(VERSION, v.value(VERSION))
+                                    .next();
+                        });
+
                         age++;
+                    } else if ((((Vertex) o).label().equals(END))){
+                        smellVertex.property(AGE, age, "lastDetected", ((Vertex) o).value(VERSION));
                     }
                 }
             }
-            smellVertex.property(AGE, age);
         }
         return simplifiedGraph;
     }
@@ -253,7 +251,7 @@ public class ASTracker2 {
     public void writeTrackGraph(String file){
         try {
             GraphTraversalSource g = trackGraph.traversal();
-            g.V(tail).out().forEachRemaining( v -> g.addE(END).from(g.addV(END).next()).to(v).next());
+            g.V(tail).out().forEachRemaining( v -> g.addE(END).from(g.addV(END).property(VERSION, tail.value(LATEST_VERSION)).next()).to(v).next());
             tail.remove();
 
              g.V().has(SMELL_OBJECT).forEachRemaining(vertex -> {
