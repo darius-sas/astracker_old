@@ -1,0 +1,39 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This notebook analyses the output of an architectural smell tracker and outputs some descriptive statistics.
+
+First, let us setup the data:
+```{r}
+library(ggplot2)
+df <- read.table('smells-characteristics.csv', header = T, sep = ",")
+df <- df[!is.na(df$age),]
+```
+
+##What is the distribution of the age among the different types of smells?
+Here is the distribution for each type of smell and the mean age shown as a dashed blue vertical line.
+```{r}
+df.unique <-df[!duplicated(df$uniqueSmellID), c(1,2,3,5)]
+p <- ggplot(df.unique, aes(age, group = smellType, colour = smellType)) +
+  geom_density() +
+  geom_vline(aes(xintercept=mean(age)), color="blue", linetype="dashed", size=1) +
+  scale_x_continuous(breaks = seq(1, length(df.unique$age), 1)) +
+  scale_y_continuous(breaks = pretty)
+print(p)
+```
+
+##What is the overlap of smells in each version?
+Below we plot the overlap of each smell for every version, some jitter is added make it easier to understand when there are multiple smells that have high overlap.
+```{r}
+p <- ggplot(df, aes(version, overlapRatio, group = smellType, colour = smellType)) +
+  geom_point() +
+  geom_jitter(width = 0.05, height = 0.05)
+print(p)
+```
+
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.

@@ -42,6 +42,7 @@ public class SmellCharacteristicsGenerator extends DataGenerator<ASTracker2> {
         Set<String> characteristicKeys = new TreeSet<>();
         g.V().hasLabel("characteristic").forEachRemaining(v -> characteristicKeys.addAll(v.keys()));
         header.add("version");
+        header.add("smellIdInVersion");
         header.addAll(characteristicKeys);
 
         Set<Vertex> smells = g.V().hasLabel("smell").toSet();
@@ -56,8 +57,10 @@ public class SmellCharacteristicsGenerator extends DataGenerator<ASTracker2> {
                         Edge incomingEdge = (Edge)variables.get("e");
                         Vertex characteristic = (Vertex)variables.get("v");
                         List<String> completeRecord = new ArrayList<>(commonRecord);
-                        completeRecord.add(incomingEdge.value("version"));
+                        completeRecord.add(incomingEdge.value("version").toString());
+                        completeRecord.add(incomingEdge.value("smellId").toString());
                         characteristicKeys.forEach(k -> completeRecord.add(characteristic.property(k).orElse("NA").toString()));
+                        //TODO add affected elements
                         records.add(completeRecord);
                     });
         });

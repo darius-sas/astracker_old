@@ -57,7 +57,6 @@ public class OverlapRatio extends AbstractSmellCharacteristic {
         for (Vertex c : vertices) {
             if(g.V(c).in().hasLabel(VertexLabel.SMELL.toString())
                     .is(P.not(P.within(smell.getSmellNodes())))
-                    .has("visitedSmellNode", "false")
                     .count().next() > 0)
                 elementsAffectedByMoreThanOneSmell++;
         }

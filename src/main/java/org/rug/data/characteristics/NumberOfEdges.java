@@ -54,16 +54,17 @@ public class NumberOfEdges extends AbstractSmellCharacteristic {
      * @return the sums of the weights and the number of other edges, or 0 if no edges are found.
      */
     private String countEdges(Set<Vertex> vertices, ArchitecturalSmell smell){
-        return smell.getTraversalSource()
+        return String.valueOf(smell.getTraversalSource()
                 .V(vertices).bothE()
                 .hasNot("Weight")
                 .where(__.otherV().is(P.within(vertices)))
-                .count().tryNext().orElse(0L)
+                .count().tryNext().orElse(0L).longValue()
                 +
-        smell.getTraversalSource().V(vertices)
-                .bothE().has("Weight")
+        smell.getTraversalSource()
+                .V(vertices).bothE()
+                .has("Weight")
                 .where(__.otherV().is(P.within(vertices))).as("edges")
                 .select("edges").by("Weight")
-                .sum().tryNext().orElse(0L).toString();
+                .sum().tryNext().orElse(0L).longValue());
     }
 }

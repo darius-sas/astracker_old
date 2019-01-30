@@ -44,6 +44,9 @@ public class ASTracker2 {
     private static final String SMELL_TYPE = "smellType";
     private static final String AGE = "age";
     private static final String NA = "NA";
+    public static final String FIRST_APPEARED = "firstAppeared";
+    public static final String SMELL_ID = "smellId";
+    public static final String COMPONENT_TYPE = "componentType";
 
     private Graph trackGraph;
     private Vertex tail;
@@ -200,7 +203,7 @@ public class ASTracker2 {
                     Vertex v = (Vertex) o;
                     if (((Vertex) o).label().equals(HEAD)) {
                         smellVertex.property(UNIQUE_SMELL_ID, v.value(UNIQUE_SMELL_ID),
-                                "firstAppeared", v.values(VERSION));
+                                FIRST_APPEARED, v.values(VERSION));
                     } else if (((Vertex) o).label().equals(SMELL)){
                         ArchitecturalSmell as = v.value(SMELL_OBJECT);
                         if (!smellVertex.property(SMELL_TYPE).isPresent()){
@@ -209,11 +212,12 @@ public class ASTracker2 {
                         Vertex characteristics = gs.addV(CHARACTERISTIC).next();
                         as.getCharacteristicsMap().forEach(characteristics::property);
                         gs.addE(HAS_CHARACTERISTIC).from(smellVertex).to(characteristics)
-                                .property(VERSION, v.value(VERSION)).next();
+                                .property(VERSION, v.value(VERSION))
+                                .property(SMELL_ID, as.getId()).next();
 
                         as.getAffectedElements().stream().map(e -> e.value(NAME)).forEach(name -> {
                             if (!gs.V().has(NAME, name).hasNext()) {
-                                gs.addV(COMPONENT).property(NAME, name, "type", as.getLevel().toString()).next();
+                                gs.addV(COMPONENT).property(NAME, name, COMPONENT_TYPE, as.getLevel().toString()).next();
                             }
                             gs.addE(AFFECTS)
                                     .from(smellVertex).to(gs.V().has(NAME, name).next())
