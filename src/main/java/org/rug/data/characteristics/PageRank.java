@@ -27,6 +27,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
+/**
+ * This characteristic computes the PageRank of the components of a given smell. The algorithm
+ * navigates the {@link EdgeLabel}.DEPENDSON and {@link EdgeLabel}.PACKAGEISAFFERENTOF labels.
+ */
 public class PageRank extends AbstractSmellCharacteristic {
 
     private final static Logger logger = LoggerFactory.getLogger(PageRank.class);

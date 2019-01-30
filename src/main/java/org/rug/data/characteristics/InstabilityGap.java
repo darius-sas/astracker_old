@@ -2,6 +2,9 @@ package org.rug.data.characteristics;
 
 import org.rug.data.smells.UDSmell;
 
+/**
+ * This characteristic computes the difference in instability between the centre of a UD and its bad dependencies.
+ */
 public class InstabilityGap extends AbstractSmellCharacteristic {
     /**
      * Sets up the name of this smell characteristic.

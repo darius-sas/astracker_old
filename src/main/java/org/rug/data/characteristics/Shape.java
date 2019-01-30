@@ -2,6 +2,9 @@ package org.rug.data.characteristics;
 
 import org.rug.data.smells.CDSmell;
 
+/**
+ * This characteristic returns the shape of a cyclic dependency.
+ */
 public class Shape extends AbstractSmellCharacteristic {
     /**
      * Sets up the name of this smell characteristic.

@@ -1,8 +1,6 @@
 package org.rug.data.characteristics;
 
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
-import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.ArcanDependencyGraphParser;
 import org.rug.data.labels.EdgeLabel;
 import org.rug.data.labels.VertexLabel;
@@ -13,6 +11,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * This characteristic computes whether a smell at the architectural level is also present at design level.
+ * For example, is a cycle only among packages, or it is also among the classes belonging to those packages?
+ */
 public class AffectedDesign extends AbstractSmellCharacteristic{
 
     public AffectedDesign() {
@@ -45,7 +47,7 @@ public class AffectedDesign extends AbstractSmellCharacteristic{
     }
 
     /**
-     * Whether the cycle is present only at architectural level (between packages)
+     * Whether the smell is present only at architectural level (between packages)
      * or also at design level.
      */
     public enum Level{

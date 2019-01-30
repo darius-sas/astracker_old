@@ -4,6 +4,9 @@ import org.rug.data.smells.CDSmell;
 import org.rug.data.smells.HLSmell;
 import org.rug.data.smells.UDSmell;
 
+/**
+ * This characteristic returns the number of elements affected by a smell.
+ */
 public class Size extends AbstractSmellCharacteristic {
     /**
      * Sets up this instance.

@@ -9,9 +9,12 @@ import org.rug.data.smells.CDSmell;
 import org.rug.data.smells.HLSmell;
 import org.rug.data.smells.UDSmell;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
+/**
+ * This characteristics computes the overlap of the smells affected by the given smell with the other smells in the system.
+ * Namely, what percentage of the nodes affected by the given smell are also affected by at least another smell.
+ */
 public class OverlapRatio extends AbstractSmellCharacteristic {
     /**
      * Sets up the name of this smell characteristic.
@@ -54,6 +57,7 @@ public class OverlapRatio extends AbstractSmellCharacteristic {
         for (Vertex c : vertices) {
             if(g.V(c).in().hasLabel(VertexLabel.SMELL.toString())
                     .is(P.not(P.within(smell.getSmellNodes())))
+                    .has("visitedSmellNode", "false")
                     .count().next() > 0)
                 elementsAffectedByMoreThanOneSmell++;
         }

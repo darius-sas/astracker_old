@@ -5,6 +5,9 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.rug.data.labels.EdgeLabel;
 import org.rug.data.smells.CDSmell;
 
+/**
+ * This characteristic computes the average weight among the edges of the elements affected by a smell.
+ */
 public class AverageEdgeWeight extends AbstractSmellCharacteristic {
     /**
      * Sets up the name of this smell characteristic.
@@ -15,12 +18,8 @@ public class AverageEdgeWeight extends AbstractSmellCharacteristic {
 
     @Override
     public String visit(CDSmell smell) {
-        /*
-         Get all the edges between the affected nodes that have EdgeLabel.DEPENDSON label, then get their Weight and
-         average the value across all the retrieved edges. Return 0 if the average is not present.
-         */
         return String.valueOf(smell.getTraversalSource().V(smell.getAffectedElements())
-                .bothE(EdgeLabel.DEPENDSON.toString(), EdgeLabel.ISEFFERENTOF.toString())
+                .bothE(EdgeLabel.DEPENDSON.toString(), EdgeLabel.PACKAGEISAFFERENTOF.toString())
                 .where(__.otherV().is(P.within(smell.getAffectedElements())))
                 .toStream()
                 .mapToInt(edge -> Integer.parseInt(edge.value("Weight").toString()))

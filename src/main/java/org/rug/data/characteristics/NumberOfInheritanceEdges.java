@@ -1,9 +1,11 @@
 package org.rug.data.characteristics;
 
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.rug.data.labels.EdgeLabel;
 import org.rug.data.smells.CDSmell;
 
+/**
+ * The number of edges that mark inheritance among the nodes affected by the smell.
+ */
 public class NumberOfInheritanceEdges extends AbstractSmellCharacteristic {
     /**
      * Sets up the name of this smell characteristic.

@@ -3,6 +3,7 @@ package org.rug.data.characteristics;
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.rug.data.labels.EdgeLabel;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.smells.CDSmell;
 import org.rug.data.smells.HLSmell;
@@ -11,6 +12,10 @@ import org.rug.data.smells.UDSmell;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * This characteristic returns the number of edges among the affected components.
+ * The Weight property is taken into account.
+ */
 public class NumberOfEdges extends AbstractSmellCharacteristic {
     /**
      * Sets up the name of this smell characteristic.
@@ -24,6 +29,7 @@ public class NumberOfEdges extends AbstractSmellCharacteristic {
         return countEdges(smell.getAffectedElements(), smell);
     }
 
+    @Override
     public String visit(UDSmell smell) {
         Set<Vertex> vertices = new HashSet<>();
         vertices.add(smell.getCentre());
@@ -41,15 +47,23 @@ public class NumberOfEdges extends AbstractSmellCharacteristic {
     }
 
     /**
-     * Calculates the number of edges with any label among the given vertices
+     * Calculates the number of edges that have Weight property among the given vertices, sums such values among them
+     * and then sums the count of rest of the edges.
      * @param vertices the vertices to use for edge counting among them
      * @param smell the smell to get the graph from
-     * @return the number of edges among the given vertices or 0 if no edges are present.
+     * @return the sums of the weights and the number of other edges, or 0 if no edges are found.
      */
     private String countEdges(Set<Vertex> vertices, ArchitecturalSmell smell){
-        return smell.getTraversalSource().V(vertices)
-                .bothE()
+        return smell.getTraversalSource()
+                .V(vertices).bothE()
+                .hasNot("Weight")
                 .where(__.otherV().is(P.within(vertices)))
-                .count().tryNext().orElse(0L).toString();
+                .count().tryNext().orElse(0L)
+                +
+        smell.getTraversalSource().V(vertices)
+                .bothE().has("Weight")
+                .where(__.otherV().is(P.within(vertices))).as("edges")
+                .select("edges").by("Weight")
+                .sum().tryNext().orElse(0L).toString();
     }
 }

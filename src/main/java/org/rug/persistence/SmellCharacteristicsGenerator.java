@@ -6,9 +6,7 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.tracker.ASTracker2;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class SmellCharacteristicsGenerator extends DataGenerator<ASTracker2> {
 
@@ -39,9 +37,10 @@ public class SmellCharacteristicsGenerator extends DataGenerator<ASTracker2> {
         Graph simplifiedGraph = object.getSimplifiedTrackGraph();
         GraphTraversalSource g = simplifiedGraph.traversal();
 
-        Set<String> smellKeys = g.V().hasLabel("smell").propertyMap().next().keySet();
+        Set<String> smellKeys = new TreeSet<>(g.V().hasLabel("smell").propertyMap().next().keySet());
         header.addAll(smellKeys);
-        Set<String> characteristicKeys = g.V().hasLabel("characteristic").propertyMap().next().keySet();
+        Set<String> characteristicKeys = new TreeSet<>();
+        g.V().hasLabel("characteristic").forEachRemaining(v -> characteristicKeys.addAll(v.keys()));
         header.add("version");
         header.addAll(characteristicKeys);
 

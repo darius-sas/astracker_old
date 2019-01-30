@@ -3,7 +3,7 @@ package org.rug.data.characteristics;
 import org.rug.data.smells.CDSmell;
 
 /**
- * Calculates the Parent Centrality metric as defined by Al-Mutawa et al.
+ * (Not implemented) Calculates the Parent Centrality metric as defined by Al-Mutawa et al.
  */
 public class ParentCentrality extends AbstractSmellCharacteristic {
 
