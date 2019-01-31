@@ -14,16 +14,16 @@ import java.util.List;
 import java.util.SortedMap;
 
 
-class ASTracker2Test {
+class ASmellTrackerTest {
 
-    private final static Logger logger = LoggerFactory.getLogger(ASTracker2Test.class);
+    private final static Logger logger = LoggerFactory.getLogger(ASmellTrackerTest.class);
 
     @Test
     void trackTest(){
         SortedMap<String, Graph> versionedSystem = ArcanDependencyGraphParser.parseGraphML("./arcanrunner/outputs/antlr");
 
         ISimilarityLinker scorer = new JaccardSimilarityLinker();
-        ASTracker2 tracker = new ASTracker2(scorer, false);
+        ASmellTracker tracker = new ASmellTracker(scorer, false);
 
         PersistenceWriter.register(new SmellSimilarityDataGenerator("data/jaccard-scores-antlr-consecutives-only.csv"));
         PersistenceWriter.register(new SmellCharacteristicsGenerator("data/smells-characteristics.csv"));
@@ -38,7 +38,7 @@ class ASTracker2Test {
         PersistenceWriter.sendTo(SmellCharacteristicsGenerator.class, tracker);
         PersistenceWriter.writeAllCSV();
         //logger.info("Tracking completed. Generating simplified graph...");
-        //tracker.writeSimplifiedGraph("src/test/graphimages/simplified-trackgraph-consecutives.graphml");
+        //tracker.writeCondensedGraph("src/test/graphimages/simplified-trackgraph-consecutives.graphml");
         //tracker.writeTrackGraph("src/test/graphimages/trackgraph-consecutives.graphml");
 
     }

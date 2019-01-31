@@ -1,19 +1,15 @@
 package org.rug.persistence;
 
-import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.smells.CDSmell;
-import org.rug.data.util.Triple;
-import org.rug.tracker.ASTracker2;
-import org.rug.tracker.ISimilarityLinker;
+import org.rug.tracker.ASmellTracker;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * Generates the data for the similarity scores computed by a tracker.
  */
-public class SmellSimilarityDataGenerator extends DataGenerator<ASTracker2> {
+public class SmellSimilarityDataGenerator extends DataGenerator<ASmellTracker> {
 
     /**
      * Intantiates this data generator.
@@ -45,7 +41,7 @@ public class SmellSimilarityDataGenerator extends DataGenerator<ASTracker2> {
      * @param tracker the object to serialize into records of strings.
      */
     @Override
-    public void accept(ASTracker2 tracker) {
+    public void accept(ASmellTracker tracker) {
         var scorer = tracker.getScorer();
         var bestMatch = scorer.bestMatch();
         for (var triple : scorer.getUnfilteredMatch()) {

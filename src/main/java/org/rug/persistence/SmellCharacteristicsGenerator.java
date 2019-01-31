@@ -4,11 +4,11 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.rug.tracker.ASTracker2;
+import org.rug.tracker.ASmellTracker;
 
 import java.util.*;
 
-public class SmellCharacteristicsGenerator extends DataGenerator<ASTracker2> {
+public class SmellCharacteristicsGenerator extends DataGenerator<ASmellTracker> {
 
     private List<String> header = new ArrayList<>();
 
@@ -33,8 +33,8 @@ public class SmellCharacteristicsGenerator extends DataGenerator<ASTracker2> {
      * @param object the object to serialize into records of strings.
      */
     @Override
-    public void accept(ASTracker2 object) {
-        Graph simplifiedGraph = object.getSimplifiedTrackGraph();
+    public void accept(ASmellTracker object) {
+        Graph simplifiedGraph = object.getCondensedGraph();
         GraphTraversalSource g = simplifiedGraph.traversal();
 
         Set<String> smellKeys = new TreeSet<>(g.V().hasLabel("smell").propertyMap().next().keySet());

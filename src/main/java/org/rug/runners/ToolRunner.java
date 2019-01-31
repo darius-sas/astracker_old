@@ -6,6 +6,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -24,6 +27,9 @@ public class ToolRunner {
         if (!showOutput) {
             this.builder.redirectOutput(ProcessBuilder.Redirect.DISCARD);
             this.builder.redirectError(ProcessBuilder.Redirect.DISCARD);
+        }else {
+            this.builder.redirectError(ProcessBuilder.Redirect.INHERIT);
+            this.builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
         }
     }
 
@@ -37,7 +43,7 @@ public class ToolRunner {
         try {
             p = builder.start();
         }catch (IOException e) {
-            logger.error("Could not run the give command: {}", builder.command());
+            logger.error("Could not start the following command: {}", String.join(" ", builder.command()));
             logger.error("The following error message was generated: {}", e.getMessage());
         }
         return p;
@@ -63,8 +69,9 @@ public class ToolRunner {
 
         if (args == null)
             args = new String[]{""};
-
-        return new ToolRunner(homeDir, showOutput, prepend(args, command + " "));
+        List<String> commandLine = new ArrayList<>(Arrays.asList(command.split(" ")));
+        commandLine.addAll(Arrays.asList(args));
+        return new ToolRunner(homeDir, showOutput, commandLine.toArray(new String[0]));
     }
 
     static {

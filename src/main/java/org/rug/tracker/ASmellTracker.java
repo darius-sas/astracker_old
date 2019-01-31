@@ -7,7 +7,6 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
-import org.rug.data.ArcanDependencyGraphParser;
 import org.rug.data.util.Triple;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.slf4j.Logger;
@@ -21,9 +20,9 @@ import java.util.stream.Collectors;
 /**
  * Tracks incrementally the architectural smells and saves them internally.
  */
-public class ASTracker2 {
+public class ASmellTracker {
 
-    private final static Logger logger = LoggerFactory.getLogger(ASTracker2.class);
+    private final static Logger logger = LoggerFactory.getLogger(ASmellTracker.class);
 
     private static final String NAME = "name";
     private static final String SMELL = "smell";
@@ -44,9 +43,9 @@ public class ASTracker2 {
     private static final String SMELL_TYPE = "smellType";
     private static final String AGE = "age";
     private static final String NA = "NA";
-    public static final String FIRST_APPEARED = "firstAppeared";
-    public static final String SMELL_ID = "smellId";
-    public static final String COMPONENT_TYPE = "componentType";
+    private static final String FIRST_APPEARED = "firstAppeared";
+    private static final String SMELL_ID = "smellId";
+    private static final String COMPONENT_TYPE = "componentType";
 
     private Graph trackGraph;
     private Graph condensedGraph;
@@ -62,7 +61,7 @@ public class ASTracker2 {
      * @param trackNonConsecutiveVersions whether to track a smell through non-consecutive versions.
      *                                    This adds the possibility to track reappearing smells.
      */
-    public ASTracker2(ISimilarityLinker scorer, boolean trackNonConsecutiveVersions){
+    public ASmellTracker(ISimilarityLinker scorer, boolean trackNonConsecutiveVersions){
         this.trackGraph = TinkerGraph.open();
         this.tail = trackGraph.traversal().addV("tail").next();
         this.uniqueSmellID = 1L;
@@ -76,7 +75,7 @@ public class ASTracker2 {
      * Builds an instance of this tracker that does not tracks smells through non-consecutive versions.
      * A JaccardSimilarityLinker is used to select the single successor of the given smell.
      */
-    public ASTracker2(){
+    public ASmellTracker(){
         this(new JaccardSimilarityLinker(), true);
     }
 
@@ -178,12 +177,13 @@ public class ASTracker2 {
     }
 
     /**
-     * Builds the simplified of the tracking graph and returns the results.
+     * Builds the condensed graph of the tracking graph and returns the result.
      * The simplified graph basically collapses all SMELL vertices by walking the EVOLVED_FROM edges.
-     * This operation drops the tail and all of its outgoing edges from the graph.
+     * This operation drops the tail and all of its outgoing edges from the graph. The tracking graph
+     * is no more usable after this operation has been executed.
      * @return the graph representing the tracked smells including their characteristics.
      */
-    public Graph getSimplifiedTrackGraph(){
+    public Graph getCondensedGraph(){
         if (condensedGraph == null) {
             condensedGraph = TinkerGraph.open();
             GraphTraversalSource g1 = trackGraph.traversal();
@@ -241,11 +241,11 @@ public class ASTracker2 {
     /**
      * Writes the simplified graph on file. This operation removes the tail from the graph.
      * @param file the file to write the graph on.
-     * @see #getSimplifiedTrackGraph()
+     * @see #getCondensedGraph()
      */
-    public void writeSimplifiedGraph(String file){
+    public void writeCondensedGraph(String file){
         try {
-            getSimplifiedTrackGraph().io(IoCore.graphml()).writeGraph(file);
+            getCondensedGraph().io(IoCore.graphml()).writeGraph(file);
         } catch (IOException e) {
             logger.error("Could not write simplified graph on file: {}", e.getMessage());
         }

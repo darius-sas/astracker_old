@@ -9,7 +9,7 @@ import org.rug.persistence.PersistenceWriter;
 import org.rug.persistence.SmellCharacteristicsGenerator;
 import org.rug.persistence.SmellSimilarityDataGenerator;
 import org.rug.runners.ToolRunner;
-import org.rug.tracker.ASTracker2;
+import org.rug.tracker.ASmellTracker;
 import org.rug.tracker.JaccardSimilarityLinker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Main {
@@ -27,30 +28,44 @@ public class Main {
     public static void main(String[] argv) {
 
         Args args = new Args();
-        JCommander.newBuilder()
+        JCommander jc = JCommander.newBuilder()
                 .addObject(args)
-                .build().parse(argv);
+                .build();
+
+        jc.setProgramName("java -jar trackas.jar");
+        jc.parse(argv);
+
+        if (args.help){
+            jc.usage();
+            System.exit(0);
+        }
 
         List<ToolRunner> tools = new ArrayList<>();
         if (args.runArcan){
             Pattern p = Pattern.compile("\\d+\\.\\d+(\\.\\d+\\w*)?");
             args.getJarFilesList().forEach(jar -> {
-                String version = p.matcher(jar).group();
-                String arcanCsv = Paths.get(args.getOutput().getAbsolutePath(), "arcanOutput", version, "csv").toString();
-                String neo4jOutDir = Paths.get(args.getOutput().getAbsolutePath(), "arcanOutput", version, "neo4jDb").toString();
-                tools.add(ToolRunner.getTool("arcan", "-p", jar,
-                        "-jar", "-CD", "-HL", "-UD", "-CM", "-PM",
-                        "-out", arcanCsv,
-                        "-neo4j", "-d", neo4jOutDir));
+                Matcher matcher = p.matcher(jar);
+                if (matcher.find()) {
+                    String version = matcher.group();
+                    String arcanCsv = Paths.get(args.getOutput().getAbsolutePath(), "arcanOutput", version, "csv").toString();
+                    String neo4jOutDir = Paths.get(args.getOutput().getAbsolutePath(), "arcanOutput", version, "neo4jDb").toString();
+                    tools.add(ToolRunner.getTool("arcan", "-p", jar,
+                            "-jar", "-CD", "-HL", "-UD", "-CM", "-PM",
+                            "-out", arcanCsv,
+                            "-neo4j", "-d", neo4jOutDir));
+                }else {
+                    logger.error("Could not match the version of jar: {}", jar);
+                }
             });
         }
 
         tools.forEach(t -> {
             try {
-                logger.info("Running: ", String.join(" ", t.getBuilder().command()));
-                t.start().waitFor();
+                logger.info("Running: {}", String.join(" ", t.getBuilder().command()));
+                int exit = t.start().waitFor();
+                logger.info("Completed with exit code {}", exit);
             } catch (InterruptedException e) {
-                logger.error("Error while executing tool: ", String.join(" ", t.getBuilder().command()));
+                logger.error("Error while executing tool: {}", String.join(" ", t.getBuilder().command()));
                 System.exit(-1);
             }
         });
@@ -63,7 +78,7 @@ public class Main {
 
         SortedMap<String, Graph> versionedSystem = ArcanDependencyGraphParser.parseGraphML(args.inputDirectory);
 
-        ASTracker2 tracker = new ASTracker2(new JaccardSimilarityLinker(), args.trackNonConsecutiveVersions);
+        ASmellTracker tracker = new ASmellTracker(new JaccardSimilarityLinker(), args.trackNonConsecutiveVersions);
 
         versionedSystem.forEach( (version, graph) -> {
             List<ArchitecturalSmell> smells = ArcanDependencyGraphParser.getArchitecturalSmellsIn(graph);
@@ -75,7 +90,7 @@ public class Main {
         logger.info("Tracking complete, writing output...");
         PersistenceWriter.sendTo(SmellCharacteristicsGenerator.class, tracker);
         PersistenceWriter.writeAllCSV();
-        tracker.writeSimplifiedGraph(args.getCondensedGraphFile());
+        tracker.writeCondensedGraph(args.getCondensedGraphFile());
         tracker.writeTrackGraph(args.getTrackGraphFileName());
     }
 }
