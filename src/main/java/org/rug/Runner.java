@@ -20,10 +20,8 @@ public class Runner {
             // Calculate smell characteristics
             smellsInTheSystem.forEach(ArchitecturalSmell::calculateCharacteristics);
 
-            // TODO: implement tracking state
             tracker.trackCD(null, null);
 
-            // TODO: implement save on graph data and smell characteristic
             // code here
         }
     }

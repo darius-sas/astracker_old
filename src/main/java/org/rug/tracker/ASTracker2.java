@@ -49,6 +49,7 @@ public class ASTracker2 {
     public static final String COMPONENT_TYPE = "componentType";
 
     private Graph trackGraph;
+    private Graph condensedGraph;
     private Vertex tail;
     private long uniqueSmellID;
     private ISimilarityLinker scorer;
@@ -183,56 +184,58 @@ public class ASTracker2 {
      * @return the graph representing the tracked smells including their characteristics.
      */
     public Graph getSimplifiedTrackGraph(){
-        Graph simplifiedGraph = TinkerGraph.open();
-        GraphTraversalSource g1 = trackGraph.traversal();
-        GraphTraversalSource gs = simplifiedGraph.traversal();
+        if (condensedGraph == null) {
+            condensedGraph = TinkerGraph.open();
+            GraphTraversalSource g1 = trackGraph.traversal();
+            GraphTraversalSource gs = condensedGraph.traversal();
 
-        g1.V(tail).out().forEachRemaining( v -> g1.addE(END).from(g1.addV(END).property(VERSION, tail.value(LATEST_VERSION)).next()).to(v).next());
-        g1.V(tail).outE().drop().iterate();
-        tail.remove();
+            g1.V(tail).out().forEachRemaining(v -> g1.addE(END).from(g1.addV(END).property(VERSION, tail.value(LATEST_VERSION)).next()).to(v).next());
+            g1.V(tail).outE().drop().iterate();
+            tail.remove();
 
-        Set<Path> dynasties = g1.V().hasLabel(HEAD).out(STARTED_IN)
-                .repeat(__.in(EVOLVED_FROM, REAPPEARED, END))
-                .until(__.hasLabel(END))
-                .path().toSet();
-        for (Path p : dynasties){
-            Vertex smellVertex = gs.addV(SMELL).next();
-            int age = 0;
-            for (Object o : p){ // beware: the path unfolds the visited vertices backwards
-                if (o instanceof Vertex) {
-                    Vertex v = (Vertex) o;
-                    if (((Vertex) o).label().equals(HEAD)) {
-                        smellVertex.property(UNIQUE_SMELL_ID, v.value(UNIQUE_SMELL_ID),
-                                FIRST_APPEARED, v.values(VERSION));
-                    } else if (((Vertex) o).label().equals(SMELL)){
-                        ArchitecturalSmell as = v.value(SMELL_OBJECT);
-                        if (!smellVertex.property(SMELL_TYPE).isPresent()){
-                            smellVertex.property(SMELL_TYPE, as.getType().toString());
-                        }
-                        Vertex characteristics = gs.addV(CHARACTERISTIC).next();
-                        as.getCharacteristicsMap().forEach(characteristics::property);
-                        gs.addE(HAS_CHARACTERISTIC).from(smellVertex).to(characteristics)
-                                .property(VERSION, v.value(VERSION))
-                                .property(SMELL_ID, as.getId()).next();
-
-                        as.getAffectedElements().stream().map(e -> e.value(NAME)).forEach(name -> {
-                            if (!gs.V().has(NAME, name).hasNext()) {
-                                gs.addV(COMPONENT).property(NAME, name, COMPONENT_TYPE, as.getLevel().toString()).next();
+            Set<Path> dynasties = g1.V().hasLabel(HEAD).out(STARTED_IN)
+                    .repeat(__.in(EVOLVED_FROM, REAPPEARED, END))
+                    .until(__.hasLabel(END))
+                    .path().toSet();
+            for (Path p : dynasties) {
+                Vertex smellVertex = gs.addV(SMELL).next();
+                int age = 0;
+                for (Object o : p) { // beware: the path unfolds the visited vertices backwards
+                    if (o instanceof Vertex) {
+                        Vertex v = (Vertex) o;
+                        if (((Vertex) o).label().equals(HEAD)) {
+                            smellVertex.property(UNIQUE_SMELL_ID, v.value(UNIQUE_SMELL_ID),
+                                    FIRST_APPEARED, v.values(VERSION));
+                        } else if (((Vertex) o).label().equals(SMELL)) {
+                            ArchitecturalSmell as = v.value(SMELL_OBJECT);
+                            if (!smellVertex.property(SMELL_TYPE).isPresent()) {
+                                smellVertex.property(SMELL_TYPE, as.getType().toString());
                             }
-                            gs.addE(AFFECTS)
-                                    .from(smellVertex).to(gs.V().has(NAME, name).next())
+                            Vertex characteristics = gs.addV(CHARACTERISTIC).next();
+                            as.getCharacteristicsMap().forEach(characteristics::property);
+                            gs.addE(HAS_CHARACTERISTIC).from(smellVertex).to(characteristics)
                                     .property(VERSION, v.value(VERSION))
-                                    .next();
-                        });
+                                    .property(SMELL_ID, as.getId()).next();
 
-                        age++;
-                    } else if ((((Vertex) o).label().equals(END))){
-                        smellVertex.property(AGE, age, "lastDetected", ((Vertex) o).value(VERSION));
+                            as.getAffectedElements().stream().map(e -> e.value(NAME)).forEach(name -> {
+                                if (!gs.V().has(NAME, name).hasNext()) {
+                                    gs.addV(COMPONENT).property(NAME, name, COMPONENT_TYPE, as.getLevel().toString()).next();
+                                }
+                                gs.addE(AFFECTS)
+                                        .from(smellVertex).to(gs.V().has(NAME, name).next())
+                                        .property(VERSION, v.value(VERSION))
+                                        .next();
+                            });
+
+                            age++;
+                        } else if ((((Vertex) o).label().equals(END))) {
+                            smellVertex.property(AGE, age, "lastDetected", ((Vertex) o).value(VERSION));
+                        }
                     }
                 }
             }
         }
-        return simplifiedGraph;
+        return condensedGraph;
     }
 
     /**

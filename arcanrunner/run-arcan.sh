@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 
 function arcan(){
     java -jar ./arcan/Arcan-1.4.0-SNAPSHOT.jar $@
