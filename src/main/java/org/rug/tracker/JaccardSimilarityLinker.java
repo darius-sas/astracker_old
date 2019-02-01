@@ -138,8 +138,8 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
     @Override
     public Set<String> visit(HLSmell smell) {
         Set<String> elements = smell.getAffectedElements().stream().map(this::getName).collect(Collectors.toSet());
-        //elements.addAll(smell.getInDep().stream().map(this::getName).collect(Collectors.toSet()));
-        //elements.add(getName(smell.getCentre()));
+        //elements.addAll(smell.getInDep().stream().map(this::getToolName).collect(Collectors.toSet()));
+        //elements.add(getToolName(smell.getCentre()));
         return elements;
     }
 
@@ -151,7 +151,7 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
     @Override
     public Set<String> visit(UDSmell smell) {
         Set<String> elements = smell.getAffectedElements().stream().map(this::getName).collect(Collectors.toSet());
-        //elements.add(getName(smell.getCentre()));
+        //elements.add(getToolName(smell.getCentre()));
         return elements;
     }
 

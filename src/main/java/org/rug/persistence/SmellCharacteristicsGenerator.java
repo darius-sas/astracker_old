@@ -37,7 +37,7 @@ public class SmellCharacteristicsGenerator extends DataGenerator<ASmellTracker> 
         Graph simplifiedGraph = object.getCondensedGraph();
         GraphTraversalSource g = simplifiedGraph.traversal();
 
-        Set<String> smellKeys = new TreeSet<>(g.V().hasLabel("smell").propertyMap().next().keySet());
+        Set<String> smellKeys = new TreeSet<>(g.V().hasLabel("smell").propertyMap().tryNext().orElse(Collections.emptyMap()).keySet());
         header.addAll(smellKeys);
         Set<String> characteristicKeys = new TreeSet<>();
         g.V().hasLabel("characteristic").forEachRemaining(v -> characteristicKeys.addAll(v.keys()));

@@ -13,7 +13,7 @@ public class SmellSimilarityDataGenerator extends DataGenerator<ASmellTracker> {
 
     /**
      * Intantiates this data generator.
-     * @param outputFile the target output file for this generator.
+     * @param outputFile the target outputDir file for this generator.
      */
     public SmellSimilarityDataGenerator(String outputFile) {
         super(outputFile);

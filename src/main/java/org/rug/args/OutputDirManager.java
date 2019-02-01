@@ -15,7 +15,7 @@ public class OutputDirManager implements IStringConverter<File> {
         File f = new File(s);
         if (!f.exists()) {
             if(!f.mkdirs()) {
-                logger.error("Unable to create output directory: {}", s);
+                logger.error("Unable to create outputDir directory: {}", s);
                 System.exit(-1);
             }
         }

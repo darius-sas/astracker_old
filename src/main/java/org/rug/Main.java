@@ -3,23 +3,24 @@ package org.rug;
 import com.beust.jcommander.JCommander;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.rug.args.Args;
+import org.rug.args.InputDirManager;
 import org.rug.data.ArcanDependencyGraphParser;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.persistence.PersistenceWriter;
 import org.rug.persistence.SmellCharacteristicsGenerator;
 import org.rug.persistence.SmellSimilarityDataGenerator;
+import org.rug.runners.ArcanRunner;
 import org.rug.runners.ToolRunner;
 import org.rug.tracker.ASmellTracker;
 import org.rug.tracker.JaccardSimilarityLinker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Main {
 
@@ -40,35 +41,19 @@ public class Main {
             System.exit(0);
         }
 
-        List<ToolRunner> tools = new ArrayList<>();
+        List<ToolRunner> runners = new ArrayList<>();
         if (args.runArcan){
-            Pattern p = Pattern.compile("\\d+\\.\\d+(\\.\\d+\\w*)?");
-            args.getJarFilesList().forEach(jar -> {
-                Matcher matcher = p.matcher(jar);
-                if (matcher.find()) {
-                    String version = matcher.group();
-                    String arcanCsv = Paths.get(args.getOutput().getAbsolutePath(), "arcanOutput", version, "csv").toString();
-                    String neo4jOutDir = Paths.get(args.getOutput().getAbsolutePath(), "arcanOutput", version, "neo4jDb").toString();
-                    tools.add(ToolRunner.getTool("arcan", "-p", jar,
-                            "-jar", "-CD", "-HL", "-UD", "-CM", "-PM",
-                            "-out", arcanCsv,
-                            "-neo4j", "-d", neo4jOutDir));
-                }else {
-                    logger.error("Could not match the version of jar: {}", jar);
-                }
+            String outputDir = Paths.get(args.getOutputDir().toString(), "arcanOutput").toString();
+            args.getInputTriples(Args.JAR_FILES_REGEX).forEach(t -> {
+                String outputDirVers = Paths.get(outputDir, t.getB(), t.getC()).toString();
+                runners.add(new ArcanRunner(t.getA(), t.getB(), t.getC(), outputDirVers));
             });
+            File outDir = new File(outputDir);
+            outDir.mkdirs();
+            args.inputDirectory = new InputDirManager().convert(outputDir);
         }
 
-        tools.forEach(t -> {
-            try {
-                logger.info("Running: {}", String.join(" ", t.getBuilder().command()));
-                int exit = t.start().waitFor();
-                logger.info("Completed with exit code {}", exit);
-            } catch (InterruptedException e) {
-                logger.error("Error while executing tool: {}", String.join(" ", t.getBuilder().command()));
-                System.exit(-1);
-            }
-        });
+        runners.forEach(ToolRunner::start);
 
         if (args.similarityScores)
             PersistenceWriter.register(new SmellSimilarityDataGenerator(args.getSimilarityScoreFile()));
@@ -76,7 +61,7 @@ public class Main {
         if (args.smellCharacteristics)
             PersistenceWriter.register(new SmellCharacteristicsGenerator(args.getSmellCharacteristicsFile()));
 
-        SortedMap<String, Graph> versionedSystem = ArcanDependencyGraphParser.parseGraphML(args.inputDirectory);
+        SortedMap<String, Graph> versionedSystem = ArcanDependencyGraphParser.parseGraphML(args.inputDirectory.getAbsolutePath());
 
         ASmellTracker tracker = new ASmellTracker(new JaccardSimilarityLinker(), args.trackNonConsecutiveVersions);
 
@@ -87,7 +72,7 @@ public class Main {
             tracker.track(smells, version);
             PersistenceWriter.sendTo(SmellSimilarityDataGenerator.class, tracker);
         });
-        logger.info("Tracking complete, writing output...");
+        logger.info("Tracking complete, writing outputDir...");
         PersistenceWriter.sendTo(SmellCharacteristicsGenerator.class, tracker);
         PersistenceWriter.writeAllCSV();
         tracker.writeCondensedGraph(args.getCondensedGraphFile());
