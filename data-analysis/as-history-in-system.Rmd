@@ -4,11 +4,14 @@ output: html_notebook
 ---
 
 This notebook analyses the output of an architectural smell tracker and outputs some descriptive statistics.
+```{r include=FALSE}
+setwd("../test-data/")
+```
 
 First, let us setup the data:
 ```{r}
 library(ggplot2)
-df <- read.table('smells-characteristics.csv', header = T, sep = ",")
+df <- read.table(file.choose(), header = T, sep = ",")
 df <- df[!is.na(df$age),]
 ```
 
@@ -36,7 +39,7 @@ Below we plot the overlap of each smell for every version, some jitter is added 
 ```{r}
 p <- ggplot(df, aes(version, overlapRatio, group = smellType, colour = smellType)) +
   geom_point() +
-  geom_jitter(width = 0.05, height = 0.05)
+  geom_jitter(width = 0.05, height = 0.5)
 print(p)
 ```
 And here is the distribution of each value per version

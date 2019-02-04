@@ -1,6 +1,8 @@
 package org.rug.persistence;
 
-public interface ICSVGenerator<T> extends IDataGenerator<T>{
+import java.util.List;
+
+public interface ICSVGenerator<T> extends IDataGenerator<T>, Iterable<List<String>>{
 
     /**
      * Returns the header of the underlying data.

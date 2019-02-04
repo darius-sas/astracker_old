@@ -11,7 +11,7 @@ import java.util.function.Consumer;
  * Base modeling for CSV data generators.
  * @param <T>
  */
-public abstract class CSVDataGenerator<T> implements Iterable<List<String>>, ICSVGenerator<T>{
+public abstract class CSVDataGenerator<T> implements ICSVGenerator<T>{
 
     protected final List<List<String>> records;
     private final File outputFile;

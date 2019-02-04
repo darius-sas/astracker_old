@@ -1,8 +1,15 @@
-library(ggplot2)
-library(stringr)
-library(gridExtra)
+args <- commandArgs(TRUE)
+
+if (length(args) < 2) {
+  write("Usage: Rscript jaccard-linking.r <similarity-score-file.csv> <output-file.ext>", stdout())
+  quit()
+}
 
 draw_similarity_score_plots <- function(data_file, base_size = 12){
+  library(ggplot2)
+  library(stringr)
+  library(gridExtra)
+  
   df <- read.csv(data_file)
   df$curId <- as.character(df$curId)
   df$nextId <- as.character(df$nextId)
@@ -37,12 +44,14 @@ draw_similarity_score_plots <- function(data_file, base_size = 12){
   }
   return(plots)
 }
+
 # TODO complete plotting, check version 3.0 antlr what's happening
-ff <- "jaccard-scores-antlr.csv"
-ff <- "jaccard-scores-antlr-consecutives-only.csv"
-print(paste("Reading file", ff))
-plots <- draw_similarity_score_plots(ff)
-pdf("similarity-scores-consecutives-only.pdf", width = 20, height = 15)
+
+fin <- args[1]
+fout <- args[2]
+
+plots <- draw_similarity_score_plots(fin)
+pdf(fout, width = 20, height = 15)
 invisible(lapply(plots, print))
 dev.off()
 # https://stackoverflow.com/questions/20500706/saving-multiple-ggplots-from-ls-into-one-and-separate-files-in-r

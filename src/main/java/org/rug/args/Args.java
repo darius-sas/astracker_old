@@ -39,7 +39,7 @@ public class Args {
     public boolean similarityScores = false;
 
     @Parameter(names = {"-pCharacteristics", "-pC"}, description = "Print the characteristics of the tracked smells for every analyzed version.")
-    public boolean smellCharacteristics = true;
+    public boolean smellCharacteristics = false;
 
     @Parameter(names = {"-trackNonConsec", "-tco"}, description = "Whether to track smells across non consecutive versions. This allows to track 'reappeared' smells on.")
     public boolean trackNonConsecutiveVersions = true;
