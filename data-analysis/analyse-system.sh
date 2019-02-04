@@ -42,14 +42,14 @@ done
 INPUTDIR="../test-data/input/$PROJECT/"
 OUTPUTDIR="../test-data/output"
 
-if $RUN_TRACKER ; then
+if [ $RUN_TRACKER = true ] ; then
     ./trackas -p $PROJECT -i $INPUTDIR -o $OUTPUTDIR -pC -pS $RUN_ARCAN -trackNonConsec $NON_CONSEC_VERS
 fi
 
 OUTPUTDIR=$OUTPUTDIR/trackASOutput/$PROJECT
 
 # here R scripts to run, make analyses, or combine files
-if $NON_CONSEC_VERS ; then
+if [ $NON_CONSEC_VERS = true ] ; then
     SUFFIX="nonConsec"
 else
     SUFFIX="consecOnly"
