@@ -2,15 +2,15 @@ package org.rug.persistence;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.tinkerpop.gremlin.structure.Graph;
+import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,18 +21,23 @@ import java.util.Map;
 public class PersistenceWriter {
 
     private final static Logger logger = LoggerFactory.getLogger(PersistenceWriter.class);
-    private final static Map<Class<? extends DataGenerator>, DataGenerator> generatorInstances = new HashMap<>();
+    private final static Map<Class<? extends IDataGenerator>, IDataGenerator> generatorInstances = new HashMap<>();
 
     public static void writeAllCSV(){
-        generatorInstances.values().forEach(PersistenceWriter::writeCSV);
+        generatorInstances.values().stream().filter(g -> g instanceof ICSVGenerator).map(g -> (ICSVGenerator)g).forEach(PersistenceWriter::writeCSV);
     }
 
-    public static void writeCSV(DataGenerator dataGenerator){
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(dataGenerator.getOutputFile()));
-            CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader(dataGenerator.getHeader()));
+    public static void writeAllGraphs(){
+        generatorInstances.values().stream().filter(g -> g instanceof IGraphGenerator).map(g -> (IGraphGenerator)g).forEach(PersistenceWriter::writeGraphs);
 
-            printer.printRecords(dataGenerator);
+    }
+
+    public static void writeCSV(ICSVGenerator csvGenerator){
+        try{
+            BufferedWriter writer = new BufferedWriter(new FileWriter(csvGenerator.getOutputFile()));
+            CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader(csvGenerator.getHeader()));
+
+            printer.printRecords(csvGenerator);
 
             printer.close();
             writer.close();
@@ -41,13 +46,20 @@ public class PersistenceWriter {
         }
     }
 
+    public static void writeGraphs(IGraphGenerator graphGenerator){
+        try {
+            graphGenerator.getGraph().io(IoCore.graphml()).writeGraph(graphGenerator.getOutputFile().getAbsolutePath());
+        } catch (IOException e) {
+            logger.error("Could not print graph on file: {}", e.getMessage());
+        }
+    }
+
     /**
-     * Register a new DataGenerator. If another instance of the same class is present, this operation does
+     * Register a new CSVDataGenerator. If another instance of the same class is present, this operation does
      * not register the given instance.
      * @param instance the instance to use
-     * @param <T> the type of the generator class
      */
-    public static <T> void register(DataGenerator<T> instance){
+    public static void register(IDataGenerator instance){
         generatorInstances.putIfAbsent(instance.getClass(), instance);
     }
 
@@ -59,7 +71,7 @@ public class PersistenceWriter {
      * @param <T> the type of the data to pass to the generator
      */
     @SuppressWarnings("unchecked")
-    public static <T> void sendTo(Class<? extends DataGenerator<T>> to, T data){
+    public static <T> void sendTo(Class<? extends IDataGenerator<T>> to, T data){
         if (generatorInstances.containsKey(to)){
             generatorInstances.get(to).accept(data);
         }

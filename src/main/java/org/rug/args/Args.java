@@ -23,6 +23,9 @@ public class Args {
     public final static String JAR_FILES_REGEX = ".*\\.jar";
     public final static String GRAPHML_FILES_REGEX = ".*\\.graphml";
 
+    @Parameter(names = {"-projectName", "-p"}, description = "The name of the project being analyzed, this name will be used to build the path within the given output folder.", required = true)
+    public String projectName;
+
     @Parameter(names = {"-outputDir", "-o"}, description = "This name will be used to generate an outputDir directory where the outputDir will be saved.", required = true, converter = OutputDirManager.class)
     public File outputDir;
 
@@ -62,13 +65,16 @@ public class Args {
 
     private String getOutputFileName(String name, String format){
         String fileName = String.format("%s-%s.%s", name, (!trackNonConsecutiveVersions ? "consecOnly" : "nonConsec"), format);
-        return Paths.get(outputDir.getAbsolutePath(), fileName).toString();
+        return Paths.get(getTrackASOutDir(), fileName).toString();
     }
 
     public File getOutputDir() {
         return outputDir;
     }
 
+    private String getTrackASOutDir(){
+        return Paths.get(outputDir.getAbsolutePath(), "trackASOutput").toString();
+    }
 
     /**
      * Gets all the input files that match the give format.

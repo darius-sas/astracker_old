@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 /**
  * Generates the data for the similarity scores computed by a tracker.
  */
-public class SmellSimilarityDataGenerator extends DataGenerator<ASmellTracker> {
+public class SmellSimilarityDataGenerator extends CSVDataGenerator<ASmellTracker>{
 
     /**
      * Intantiates this data generator.

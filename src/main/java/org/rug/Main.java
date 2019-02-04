@@ -6,26 +6,23 @@ import org.rug.args.Args;
 import org.rug.args.InputDirManager;
 import org.rug.data.ArcanDependencyGraphParser;
 import org.rug.data.smells.ArchitecturalSmell;
-import org.rug.persistence.PersistenceWriter;
-import org.rug.persistence.SmellCharacteristicsGenerator;
-import org.rug.persistence.SmellSimilarityDataGenerator;
+import org.rug.persistence.*;
 import org.rug.runners.ArcanRunner;
 import org.rug.runners.ToolRunner;
-import org.rug.tracker.ASmellTracker;
-import org.rug.tracker.JaccardSimilarityLinker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.rug.runners.TrackASRunner;
 
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedMap;
 
 public class Main {
 
-    private final static Logger logger = LoggerFactory.getLogger(Main.class);
-
+    /**
+     * The main of this tool sets up the computation of the necessary information in order to produce
+     * the tracking output.
+     * @param argv args to parse
+     */
     public static void main(String[] argv) {
 
         Args args = new Args();
@@ -53,7 +50,7 @@ public class Main {
             args.inputDirectory = new InputDirManager().convert(outputDir);
         }
 
-        runners.forEach(ToolRunner::start);
+        runners.add(new TrackASRunner(args.projectName, args.inputDirectory.getAbsolutePath(), args.trackNonConsecutiveVersions));
 
         if (args.similarityScores)
             PersistenceWriter.register(new SmellSimilarityDataGenerator(args.getSimilarityScoreFile()));
@@ -61,21 +58,12 @@ public class Main {
         if (args.smellCharacteristics)
             PersistenceWriter.register(new SmellCharacteristicsGenerator(args.getSmellCharacteristicsFile()));
 
-        SortedMap<String, Graph> versionedSystem = ArcanDependencyGraphParser.parseGraphML(args.inputDirectory.getAbsolutePath());
+        PersistenceWriter.register(new CondensedGraphGenerator(args.getCondensedGraphFile()));
+        PersistenceWriter.register(new TrackGraphGenerator(args.getTrackGraphFileName()));
 
-        ASmellTracker tracker = new ASmellTracker(new JaccardSimilarityLinker(), args.trackNonConsecutiveVersions);
+        runners.forEach(ToolRunner::start);
 
-        versionedSystem.forEach( (version, graph) -> {
-            List<ArchitecturalSmell> smells = ArcanDependencyGraphParser.getArchitecturalSmellsIn(graph);
-            smells.forEach(ArchitecturalSmell::calculateCharacteristics);
-            logger.info("Tracking version {}", version);
-            tracker.track(smells, version);
-            PersistenceWriter.sendTo(SmellSimilarityDataGenerator.class, tracker);
-        });
-        logger.info("Tracking complete, writing outputDir...");
-        PersistenceWriter.sendTo(SmellCharacteristicsGenerator.class, tracker);
         PersistenceWriter.writeAllCSV();
-        tracker.writeCondensedGraph(args.getCondensedGraphFile());
-        tracker.writeTrackGraph(args.getTrackGraphFileName());
+        PersistenceWriter.writeAllGraphs();
     }
 }

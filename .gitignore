@@ -3,6 +3,8 @@
 /data/*.pdf
 /data/.Rhistory
 /data/*.csv
+/test-outputs
+/arcanrunner/outputs
 
 
 # Created by https://www.gitignore.io/api/java,intellij

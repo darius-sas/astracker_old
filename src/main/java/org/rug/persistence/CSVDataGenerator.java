@@ -7,12 +7,16 @@ import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-public abstract class DataGenerator<T> implements Iterable<List<String>>{
+/**
+ * Base modeling for CSV data generators.
+ * @param <T>
+ */
+public abstract class CSVDataGenerator<T> implements Iterable<List<String>>, ICSVGenerator<T>{
 
     protected final List<List<String>> records;
     private final File outputFile;
 
-    public DataGenerator(String outputFile) {
+    public CSVDataGenerator(String outputFile) {
         this.records = new ArrayList<>();
         this.outputFile = new File(outputFile);
         if (this.outputFile.isDirectory())
@@ -82,12 +86,6 @@ public abstract class DataGenerator<T> implements Iterable<List<String>>{
      */
     public abstract String[] getHeader();
 
-    /**
-     * Accepts an object to serialize into a list of records.
-     * This method's implementation must populate the {@link #records} protected attribute.
-     * @param object the object to serialize into records of strings.
-     */
-    public abstract void accept(T object);
 
     /**
      * Returns the file where to write the records of this generator.

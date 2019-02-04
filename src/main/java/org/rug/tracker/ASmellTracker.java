@@ -239,42 +239,24 @@ public class ASmellTracker {
     }
 
     /**
-     * Writes the simplified graph on file. This operation removes the tail from the graph.
-     * @param file the file to write the graph on.
-     * @see #getCondensedGraph()
+     * Closes the current trackgraph and returns the graph object. This operation removes the tail from the graph.
+     * The result is that this trackgraph is no more usable.
      */
-    public void writeCondensedGraph(String file){
-        try {
-            getCondensedGraph().io(IoCore.graphml()).writeGraph(file);
-        } catch (IOException e) {
-            logger.error("Could not write simplified graph on file: {}", e.getMessage());
-        }
-    }
+    public Graph getTrackGraph(){
+        GraphTraversalSource g = trackGraph.traversal();
+        g.V(tail).out().forEachRemaining( v -> g.addE(END).from(g.addV(END).property(VERSION, tail.value(LATEST_VERSION)).next()).to(v).next());
+        tail.remove();
 
-    /**
-     * Writes the current trackgraph on file. This operation removes the tail from the graph.
-     * @param file the file to write the graph on.
-     */
-    public void writeTrackGraph(String file){
-        try {
-            GraphTraversalSource g = trackGraph.traversal();
-            g.V(tail).out().forEachRemaining( v -> g.addE(END).from(g.addV(END).property(VERSION, tail.value(LATEST_VERSION)).next()).to(v).next());
-            tail.remove();
-
-             g.V().has(SMELL_OBJECT).forEachRemaining(vertex -> {
-                 ArchitecturalSmell as = vertex.value(SMELL_OBJECT);
-                 vertex.property(SMELL_TYPE, as.getType().toString());
-                 as.getCharacteristicsMap().forEach(vertex::property);
-                 Set<String> affectedElements = as.getAffectedElements().stream()
-                         .map(v -> v.value(NAME).toString())
-                         .collect(Collectors.toCollection(TreeSet::new));
-                 vertex.property("affectedElements", affectedElements.toString());
-             });
-
-            trackGraph.io(IoCore.graphml()).writeGraph(file);
-        } catch (IOException e) {
-            logger.error("Could not write track graph on file: {}", e.getMessage());
-        }
+         g.V().has(SMELL_OBJECT).forEachRemaining(vertex -> {
+             ArchitecturalSmell as = vertex.value(SMELL_OBJECT);
+             vertex.property(SMELL_TYPE, as.getType().toString());
+             as.getCharacteristicsMap().forEach(vertex::property);
+             Set<String> affectedElements = as.getAffectedElements().stream()
+                     .map(v -> v.value(NAME).toString())
+                     .collect(Collectors.toCollection(TreeSet::new));
+             vertex.property("affectedElements", affectedElements.toString());
+         });
+        return trackGraph;
     }
 
 }

@@ -27,32 +27,33 @@ public abstract class ToolRunner {
     /**
      * Initializes an external tool to be run using the properties file 'tools.properties' to retrieve the option
      * for the tool.
-     * @param toolname The prefix toolName of the tool used in the properties file.
+     * @param toolName The prefix toolName of the tool used in the properties file.
      * @param args The arguments to use for the given tool
      * @return an instance of a ToolRunner on which is possible to start the process of the given tool.
      */
-    protected ToolRunner(String toolname, String... args){
-        String command = properties.getProperty(String.join(".", toolname, "cmdLine"));
-        this.homeDir = properties.getProperty(String.join(".", toolname, "homeDirectory"));
-        this.toolName = toolname;
-        boolean showOutput = Boolean.valueOf(properties.getProperty(String.join(".", toolname, "showOutput"), "false"));
+    protected ToolRunner(String toolName, String... args){
+        if (toolName != null) {
+            String command = properties.getProperty(String.join(".", toolName, "cmdLine"));
+            this.homeDir = properties.getProperty(String.join(".", toolName, "homeDirectory"));
+            this.toolName = toolName;
+            boolean showOutput = Boolean.valueOf(properties.getProperty(String.join(".", toolName, "showOutput"), "false"));
 
-        if (args == null)
-            args = new String[]{""};
-        List<String> commandLine = new ArrayList<>(Arrays.asList(command.split(" ")));
-        commandLine.addAll(Arrays.asList(args));
-        this.command = commandLine.toArray(new String[0]);
+            if (args == null)
+                args = new String[]{""};
+            List<String> commandLine = new ArrayList<>(Arrays.asList(command.split(" ")));
+            commandLine.addAll(Arrays.asList(args));
+            this.command = commandLine.toArray(new String[0]);
 
-        this.builder = new ProcessBuilder(commandLine);
-        this.builder.directory(new File(homeDir));
-        if (!showOutput) {
-            this.builder.redirectOutput(ProcessBuilder.Redirect.DISCARD);
-            this.builder.redirectError(ProcessBuilder.Redirect.DISCARD);
-        }else {
-            this.builder.redirectError(ProcessBuilder.Redirect.INHERIT);
-            this.builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+            this.builder = new ProcessBuilder(commandLine);
+            this.builder.directory(new File(homeDir));
+            if (!showOutput) {
+                this.builder.redirectOutput(ProcessBuilder.Redirect.DISCARD);
+                this.builder.redirectError(ProcessBuilder.Redirect.DISCARD);
+            } else {
+                this.builder.redirectError(ProcessBuilder.Redirect.INHERIT);
+                this.builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+            }
         }
-
     }
 
     /**

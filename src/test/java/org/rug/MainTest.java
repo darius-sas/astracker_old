@@ -8,11 +8,11 @@ class MainTest {
 
     @Test
     void executeMainArcan(){
-        Main.main(new String[]{"-i", "./arcanrunner/inputs/antlr/", "-o", "test-antlr", "-rA"});
+        Main.main(new String[]{"-p", "antlr", "-i", "./arcanrunner/inputs/antlr/", "-o", "test-outputs", "-rA"});
     }
 
     @Test
     void executeMain(){
-        Main.main(new String[]{"-i", "./test-antlr/arcanOutput/antlr", "-o", "test-antlr"});
+        Main.main(new String[]{"-p", "antlr", "-i", "./test-antlr/arcanOutput/antlr", "-o", "test-outputs"});
     }
 }

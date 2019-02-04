@@ -8,7 +8,7 @@ import org.rug.tracker.ASmellTracker;
 
 import java.util.*;
 
-public class SmellCharacteristicsGenerator extends DataGenerator<ASmellTracker> {
+public class SmellCharacteristicsGenerator extends CSVDataGenerator<ASmellTracker>{
 
     private List<String> header = new ArrayList<>();
 
@@ -32,7 +32,6 @@ public class SmellCharacteristicsGenerator extends DataGenerator<ASmellTracker> 
      *
      * @param object the object to serialize into records of strings.
      */
-    @Override
     public void accept(ASmellTracker object) {
         Graph simplifiedGraph = object.getCondensedGraph();
         GraphTraversalSource g = simplifiedGraph.traversal();
