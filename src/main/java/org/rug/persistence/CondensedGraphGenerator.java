@@ -12,7 +12,6 @@ public class CondensedGraphGenerator implements IGraphGenerator<ASmellTracker> {
 
     public CondensedGraphGenerator(String outputFile){
         this.outputFile = new File(outputFile);
-
     }
 
     @Override

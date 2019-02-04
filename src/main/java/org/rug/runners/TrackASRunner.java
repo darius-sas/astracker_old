@@ -3,9 +3,7 @@ package org.rug.runners;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.rug.data.ArcanDependencyGraphParser;
 import org.rug.data.smells.ArchitecturalSmell;
-import org.rug.persistence.PersistenceWriter;
-import org.rug.persistence.SmellCharacteristicsGenerator;
-import org.rug.persistence.SmellSimilarityDataGenerator;
+import org.rug.persistence.*;
 import org.rug.tracker.ASmellTracker;
 import org.rug.tracker.JaccardSimilarityLinker;
 import org.slf4j.Logger;
@@ -50,6 +48,8 @@ public class TrackASRunner extends ToolRunner {
         });
         logger.info("Tracking complete, writing files to output directory...");
         PersistenceWriter.sendTo(SmellCharacteristicsGenerator.class, tracker);
+        PersistenceWriter.sendTo(TrackGraphGenerator.class, tracker);
+        PersistenceWriter.sendTo(CondensedGraphGenerator.class, tracker);
     }
 
     @Override

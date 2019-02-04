@@ -73,7 +73,9 @@ public class Args {
     }
 
     private String getTrackASOutDir(){
-        return Paths.get(outputDir.getAbsolutePath(), "trackASOutput").toString();
+        Path p = Paths.get(outputDir.getAbsolutePath(), "trackASOutput", projectName);
+        p.toFile().mkdirs();
+        return p.toAbsolutePath().toString();
     }
 
     /**

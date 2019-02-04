@@ -1,11 +1,10 @@
 # My ignore
 /src/test/graphimages/*
-/data/*.pdf
-/data/.Rhistory
-/data/*.csv
-/test-outputs
-/arcanrunner/outputs
-
+/data-analysis/*.pdf
+/data-analysis/.Rhistory
+/data-analysis/*.csv
+/test-data
+/arcan
 
 # Created by https://www.gitignore.io/api/java,intellij
 # Edit at https://www.gitignore.io/?templates=java,intellij
@@ -56,6 +55,7 @@ cmake-build-*/
 
 # IntelliJ
 out/
+target
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/

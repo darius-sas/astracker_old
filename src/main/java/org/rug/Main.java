@@ -1,11 +1,8 @@
 package org.rug;
 
 import com.beust.jcommander.JCommander;
-import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.rug.args.Args;
 import org.rug.args.InputDirManager;
-import org.rug.data.ArcanDependencyGraphParser;
-import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.persistence.*;
 import org.rug.runners.ArcanRunner;
 import org.rug.runners.ToolRunner;

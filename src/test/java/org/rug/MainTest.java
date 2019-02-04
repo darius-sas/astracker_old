@@ -13,6 +13,6 @@ class MainTest {
 
     @Test
     void executeMain(){
-        Main.main(new String[]{"-p", "antlr", "-i", "./test-antlr/arcanOutput/antlr", "-o", "test-outputs"});
+        Main.main(new String[]{"-p", "antlr", "-i", "./test-data/output/arcanOutput/antlr", "-o", "test-data/output"});
     }
 }
