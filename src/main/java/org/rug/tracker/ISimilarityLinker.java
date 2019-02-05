@@ -5,6 +5,7 @@ import org.rug.data.smells.ArchitecturalSmell;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Models a matching strategy to match each smell in this version with the most similar one in the next version.
@@ -21,17 +22,17 @@ public interface ISimilarityLinker {
      * @return a descending sorted list of triples where the first value of the list is the current smell element,
      * the second is the next version element, and the third value of the triple is the similarity score.
      */
-    LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch(List<ArchitecturalSmell> currentVersionSmells, List<ArchitecturalSmell> nextVersionSmells);
+    Set<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch(List<ArchitecturalSmell> currentVersionSmells, List<ArchitecturalSmell> nextVersionSmells);
 
     /**
      * Returns the last best match set computed. See bestMatch(...) for more info.
      */
-    LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch();
+    Set<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch();
 
     /**
      * Returns the list of matches resulting from the computation of bestMatch(...) that is neither filtered nor sorted.
      * @return A list of triples
      */
-    List<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> getUnfilteredMatch();
+    List<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> getUnlikedMatchScores();
 
 }

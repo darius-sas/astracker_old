@@ -8,10 +8,14 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/**
+ * A JaccardTripleSet is a set where every smell appears only once in the triples stored.
+ * More precisely for every triple <A, B, C> and <A', B', C'>, A!=A' and B!=B'.
+ */
 class JaccardTripleSet extends LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> {
 
-    private Set<Long> currentIds;
-    private Set<Long> nextIds;
+    private Set<ArchitecturalSmell> currentIds;
+    private Set<ArchitecturalSmell> nextIds;
 
     public JaccardTripleSet(Collection<? extends Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> c) {
         this();
@@ -27,10 +31,11 @@ class JaccardTripleSet extends LinkedHashSet<Triple<ArchitecturalSmell, Architec
 
     @Override
     public boolean add(Triple<ArchitecturalSmell, ArchitecturalSmell, Double> triple) {
-        if (currentIds.contains(triple.getA().getId()) || nextIds.contains(triple.getB().getId()))
+        if (currentIds.contains(triple.getA()) || nextIds.contains(triple.getB()))
             return false;
-        currentIds.add(triple.getA().getId());
-        nextIds.add(triple.getB().getId());
+        currentIds.add(triple.getA());
+        nextIds.add(triple.getB());
         return super.add(triple);
     }
+
 }

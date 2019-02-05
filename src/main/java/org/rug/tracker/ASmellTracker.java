@@ -99,7 +99,7 @@ public class ASmellTracker {
                 currentVersionSmells = g1.V(tail).out().has(VERSION, tail.value(LATEST_VERSION).toString()).values(SMELL_OBJECT)
                         .toStream().map(o -> (ArchitecturalSmell)o).collect(Collectors.toList());
 
-            LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch = scorer.bestMatch(currentVersionSmells, nextVersionSmells);
+            Set<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch = scorer.bestMatch(currentVersionSmells, nextVersionSmells);
 
             bestMatch.forEach(t -> {
                 // If this fails it means that a successor has already been found.

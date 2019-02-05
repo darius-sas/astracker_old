@@ -39,6 +39,7 @@ public class TrackASRunner extends ToolRunner {
         tracker = new ASmellTracker(new JaccardSimilarityLinker(), trackNonConsecutiveVersions);
 
         logger.info("Starting tracking architectural smells of {} for {} versions", projectName, versionedSystem.size());
+        logger.info("Tracking non consecutive versions: {}", trackNonConsecutiveVersions ? "yes" : "no");
         versionedSystem.forEach( (version, graph) -> {
             logger.info("Tracking version {}", version);
             List<ArchitecturalSmell> smells = ArcanDependencyGraphParser.getArchitecturalSmellsIn(graph);

@@ -1,9 +1,9 @@
-#!/usr/bin/env bash
+#!/bin/sh -x
 
 TRACKAS_JAR="../target/trackas/trackas-0.1.jar"
 
 usage() {
-    echo "Usage:    analyse-system <project-name> [-rA]"
+    echo "Usage:    analyse-system <project-name> [-rA|-run-Arcan][-rT|-run-Tracker][-tC|-track-consec-only][-h|--help]"
     exit
 }
 
@@ -11,24 +11,21 @@ trackas(){
     java -jar $TRACKAS_JAR $@
 }
 
-PROJECT=$1
-RUN_ARCAN=
+PROJECT=""
+RUN_ARCAN=""
 RUN_TRACKER=false
-NON_CONSEC_VERS=true
+NON_CONSEC_VERS=""
 
 while [ "$1" != "" ]; do
   case $1 in
     -p | --project )        shift
                             PROJECT=$1
                             ;;
-    -rT | --run-Tracker )   shift
-                            RUN_TRACKER=true
+    -rT | --run-Tracker )   RUN_TRACKER=true
                             ;;
-    -rA | --run-Arcan )     shift
-                            RUN_ARCAN=$1
+    -rA | --run-Arcan )     RUN_ARCAN="-rA"
                             ;;
-    -tC | --track-consec-only )     shift
-                                    NON_CONSEC_VERS=false
+    -tC | --track-consec-only )  NON_CONSEC_VERS="-dNC"
                             ;;
     -h | --help )           usage
                             exit
@@ -39,17 +36,16 @@ while [ "$1" != "" ]; do
   shift
 done
 
-INPUTDIR="../test-data/input/$PROJECT/"
+INPUTDIR="../test-data/output/arcanOutput/$PROJECT/"
 OUTPUTDIR="../test-data/output"
 
 if [ $RUN_TRACKER = true ] ; then
-    ./trackas -p $PROJECT -i $INPUTDIR -o $OUTPUTDIR -pC -pS $RUN_ARCAN -trackNonConsec $NON_CONSEC_VERS
+    trackas -p $PROJECT -i $INPUTDIR -o $OUTPUTDIR -pC -pS $RUN_ARCAN $NON_CONSEC_VERS
 fi
 
 OUTPUTDIR=$OUTPUTDIR/trackASOutput/$PROJECT
 
-# here R scripts to run, make analyses, or combine files
-if [ $NON_CONSEC_VERS = true ] ; then
+if [ -z $NON_CONSEC_VERS ] ; then
     SUFFIX="nonConsec"
 else
     SUFFIX="consecOnly"

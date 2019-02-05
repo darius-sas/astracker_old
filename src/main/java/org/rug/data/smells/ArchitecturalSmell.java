@@ -18,7 +18,8 @@ import java.util.stream.Collectors;
  * <code>VertexLabel.SMELL</code>), and the nodes that are affected by the smell (label
  * <code>VertexLabel.PACKAGE || VertexLabel.CLASS</code>.
  */
-public abstract class ArchitecturalSmell {
+public abstract class
+ArchitecturalSmell {
 
     private final static Logger logger = LoggerFactory.getLogger(ArchitecturalSmell.class);
 
@@ -223,9 +224,15 @@ public abstract class ArchitecturalSmell {
         return this.affectedElements.equals(other.affectedElements);
     }
 
+    private int hashCode;
     @Override
     public int hashCode() {
-        return (int)id + smellNodes.hashCode() ^ 2 + affectedElements.hashCode() ^ 3 + super.hashCode() ^ 4;
+        int result = hashCode;
+        if (result == 0){
+            result = 31 * result + affectedElements.hashCode();
+            hashCode = result;
+        }
+        return result;
     }
 
 

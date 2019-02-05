@@ -44,7 +44,7 @@ public class SmellSimilarityDataGenerator extends CSVDataGenerator<ASmellTracker
     public void accept(ASmellTracker tracker) {
         var scorer = tracker.getScorer();
         var bestMatch = scorer.bestMatch();
-        for (var triple : scorer.getUnfilteredMatch()) {
+        for (var triple : scorer.getUnlikedMatchScores()) {
             List<String> affectedA = triple.getA().getAffectedElements().stream().map(v -> v.value("name").toString()).collect(Collectors.toList());
             List<String> affectedB = triple.getB().getAffectedElements().stream().map(v -> v.value("name").toString()).collect(Collectors.toList());
 
