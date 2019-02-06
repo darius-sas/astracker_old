@@ -1,12 +1,11 @@
 ---
-title: "R Notebook"
+title: "Tracking architectural smells"
 output: html_notebook
 ---
 
-This notebook analyses the output of an architectural smell tracker and outputs some descriptive statistics.
+This notebook analyses the output of an architectural smell tracker and outputs some descriptive plots.
 
-First, let us setup the data:
-```{r}
+```{r include=FALSE}
 library(dplyr)
 library(ggplot2)
 library(svDialogs)
@@ -24,7 +23,7 @@ p <- ggplot(df, aes(version, group = smellType, fill = smellType)) + geom_bar()
 print(p)
 ```
 
-##Ratio of smells from this version linked to previous version
+##Ratio of smells linked to their predecessor
 The number of smells in a certain version that are the evolution of a smell in the previous version
 ```{r}
 df.count <- df %>% group_by(version, smellType) %>% tally()
@@ -39,7 +38,7 @@ print(p)
 ```
 
 
-##What is the distribution of the age among the different types of smells?
+##Age distribution of smells
 Here is the distribution for each type of smell and the mean age shown as a dashed blue vertical line.
 ```{r}
 df.unique <-df[!duplicated(df$uniqueSmellID), c(1,2,3,5)]
@@ -51,8 +50,8 @@ p <- ggplot(df.unique, aes(age, group = smellType, colour = smellType)) +
 print(p)
 ```
 
-##What is the overlap of smells throughout the system's evolution?
-Below we plot the overlap of each smell for every version, some jitter is added make it easier to understand when there are multiple smells that have high overlap.
+##Smell overlap per version
+Below we plot the overlap of each smell for every version, some jitter is added to make it easier to understand when there are multiple smells that have high overlap.
 ```{r}
 p <- ggplot(df, aes(version, overlapRatio, group = smellType, colour = smellType)) +
   geom_point() +
