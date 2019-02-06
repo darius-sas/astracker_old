@@ -4,9 +4,6 @@ output: html_notebook
 ---
 
 This notebook analyses the output of an architectural smell tracker and outputs some descriptive statistics.
-```{r include=FALSE}
-setwd("../test-data/")
-```
 
 First, let us setup the data:
 ```{r}

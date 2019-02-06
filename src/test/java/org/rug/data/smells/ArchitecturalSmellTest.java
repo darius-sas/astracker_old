@@ -72,4 +72,22 @@ class ArchitecturalSmellTest {
         }
 
     }
+
+    @Test
+    void equals() {
+        var systems = ArcanDependencyGraphParser.parseGraphML("./test-data/output/arcanOutput/antlr/");
+
+        var smellsV1 = ArcanDependencyGraphParser.getArchitecturalSmellsIn(systems.get("2.7.5"));
+
+        var smell1 = smellsV1.stream().filter(s -> s.getId() == 315).findFirst();
+        var smell2 = smellsV1.stream().filter(s -> s.getId() == 305).findFirst();
+
+        assertNotEquals(smell1.get(), smell2.get());
+
+        var smellsV2 = ArcanDependencyGraphParser.getArchitecturalSmellsIn(systems.get("2.7.6"));
+        var smell3 = smellsV2.stream().filter(s -> s.getId() == 315).findFirst();
+
+        assertNotEquals(smell1.get(), smell3.get());
+        assertNotEquals(smell2.get(), smell3.get());
+    }
 }

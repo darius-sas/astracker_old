@@ -58,12 +58,12 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
      */
     @Override
     public Set<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch(List<ArchitecturalSmell> currentVersionSmells, List<ArchitecturalSmell> nextVersionSmells) {
-        List<JaccardTriple> matchList = new ArrayList<>();
+        List<JaccardTripleSet.JaccardTriple> matchList = new ArrayList<>();
         for(ArchitecturalSmell s1 : currentVersionSmells) {
             for (ArchitecturalSmell s2 : nextVersionSmells) {
                 if (s1.getType() == s2.getType()) {
                     double similarityScore = calculateJaccardSimilarity(s1, s2);
-                    matchList.add(new JaccardTriple(s1, s2, similarityScore));
+                    matchList.add(new JaccardTripleSet.JaccardTriple(s1, s2, similarityScore));
                 }
             }
         }
@@ -73,7 +73,7 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
         });
         unlinkedMatchScores.clear();
         unlinkedMatchScores.addAll(matchList);
-        matchList.sort(Comparator.comparing(t -> (JaccardTriple)t).reversed());
+        matchList.sort(Comparator.comparing(t -> (JaccardTripleSet.JaccardTriple)t).reversed());
         bestMatch = new JaccardTripleSet(matchList);
 
         return bestMatch;
@@ -155,58 +155,4 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
         return elements;
     }
 
-    /**
-     * Convenience class to represent a Jaccard triple and adequately compare between to triples based
-     * on the smells.
-     * Two JaccardTriples are the same if any of the two smells are the same (respecting positions).
-     */
-    static class JaccardTriple extends Triple<ArchitecturalSmell, ArchitecturalSmell, Double> implements Comparable<JaccardTriple>{
-
-        public JaccardTriple(ArchitecturalSmell smell, ArchitecturalSmell smell2, Double aDouble) {
-            super(smell, smell2, aDouble);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null)
-                return false;
-            if (!(o instanceof JaccardTriple))
-                return false;
-
-            JaccardTriple other = (JaccardTriple)o;
-
-            if (this == other)
-                return true;
-
-            return this.a.equals(other.a) && this.b.equals(other.b);
-        }
-
-        private int hashCode;
-        @Override
-        public int hashCode() {
-            int result = hashCode;
-            if (result == 0){
-                result = a.hashCode();
-                result = 31 * result + b.hashCode();
-                hashCode = result;
-            }
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("A: %s\nB: %s\n C: %f", a.getId(), b.getId(), c);
-        }
-
-        /**
-         * A Jaccard triple is compared with another triple based uniquely on the similarity score.
-         * This may cause issues when two or more smell have the same similarity score.
-         * @param o the other triple to use for comparison with this
-         * @return see above.
-         */
-        @Override
-        public int compareTo(JaccardTriple o) {
-            return this.c.compareTo(o.c);
-        }
-    }
 }

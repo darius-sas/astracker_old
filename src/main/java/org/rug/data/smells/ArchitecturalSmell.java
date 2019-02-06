@@ -17,11 +17,13 @@ import java.util.stream.Collectors;
  * Abstraction of an AS. A smell is composed by the nodes that represent the smell (label
  * <code>VertexLabel.SMELL</code>), and the nodes that are affected by the smell (label
  * <code>VertexLabel.PACKAGE || VertexLabel.CLASS</code>.
+ * The current implementation offers a common {@link #equals(Object)} considers all the smells a different object,
+ * indipendently of their affected components. This is because the parsed smells are assumed to be unique.
+ * The linking logic is not based on comparisons made using equals method, but since a smell may accidentally
+ * have the same smell nodes ids, the same affected elements in two or more versions, this type of comparison is thus
+ * necessary.
  */
-public abstract class
-ArchitecturalSmell {
-
-    private final static Logger logger = LoggerFactory.getLogger(ArchitecturalSmell.class);
+public abstract class ArchitecturalSmell {
 
     private long id;
     protected Set<Vertex> smellNodes;
@@ -78,6 +80,14 @@ ArchitecturalSmell {
      */
     public Set<Vertex> getAffectedElements() {
         return affectedElements;
+    }
+
+    /**
+     * Convenience method for retrieving the affected elements by name.
+     * @return the affected elements by the property "name".
+     */
+    public Set<String> getAffectedElementsNames(){
+        return getAffectedElements().stream().map(v -> v.value("name").toString()).collect(Collectors.toSet());
     }
 
     /**
@@ -214,14 +224,16 @@ ArchitecturalSmell {
             return false;
 
         ArchitecturalSmell other = (ArchitecturalSmell)o;
-
-        if (this == other)
-            return true;
-
-        if (this.type != other.type)
-            return false;
-
-        return this.affectedElements.equals(other.affectedElements);
+        // this seems to be the intended behaviour, because a smell is never equal to another one from the same
+        // version or any other version. At least at this level of abstraction.
+        return other == this;
+//        if (this == other)
+//            return true;
+//
+//        if (this.type != other.type || this.id != other.id)
+//            return false;
+//
+//        return this.smellNodes.equals(other.smellNodes) && this.affectedElements.equals(other.affectedElements);
     }
 
     private int hashCode;
@@ -230,6 +242,7 @@ ArchitecturalSmell {
         int result = hashCode;
         if (result == 0){
             result = 31 * result + affectedElements.hashCode();
+            result = 31 * result + smellNodes.hashCode();
             hashCode = result;
         }
         return result;

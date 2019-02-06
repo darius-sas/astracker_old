@@ -5,14 +5,12 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.rug.data.util.Triple;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,8 +19,6 @@ import java.util.stream.Collectors;
  * Tracks incrementally the architectural smells and saves them internally.
  */
 public class ASmellTracker {
-
-    private final static Logger logger = LoggerFactory.getLogger(ASmellTracker.class);
 
     private static final String NAME = "name";
     private static final String SMELL = "smell";
@@ -102,7 +98,7 @@ public class ASmellTracker {
             Set<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch = scorer.bestMatch(currentVersionSmells, nextVersionSmells);
 
             bestMatch.forEach(t -> {
-                // If this fails it means that a successor has already been found.
+                // If this fails it means that a successor has already been found, which should never happen!
                 Vertex predecessor = g1.V(tail).out().has(SMELL_OBJECT, t.getA()).next();
                 Vertex successor = g1.addV(SMELL)
                         .property(VERSION, version)
@@ -238,11 +234,15 @@ public class ASmellTracker {
         return condensedGraph;
     }
 
+    public Graph getTrackGraph(){
+        return trackGraph;
+    }
+
     /**
      * Closes the current trackgraph and returns the graph object. This operation removes the tail from the graph.
      * The result is that this trackgraph is no more usable.
      */
-    public Graph getTrackGraph(){
+    public Graph getFinalizedTrackGraph(){
         GraphTraversalSource g = trackGraph.traversal();
         g.V(tail).out().forEachRemaining( v -> g.addE(END).from(g.addV(END).property(VERSION, tail.value(LATEST_VERSION)).next()).to(v).next());
         tail.remove();

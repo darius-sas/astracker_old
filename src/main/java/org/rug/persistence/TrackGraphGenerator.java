@@ -16,7 +16,7 @@ public class TrackGraphGenerator implements IGraphGenerator<ASmellTracker> {
 
     @Override
     public void accept(ASmellTracker object) {
-        graph = object.getTrackGraph();
+        graph = object.getFinalizedTrackGraph();
     }
 
     @Override

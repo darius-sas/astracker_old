@@ -55,7 +55,7 @@ fout <- args[2]
 plots <- draw_similarity_score_plots(fin, base_size = 16)$plots
 pdf(fout, width = 20, height = 15)
 invisible(lapply(plots, print))
-dev.off()
+invisible(dev.off())
 # https://stackoverflow.com/questions/20500706/saving-multiple-ggplots-from-ls-into-one-and-separate-files-in-r
 #do.call(grid.arrange, args=c(plots, ncol=1))
 
