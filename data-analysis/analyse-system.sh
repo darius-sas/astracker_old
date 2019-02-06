@@ -49,15 +49,19 @@ if [ $RUN_TRACKER = true ] ; then
         cd ..
         echo "Compiling tracker..."
         mvn package > /dev/null
-        if [ $? != 0 ] ; then
+        if [ $? -eq 0 ] ; then
+            echo "Build successful."
+        else
             echo "Build failed. Exiting..."
             exit
-        else
-            echo "Build successful."
         fi
         cd $oldir
     fi
     trackas -p $PROJECT -i $INPUTDIR -o $OUTPUTDIR -pC -pS $RUN_ARCAN $NON_CONSEC_VERS
+    if [ $? -ne 0 ] ; then
+        echo "Tracking failed. Exiting..."
+        exit
+    fi
 fi
 
 OUTPUTDIR=$OUTPUTDIR/trackASOutput/$PROJECT

@@ -7,14 +7,34 @@ This notebook analyses the output of an architectural smell tracker and outputs 
 
 First, let us setup the data:
 ```{r}
+library(dplyr)
 library(ggplot2)
-df <- read.table(file.choose(), header = T, sep = ",")
+library(svDialogs)
+project <- dlgInput("Project: ")$res
+similarity_scores_file <- paste("../test-data/output/trackASOutput", project, "similarity-scores-consecOnly.csv", sep="/")
+characteristics_file <- paste("../test-data/output/trackASOutput", project, "smell-characteristics-consecOnly.csv", sep="/")
+df <- read.table(characteristics_file, header = T, sep = ",")
 df <- df[!is.na(df$age),]
+df.similarity <- read.table(similarity_scores_file, header = T, sep = ",")
 ```
 
 ##Number of smells per version
 ```{r}
 p <- ggplot(df, aes(version, group = smellType, fill = smellType)) + geom_bar()
+print(p)
+```
+
+##Ratio of smells from this version linked to previous version
+The number of smells in a certain version that are the evolution of a smell in the previous version
+```{r}
+df.count <- df %>% group_by(version, smellType) %>% tally()
+df.similarity.count <- df.similarity %>% filter(matched == "true") %>% group_by(nextVersion, nextType) %>% tally()
+m <- merge(df.count, df.similarity.count, by.x = c(1,2), by.y = c(1,2), all = T)
+m[is.na(m)] <- 0
+m$perc <- (m$n.y / m$n.x)/length(unique(m$smellType))
+p <- ggplot(m, aes(x=version, y=perc, group=smellType, fill=smellType)) + 
+  geom_bar(stat="identity") +
+  geom_text(aes(label=n.x), position = "stack", size = 2)
 print(p)
 ```
 
@@ -36,7 +56,7 @@ Below we plot the overlap of each smell for every version, some jitter is added 
 ```{r}
 p <- ggplot(df, aes(version, overlapRatio, group = smellType, colour = smellType)) +
   geom_point() +
-  geom_jitter(width = 0.05, height = 0.5)
+  geom_jitter(width = 0.05, height = 0.05)
 print(p)
 ```
 And here is the distribution of each value per version

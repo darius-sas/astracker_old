@@ -44,6 +44,7 @@ public class TrackASRunner extends ToolRunner {
             List<ArchitecturalSmell> smells = ArcanDependencyGraphParser.getArchitecturalSmellsIn(graph);
             smells.forEach(ArchitecturalSmell::calculateCharacteristics);
             tracker.track(smells, version);
+            logger.info("Linked {} smells out of a total of {} in this version.", tracker.getScorer().bestMatch().size(), smells.size());
             PersistenceWriter.sendTo(SmellSimilarityDataGenerator.class, tracker);
         });
         logger.info("Tracking complete, writing files to output directory...");

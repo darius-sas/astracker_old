@@ -26,7 +26,7 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
     private final double moreElementsThreshold;
     private final int fewElements;
     private List<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> unlinkedMatchScores;
-    private LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch;
+    private Set<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch;
     /**
      * Builds this linker with the given threshold.
      * @param fewElementsThreshold the threshold value to use for discarding couples with not enough similarity. This
@@ -38,6 +38,7 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
         this.moreElementsThreshold = moreElementsThreshold;
         this.fewElements = fewElements;
         this.unlinkedMatchScores = new ArrayList<>();
+        this.bestMatch = new HashSet<>(0);
     }
 
     /**
