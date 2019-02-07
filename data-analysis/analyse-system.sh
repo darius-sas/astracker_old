@@ -76,3 +76,5 @@ SIMILARITY_SCORES_FILE=$OUTPUTDIR/similarity-scores-$SUFFIX.csv
 SMELL_CHARACTERISTICS_FILE=$OUTPUTDIR/smell-characteristics-$SUFFIX.csv
 
 Rscript jaccard-linking.r $SIMILARITY_SCORES_FILE $OUTPUTDIR/smell-similarity-matrices-$SUFFIX.pdf
+
+R -e "e<-new.env();e[['project']]<-'$PROJECT';e[['type']]<-'$SUFFIX';rmarkdown::render('as-history-in-system.Rmd', output_file='$OUTPUTDIR/as-history-in-system-$SUFFIX.nb.html',envir=e)"

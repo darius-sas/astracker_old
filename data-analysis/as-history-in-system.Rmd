@@ -1,26 +1,40 @@
 ---
-title: "Tracking architectural smells"
+title: "Smell evolution analysis"
 output: html_notebook
 ---
-
-This notebook analyses the output of an architectural smell tracker and outputs some descriptive plots.
 
 ```{r include=FALSE}
 library(dplyr)
 library(ggplot2)
-library(svDialogs)
-project <- dlgInput("Project: ")$res
-similarity_scores_file <- paste("../test-data/output/trackASOutput", project, "similarity-scores-consecOnly.csv", sep="/")
-characteristics_file <- paste("../test-data/output/trackASOutput", project, "smell-characteristics-consecOnly.csv", sep="/")
+library(gridExtra)
+
+if(is.null(environment()$project)){
+  project <- svDialogs::dlgInput("Project name: ")$res
+  type <- svDialogs::dlgForm(list("type:CB"=c("consecOnly", "nonConsec")), title="Consecutive or non consecutive smells?")$res$type
+}
+
+similarity_scores_file <- paste("similarity-scores-", type, ".csv", sep = "")
+similarity_scores_file <- paste("../test-data/output/trackASOutput", project, similarity_scores_file, sep="/")
+characteristics_file <- paste("smell-characteristics-", type, ".csv", sep = "")
+characteristics_file <- paste("../test-data/output/trackASOutput", project, characteristics_file, sep="/")
 df <- read.table(characteristics_file, header = T, sep = ",")
 df <- df[!is.na(df$age),]
 df.similarity <- read.table(similarity_scores_file, header = T, sep = ",")
 ```
 
+**Project:** ``r project``
+
+**Type of analysis:** ``r type``
+
+***
+
+This notebook analyses the output of an architectural smell tracker and outputs some descriptive plots.
+
 ##Number of smells per version
 ```{r}
 p <- ggplot(df, aes(version, group = smellType, fill = smellType)) + geom_bar()
-print(p)
+p2 <- ggplot(df, aes(version, group = affectedComponentType, fill = affectedComponentType)) + geom_bar()
+grid.arrange(p, p2)
 ```
 
 ##Ratio of smells linked to their predecessor
@@ -73,3 +87,22 @@ p <- ggplot(df, aes(age, overlapRatio, group = smellType, colour = smellType)) +
   scale_y_continuous(breaks = pretty)
 print(p)
 ```
+##PageRank evolution of smells
+Here we have the distribution of the PageRank of a smell computed in two different manners. The first one is using the maximum PageRank value of the affected elements, and the second one is using the average. This change only impacts CD, since it is the only type of smell that has two components. All the values were then averaged across the different versions of the smells.
+```{r}
+df.avrg.pr <- df %>% group_by(uniqueSmellID, smellType, affectedComponentType) %>% summarise(meanMaxPageRank=mean(pageRankMax), meanAvgPageRank=mean(pageRankAvrg))
+p <- ggplot(df.avrg.pr[df.avrg.pr$affectedComponentType == "class",], aes(meanMaxPageRank, group=smellType, fill=smellType, color=smellType)) + geom_density(alpha=0.5) + labs(title="Class-level smells")
+
+p2 <- ggplot(df.avrg.pr[df.avrg.pr$affectedComponentType == "package",], aes(meanAvgPageRank, group=smellType, fill=smellType, color=smellType)) + geom_density(alpha=0.5) + labs(title="Package-level smells")
+
+p3 <- ggplot(df.avrg.pr[df.avrg.pr$affectedComponentType == "package",], aes(meanMaxPageRank, group=smellType, fill=smellType, color=smellType)) + geom_density(alpha=0.5) + labs(title="Package-level smells")
+
+p4 <- ggplot(df.avrg.pr[df.avrg.pr$affectedComponentType == "class",], aes(meanAvgPageRank, group=smellType, fill=smellType, color=smellType)) + geom_density(alpha=0.5) + labs(title="Class-level smells")
+
+grid.arrange(p, p4, p3, p2)
+```
+```{r}
+p <- ggplot(df, aes(version, pageRankMax, group=uniqueSmellID, color=affectedComponentType)) + geom_line()
+print(p)
+```
+

@@ -6,6 +6,8 @@ import org.rug.data.labels.EdgeLabel;
 import org.rug.data.labels.VertexLabel;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.smells.CDSmell;
+import org.rug.data.smells.HLSmell;
+import org.rug.data.smells.UDSmell;
 
 import java.util.List;
 import java.util.Set;

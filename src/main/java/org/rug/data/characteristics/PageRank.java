@@ -199,7 +199,7 @@ public class PageRank extends AbstractSmellCharacteristic {
         dst.traversal().E().has("Weight").toSet().forEach(edge -> {
             int weight = edge.value("Weight");
             for (int i = 0; i < weight; i++) {
-                dst.traversal().addE(EdgeLabel.DEPENDSON.toString())
+                dst.traversal().addE(edge.label())
                         .from(edge.outVertex()).to(edge.inVertex()).next();
             }
             dst.edges(edge).next().remove();
