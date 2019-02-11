@@ -1,4 +1,4 @@
-# #!/bin/sh -x
+#!/bin/bash
 
 TRACKAS_JAR="../target/trackas/trackas-0.1.jar"
 
@@ -132,5 +132,3 @@ analyse_multiple(){
         analyse_single -p $PROJECT -o $OUTPUTDIR $RUN_TRACKER $RUN_ARCAN $CONSECONLY $RECOMPILE_TRACKER
     done
 }
-
-analyse_multiple $@
