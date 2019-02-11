@@ -16,7 +16,7 @@ unpack_systems(){
     done
 }
 
-groups=("ant,antlr,argouml,azureus", "eclipse_SDK,freecol,freemind", "hibernate,jgraph,jmeter,jstock", "jung,junit,lucene,weka")
+groups=("ant,antlr,argouml,azureus" "eclipse_SDK,freecol,freemind" "hibernate,jgraph,jmeter,jstock" "jung,junit,lucene,weka")
 
 for group in ${groups[@]}
 do
