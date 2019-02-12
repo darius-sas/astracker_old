@@ -40,10 +40,8 @@ analyse_single(){
         -c  | --recompile-tracker ) RECOMPILE_TRACKER=true
                                 ;;
         -h | --help )           usage_single
-                                exit
                                 ;;
         * )                     usage_single
-                                exit 1
     esac
     shift
     done

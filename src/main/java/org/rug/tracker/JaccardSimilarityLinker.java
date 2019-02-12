@@ -25,8 +25,8 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
     private final double fewElementsThreshold;
     private final double moreElementsThreshold;
     private final int fewElements;
-    private List<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> unlinkedMatchScores;
-    private Set<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch;
+    private List<LinkScoreTriple> unlinkedMatchScores;
+    private Set<LinkScoreTriple> bestMatch;
     /**
      * Builds this linker with the given threshold.
      * @param fewElementsThreshold the threshold value to use for discarding couples with not enough similarity. This
@@ -58,13 +58,13 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
      * the second is the next version element, and the third value of the triple is the similarity score.
      */
     @Override
-    public Set<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch(List<ArchitecturalSmell> currentVersionSmells, List<ArchitecturalSmell> nextVersionSmells) {
-        List<JaccardTripleSet.JaccardTriple> matchList = new ArrayList<>();
+    public Set<LinkScoreTriple> bestMatch(List<ArchitecturalSmell> currentVersionSmells, List<ArchitecturalSmell> nextVersionSmells) {
+        List<LinkScoreTriple> matchList = new ArrayList<>();
         for(ArchitecturalSmell s1 : currentVersionSmells) {
             for (ArchitecturalSmell s2 : nextVersionSmells) {
                 if (s1.getType() == s2.getType()) {
                     double similarityScore = calculateJaccardSimilarity(s1, s2);
-                    matchList.add(new JaccardTripleSet.JaccardTriple(s1, s2, similarityScore));
+                    matchList.add(new LinkScoreTriple(s1, s2, similarityScore));
                 }
             }
         }
@@ -74,14 +74,14 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
         });
         unlinkedMatchScores.clear();
         unlinkedMatchScores.addAll(matchList);
-        matchList.sort(Comparator.comparing(t -> (JaccardTripleSet.JaccardTriple)t).reversed());
+        matchList.sort(Comparator.comparing(t -> (LinkScoreTriple)t).reversed());
         bestMatch = new JaccardTripleSet(matchList);
-
+        //bestMatch = new BestMatchSet(matchList);
         return bestMatch;
     }
 
     @Override
-    public Set<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch() {
+    public Set<LinkScoreTriple> bestMatch() {
         return bestMatch;
     }
 
@@ -91,7 +91,7 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
      * @param smell2 the second smell
      * @return the Jaccard similarity score of the two smells
      */
-    private double calculateJaccardSimilarity(ArchitecturalSmell smell1, ArchitecturalSmell smell2){
+    public double calculateJaccardSimilarity(ArchitecturalSmell smell1, ArchitecturalSmell smell2){
         Set<String> A = smell1.accept(this);
         Set<String> B = smell2.accept(this);
 
@@ -117,7 +117,7 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
     }
 
     @Override
-    public List<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> getUnlikedMatchScores() {
+    public List<LinkScoreTriple> getUnlinkedMatchScores() {
         return unlinkedMatchScores;
     }
 

@@ -12,19 +12,19 @@ import java.util.Set;
  * A JaccardTripleSet is a set where every smell appears only once in the triples stored.
  * More precisely for every triple <A, B, C> and <A', B', C'>, A!=A' and B!=B'.
  */
-class JaccardTripleSet extends LinkedHashSet<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> {
+class JaccardTripleSet extends LinkedHashSet<LinkScoreTriple> {
 
-    private Set<ArchitecturalSmell> currentIds;
-    private Set<ArchitecturalSmell> nextIds;
+    private Set<ArchitecturalSmell> current;
+    private Set<ArchitecturalSmell> next;
 
-    public JaccardTripleSet(Collection<? extends Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> c) {
+    public JaccardTripleSet(Collection<? extends LinkScoreTriple> c) {
         this();
         addAll(c);
     }
 
     public JaccardTripleSet() {
-        this.currentIds = new HashSet<>();
-        this.nextIds = new HashSet<>();
+        this.current = new HashSet<>();
+        this.next = new HashSet<>();
     }
 
     /**
@@ -34,80 +34,26 @@ class JaccardTripleSet extends LinkedHashSet<Triple<ArchitecturalSmell, Architec
      * @return
      */
     @Override
-    public boolean add(Triple<ArchitecturalSmell, ArchitecturalSmell, Double> triple) {
-        if (currentIds.contains(triple.getA()) || nextIds.contains(triple.getB()))
+    public boolean add(LinkScoreTriple triple) {
+        if (current.contains(triple.getA()) || next.contains(triple.getB()))
             return false;
-        currentIds.add(triple.getA());
-        nextIds.add(triple.getB());
+        current.add(triple.getA());
+        next.add(triple.getB());
         return super.add(triple);
     }
 
     /**
-     * Iteratively calls {@link #add(Triple)} on the given collection.
+     * Iteratively calls {@link #add(LinkScoreTriple)} on the given collection.
      * @param c the collection to use
      * @return true if the collection changed as a result of this call.
      */
     @Override
-    public boolean addAll(Collection<? extends Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> c) {
+    public boolean addAll(Collection<? extends LinkScoreTriple> c) {
         boolean isChanged = false;
-        for(Triple<ArchitecturalSmell, ArchitecturalSmell, Double> t : c){
+        for(LinkScoreTriple t : c){
             isChanged = this.add(t);
         }
         return isChanged;
     }
 
-    /**
-     * Convenience class to represent a Jaccard triple and adequately compare between to triples based
-     * on the smells.
-     * Two JaccardTriples are the same if any of the two smells are the same (respecting positions).
-     */
-    static class JaccardTriple extends Triple<ArchitecturalSmell, ArchitecturalSmell, Double> implements Comparable<JaccardTriple>{
-
-        public JaccardTriple(ArchitecturalSmell smell, ArchitecturalSmell smell2, Double aDouble) {
-            super(smell, smell2, aDouble);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null)
-                return false;
-            if (!(o instanceof JaccardTriple))
-                return false;
-
-            JaccardTriple other = (JaccardTriple)o;
-
-            if (this == other)
-                return true;
-
-            return this.a.equals(other.a) && this.b.equals(other.b);
-        }
-
-        private int hashCode;
-        @Override
-        public int hashCode() {
-            int result = hashCode;
-            if (result == 0){
-                result = a.hashCode();
-                result = 31 * result + b.hashCode();
-                hashCode = result;
-            }
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("A: %s\nB: %s\n C: %f", a.getId(), b.getId(), c);
-        }
-
-        /**
-         * A Jaccard triple is compared with another triple based uniquely on the similarity score.
-         * This may cause issues when two or more smell have the same similarity score.
-         * @param o the other triple to use for comparison with this
-         * @return see above.
-         */
-        @Override
-        public int compareTo(JaccardTriple o) {
-            return this.c.compareTo(o.c);
-        }
-    }
 }

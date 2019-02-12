@@ -22,17 +22,17 @@ public interface ISimilarityLinker {
      * @return a descending sorted list of triples where the first value of the list is the current smell element,
      * the second is the next version element, and the third value of the triple is the similarity score.
      */
-    Set<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch(List<ArchitecturalSmell> currentVersionSmells, List<ArchitecturalSmell> nextVersionSmells);
+    Set<LinkScoreTriple> bestMatch(List<ArchitecturalSmell> currentVersionSmells, List<ArchitecturalSmell> nextVersionSmells);
 
     /**
-     * Returns the last best match set computed. See bestMatch(...) for more info.
+     * Returns the last best match set computed. See {@link #bestMatch(List, List)} for more info.
      */
-    Set<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> bestMatch();
+    Set<LinkScoreTriple> bestMatch();
 
     /**
-     * Returns the list of matches resulting from the computation of bestMatch(...) that is neither filtered nor sorted.
+     * Returns the list of matches resulting from the computation of {@link #bestMatch(List, List)} that is neither filtered nor sorted.
      * @return A list of triples
      */
-    List<Triple<ArchitecturalSmell, ArchitecturalSmell, Double>> getUnlikedMatchScores();
+    List<LinkScoreTriple> getUnlinkedMatchScores();
 
 }
