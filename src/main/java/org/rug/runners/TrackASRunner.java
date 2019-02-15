@@ -2,6 +2,8 @@ package org.rug.runners;
 
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.rug.data.ArcanDependencyGraphParser;
+import org.rug.data.characteristics.ComponentCharacteristicSet;
+import org.rug.data.characteristics.IComponentCharacteristic;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.persistence.*;
 import org.rug.tracker.ASmellTracker;
@@ -36,12 +38,15 @@ public class TrackASRunner extends ToolRunner {
     public void start() {
         versionedSystem = ArcanDependencyGraphParser.parseGraphML(inputDirectory);
         tracker = new ASmellTracker(new JaccardSimilarityLinker(), trackNonConsecutiveVersions);
+        var componentCharacteristics = new ComponentCharacteristicSet().getCharacteristicSet();
 
         logger.info("Starting tracking architectural smells of {} for {} versions", projectName, versionedSystem.size());
         logger.info("Tracking non consecutive versions: {}", trackNonConsecutiveVersions ? "yes" : "no");
         versionedSystem.forEach( (version, graph) -> {
+
             logger.info("Tracking version {}", version);
             List<ArchitecturalSmell> smells = ArcanDependencyGraphParser.getArchitecturalSmellsIn(graph);
+            componentCharacteristics.forEach(c -> c.calculate(graph));
             smells.forEach(ArchitecturalSmell::calculateCharacteristics);
             tracker.track(smells, version);
             logger.info("Linked {} smells out of a total of {} in this version.", tracker.getScorer().bestMatch().size(), smells.size());

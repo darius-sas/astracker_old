@@ -1,11 +1,13 @@
 package org.rug.data.characteristics;
 
+import org.rug.data.characteristics.smells.*;
+
 import java.util.Set;
 
 /**
  * This class is responsible for creating the characteristic set for UD smells.
  */
-public class CDCharacteristicsSet extends CharacteristicsSet {
+public class CDCharacteristicsSet extends SmellCharacteristicsSet {
 
     /**
      * Instantiates a new set of characteristics that can be used to save their calculations.

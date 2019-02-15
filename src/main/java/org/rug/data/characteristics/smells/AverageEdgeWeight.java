@@ -1,4 +1,4 @@
-package org.rug.data.characteristics;
+package org.rug.data.characteristics.smells;
 
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
@@ -12,7 +12,7 @@ public class AverageEdgeWeight extends AbstractSmellCharacteristic {
     /**
      * Sets up the name of this smell characteristic.
      */
-    protected AverageEdgeWeight() {
+    public AverageEdgeWeight() {
         super("avrgEdgeWeight");
     }
 

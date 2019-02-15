@@ -1,4 +1,4 @@
-package org.rug.data.characteristics;
+package org.rug.data.characteristics.smells;
 
 import org.apache.tinkerpop.gremlin.process.computer.ComputerResult;
 import org.apache.tinkerpop.gremlin.process.computer.ranking.pagerank.PageRankVertexProgram;

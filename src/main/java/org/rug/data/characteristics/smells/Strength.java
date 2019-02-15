@@ -1,4 +1,4 @@
-package org.rug.data.characteristics;
+package org.rug.data.characteristics.smells;
 
 import org.rug.data.smells.UDSmell;
 
@@ -10,7 +10,7 @@ public class Strength extends AbstractSmellCharacteristic {
     /**
      * Sets up the name of this smell characteristic.
      */
-    protected Strength() {
+    public Strength() {
         super("strength");
     }
 

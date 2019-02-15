@@ -1,5 +1,6 @@
-package org.rug.data.characteristics;
+package org.rug.data.characteristics.smells;
 
+import org.rug.data.characteristics.ISmellCharacteristic;
 import org.rug.data.smells.CDSmell;
 import org.rug.data.smells.HLSmell;
 import org.rug.data.smells.UDSmell;
@@ -7,7 +8,7 @@ import org.rug.data.smells.UDSmell;
 /**
  * Models an abstract characteristic and groups commons methods and fields
  */
-public abstract class AbstractSmellCharacteristic implements ISmellCharacteristic{
+public abstract class AbstractSmellCharacteristic implements ISmellCharacteristic {
     private String name;
     protected final static String NO_VALUE = "0";
 

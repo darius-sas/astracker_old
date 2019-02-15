@@ -1,9 +1,8 @@
-package org.rug.data.characteristics;
+package org.rug.data.characteristics.smells;
 
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.rug.data.labels.EdgeLabel;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.smells.CDSmell;
 import org.rug.data.smells.HLSmell;
@@ -20,7 +19,7 @@ public class NumberOfEdges extends AbstractSmellCharacteristic {
     /**
      * Sets up the name of this smell characteristic.
      */
-    protected NumberOfEdges() {
+    public NumberOfEdges() {
         super("numOfEdges");
     }
 

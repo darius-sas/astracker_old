@@ -1,4 +1,4 @@
-package org.rug.data.characteristics;
+package org.rug.data.characteristics.smells;
 
 import org.rug.data.smells.CDSmell;
 import org.rug.data.smells.HLSmell;
@@ -9,7 +9,7 @@ public class AffectedComponentsType extends AbstractSmellCharacteristic {
      * Sets up the name of this smell characteristic.
      *
      */
-    protected AffectedComponentsType() {
+    public AffectedComponentsType() {
         super("affectedComponentType");
     }
 

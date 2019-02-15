@@ -4,10 +4,9 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.SmellVisitor;
+import org.rug.data.characteristics.UDCharacteristicsSet;
 import org.rug.data.labels.VertexLabel;
 import org.rug.data.characteristics.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Function;
@@ -111,7 +110,7 @@ public abstract class ArchitecturalSmell {
     protected abstract void setSmellNodes(Vertex smell);
 
     /**
-     * Triggers the calculation of each characteristic using the correct implementation of CharacteristicsSet for the
+     * Triggers the calculation of each characteristic using the correct implementation of SmellCharacteristicsSet for the
      * current smell type. The results of the calculation are saved internally in a map
      * retrievable using <code>getCharacteristicsMap()</code>.
      */
@@ -224,7 +223,7 @@ public abstract class ArchitecturalSmell {
             return false;
 
         ArchitecturalSmell other = (ArchitecturalSmell)o;
-        // this seems to be the intended behaviour, because a smell is never equal to another one from the same
+        // this seems to be the preferred behaviour, because a smell is never equal to another one from the same
         // version or any other version. At least at this level of abstraction.
         return other == this;
 //        if (this == other)
@@ -262,9 +261,9 @@ public abstract class ArchitecturalSmell {
 
         private String value;
         private Function<Vertex, ArchitecturalSmell> smellInstantiator;
-        private CharacteristicsSet characteristicsSet;
+        private SmellCharacteristicsSet characteristicsSet;
 
-        Type(String value, Function<Vertex, ArchitecturalSmell> smellInstantiator, CharacteristicsSet characteristicsSet){
+        Type(String value, Function<Vertex, ArchitecturalSmell> smellInstantiator, SmellCharacteristicsSet characteristicsSet){
             this.value = value;
             this.smellInstantiator = smellInstantiator;
             this.characteristicsSet = characteristicsSet;
@@ -275,8 +274,8 @@ public abstract class ArchitecturalSmell {
         }
 
         /**
-         * Returns the CharacteristicsSet instance of the current type.
-         * @return the correct instance of CharacteristicsSet that can be used to compute a smell's characteristics.
+         * Returns the SmellCharacteristicsSet instance of the current type.
+         * @return the correct instance of SmellCharacteristicsSet that can be used to compute a smell's characteristics.
          */
         public Set<ISmellCharacteristic> getCharacteristicsSet() {
             return characteristicsSet.getCharacteristicSet();

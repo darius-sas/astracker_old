@@ -1,4 +1,4 @@
-package org.rug.data.characteristics;
+package org.rug.data.characteristics.smells;
 
 import org.rug.data.smells.CDSmell;
 import org.rug.data.smells.HLSmell;
@@ -11,7 +11,7 @@ public class Size extends AbstractSmellCharacteristic {
     /**
      * Sets up this instance.
      **/
-    protected Size() {
+    public Size() {
         super("size");
     }
 

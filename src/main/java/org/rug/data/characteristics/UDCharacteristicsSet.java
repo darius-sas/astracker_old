@@ -1,14 +1,14 @@
-package org.rug.data.characteristics.smells;
+package org.rug.data.characteristics;
 
-import org.rug.data.characteristics.CharacteristicsSet;
-import org.rug.data.characteristics.ISmellCharacteristic;
+import org.rug.data.characteristics.smells.InstabilityGap;
+import org.rug.data.characteristics.smells.Strength;
 
 import java.util.Set;
 
 /**
  * This class is responsible for creating the characteristic set for UD smells.
  */
-public class UDCharacteristicsSet extends CharacteristicsSet {
+public class UDCharacteristicsSet extends SmellCharacteristicsSet {
 
     /**
      * Instantiates a new set of characteristics that can be used to save their calculations.

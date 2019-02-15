@@ -10,11 +10,11 @@ import java.util.Set;
  * Represents a set of stateless characteristics that are calculated by a certain type of smell.
  * Every instance of a characteristic set will be instantiated only once.
  */
-public abstract class CharacteristicsSet {
+public abstract class SmellCharacteristicsSet {
 
     private final Set<ISmellCharacteristic> characteristics;
 
-    public CharacteristicsSet(){
+    public SmellCharacteristicsSet(){
         Set<ISmellCharacteristic> characteristics = new HashSet<>();
         addSmellGenericCharacteristics(characteristics);
         addSmellSpecificCharacteristics(characteristics);
@@ -48,32 +48,5 @@ public abstract class CharacteristicsSet {
         characteristics.add(new PageRank("pageRankAvrg", x -> x.average().getAsDouble()));
         characteristics.add(new NumberOfEdges());
         characteristics.add(new AffectedComponentsType());
-    }
-
-    static class ImmutableAverager {
-        private final int total;
-        private final int count;
-
-        public ImmutableAverager() {
-            this.total = 0;
-            this.count = 0;
-        }
-
-        public ImmutableAverager(int total, int count) {
-            this.total = total;
-            this.count = count;
-        }
-
-        public double average() {
-            return count > 0 ? ((double) total) / count : 0;
-        }
-
-        public ImmutableAverager accept(int i) {
-            return new ImmutableAverager(total + i, count + 1);
-        }
-
-        public ImmutableAverager combine(ImmutableAverager other) {
-            return new ImmutableAverager(total + other.total, count + other.count);
-        }
     }
 }
