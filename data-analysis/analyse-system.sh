@@ -4,12 +4,10 @@ TRACKAS_JAR="../target/trackas/trackas-0.1.jar"
 
 usage_single() {
     echo "Usage:    analyse-single -p <project-name> -o <out-directory> [-rA|-run-Arcan][-rT|-run-Tracker][-c|--recompile-tracker][-tC|-track-consec-only][-h|--help]"
-    exit
 }
 
 usage_multiple(){
     echo "Usage:    analyse-multiple -m <master-directory> -o <out-directory> [-rA|-run-Arcan][-rT|-run-Tracker][-c|--recompile-tracker][-tC|-track-consec-only][-h|--help]"
-    exit
 }
 
 trackas(){
@@ -40,8 +38,10 @@ analyse_single(){
         -c  | --recompile-tracker ) RECOMPILE_TRACKER=true
                                 ;;
         -h | --help )           usage_single
+                                return
                                 ;;
         * )                     usage_single
+                                return
     esac
     shift
     done
@@ -49,11 +49,13 @@ analyse_single(){
     if [ -z $PROJECT ] ; then
         echo "Please provide a project name."
         usage_single
+        return
     fi
 
     if [ -z $OUTPUTDIR ] ; then
         echo "Please provide an output directory."
         usage_single
+        return
     fi
 
     INPUTDIR="$OUTPUTDIR/arcanOutput/$PROJECT/"
@@ -68,14 +70,14 @@ analyse_single(){
                 echo "Build successful."
             else
                 echo "Build failed. Exiting..."
-                exit
+                return
             fi
             cd $oldir
         fi
         trackas -p $PROJECT -i $INPUTDIR -o $OUTPUTDIR -pC -pS $RUN_ARCAN $NON_CONSEC_VERS
         if [ $? -ne 0 ] ; then
             echo "Tracking failed. Exiting..."
-            exit
+            return
         fi
     fi
 
@@ -114,10 +116,10 @@ analyse_multiple(){
         -c  | --recompile-tracker ) RECOMPILE_TRACKER="-c"
                                 ;;
         -h | --help )           usage_multiple
-                                exit
+                                return
                                 ;;
         * )                     usage_multiple
-                                exit 1
+                                return
     esac
     shift
     done
