@@ -7,6 +7,7 @@ import org.rug.data.util.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,27 +24,27 @@ public class Project {
     private final static Logger logger = LoggerFactory.getLogger(Project.class);
 
     private String name;
-    private boolean isSingleJarPerVersionProject;
+    private boolean isFolderOfJar;
     private SortedMap<String, Triple<Path, Path, Graph>> versionedSystem;
 
     public Project(String name){
         this.versionedSystem = new TreeMap<>();
         this.name = name;
-        this.isSingleJarPerVersionProject = true;
+        this.isFolderOfJar = false;
     }
 
     public void addJars(String mainJarProjectDir) throws IOException {
         Path jarDirPath =Paths.get(mainJarProjectDir);
-        this.isSingleJarPerVersionProject = containsJars(jarDirPath);
+        this.isFolderOfJar = !containsJars(jarDirPath);
 
         Consumer<Path> addVersion = j ->{
             var version = parseVersion(j);
-            var t = versionedSystem.getOrDefault(version, new Triple<>(null, null, null));
+            var t = versionedSystem.getOrDefault(version, new InputTriple(null, null));
             t.setA(j);
             versionedSystem.putIfAbsent(version, t);
         };
 
-        if (isSingleJarPerVersionProject){
+        if (isFolderOfJar){
             Files.list(jarDirPath)
                     .filter(Files::isRegularFile)
                     .filter(f -> f.getFileName().toString().matches(".*\\.jar"))
@@ -56,23 +57,24 @@ public class Project {
     }
 
 
-    public void addGraphMLs(String graphMLDir) throws IOException {
-        Files.walk(Paths.get(graphMLDir))
-                .filter(Files::isRegularFile)
-                .filter(f -> f.getFileName().toString().matches(".*\\.graphml"))
-                .forEach(f -> {
-                    var version = parseVersion(f);
-                    Graph graph = TinkerGraph.open();
-                    try {
-                        graph.io(IoCore.graphml()).readGraph(f.toAbsolutePath().toString());
-                    } catch (IOException e) {
-                        logger.error("Unable to read graph from file: ", e.getMessage());
-                    }
-                    var t = versionedSystem.getOrDefault(version, new Triple<>(null, null, null));
-                    t.setB(f);
-                    t.setC(graph);
-                    versionedSystem.putIfAbsent(version, t);
-                });
+    public void addGraphMLs(String graphMLDir) throws IOException{
+        File dir = new File(graphMLDir);
+        if (!dir.exists() || !containsGraphml(dir.toPath())) {
+            versionedSystem.forEach((version, inputTriple) -> {
+                var graphmlFile = Paths.get(graphMLDir, name, version, name, version, ".graphml");
+                inputTriple.setB(graphmlFile);
+            });
+        }else {
+            Files.walk(Paths.get(graphMLDir))
+                    .filter(Files::isRegularFile)
+                    .filter(f -> f.getFileName().toString().matches(".*\\.graphml"))
+                    .forEach(f -> {
+                        var version = parseVersion(f);
+                        var t = versionedSystem.getOrDefault(version, new InputTriple(null, null));
+                        t.setB(f);
+                        versionedSystem.putIfAbsent(version, t);
+                    });
+        }
     }
 
 
@@ -80,8 +82,8 @@ public class Project {
         return name;
     }
 
-    public boolean isSingleJarPerVersionProject() {
-        return isSingleJarPerVersionProject;
+    public boolean isFolderOfJarsProject() {
+        return isFolderOfJar;
     }
 
     /**
@@ -95,9 +97,10 @@ public class Project {
     }
 
     private String parseVersion(Path f){
+        int endIndex = f.toFile().isDirectory() ? f.toString().length() : f.toString().lastIndexOf('.');
         String version = f.toString().substring(
                 f.toString().lastIndexOf('-') + 1,
-                f.toString().lastIndexOf('.'));
+                endIndex);
         return version;
     }
 
@@ -105,4 +108,31 @@ public class Project {
         return Files.list(dir).anyMatch(f -> Files.isRegularFile(f) && f.getFileName().toString().matches(".*\\.jar"));
     }
 
+    private boolean containsGraphml(Path dir) throws IOException{
+        return Files.list(dir).anyMatch(f -> Files.isRegularFile(f) && f.getFileName().toString().matches(".*\\.graphml"));
+    }
+
+    /**
+     * This input triple lazily loads the graphml when it is first requested. This allows for Arcan to
+     * calculate the graphml and avoids errors.
+     */
+    static class InputTriple extends Triple<Path, Path, Graph>{
+
+        public InputTriple(Path jarPath, Path graphMLpath) {
+            super(jarPath, graphMLpath, null);
+        }
+
+        @Override
+        public Graph getC() {
+            if (super.getC() == null) {
+                this.c = TinkerGraph.open();
+                try {
+                    this.c.io(IoCore.graphml()).readGraph(getB().toAbsolutePath().toString());
+                } catch (IOException e) {
+                    logger.error("Could not read file {}", getB());
+                }
+            }
+            return super.getC();
+        }
+    }
 }

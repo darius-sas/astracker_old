@@ -14,9 +14,10 @@ public class ArcanRunner extends ToolRunner {
     /**
      * Initializes an arcan runner with the following smells CD, HL, and UD.
      */
-    public ArcanRunner(String inputJar, String project, String version, String outputDir){
+    public ArcanRunner(String inputJar, boolean isFolderOfJars, String project, String version, String outputDir){
         super("arcan", "-p", inputJar,
-                "-jar", "-CD", "-HL", "-UD", "-CM", "-PM",
+                isFolderOfJars ? "-folderOfJars" : "-jar",
+                "-CD", "-HL", "-UD", "-CM", "-PM",
                 "-out", outputDir + File.separator + "csv",
                 "-neo4j", "-d", outputDir + File.separator + "neo4j-db");
         this.version = version;

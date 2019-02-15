@@ -2,17 +2,15 @@ package org.rug;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class MainTest {
 
     @Test
     void executeMainArcan(){
-        Main.main(new String[]{"-p", "antlr", "-i", "./arcanrunner/inputs/antlr/", "-o", "test-outputs", "-rA"});
+        Main.main(new String[]{"-p", "argouml", "-i", "./test-data/input/argouml/", "-o", "test-data/output/", "-rA", "-pC", "-pS", "-dNC"});
     }
 
     @Test
     void executeMain(){
-        Main.main(new String[]{"-p", "antlr", "-i", "./test-data/output/arcanOutput/antlr", "-o", "test-data/output", "-pC", "-pS", "-dNC"});
+        Main.main(new String[]{"-p", "argouml", "-i", "./test-data/output/arcanOutput/argouml", "-o", "test-data/output", "-pC", "-pS", "-dNC"});
     }
 }

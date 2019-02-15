@@ -40,4 +40,9 @@ public class Triple<A, B, C> {
     public void setC(C c) {
         this.c = c;
     }
+
+    @Override
+    public String toString() {
+        return String.format("a: %s\tb:\t%s\tc:%s", a, b, c);
+    }
 }

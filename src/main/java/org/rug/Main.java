@@ -3,6 +3,7 @@ package org.rug;
 import com.beust.jcommander.JCommander;
 import org.rug.args.Args;
 import org.rug.args.InputDirManager;
+import org.rug.data.Project;
 import org.rug.persistence.*;
 import org.rug.runners.ArcanRunner;
 import org.rug.runners.ToolRunner;
@@ -20,7 +21,7 @@ public class Main {
      * the tracking output.
      * @param argv args to parse
      */
-    public static void main(String[] argv) {
+    public static void main(String[] argv)  {
 
         Args args = new Args();
         JCommander jc = JCommander.newBuilder()
@@ -35,19 +36,25 @@ public class Main {
             System.exit(0);
         }
 
+        Project project = new Project(args.projectName);
         List<ToolRunner> runners = new ArrayList<>();
-        if (args.runArcan){
-            String outputDir = Paths.get(args.getOutputDir().toString(), "arcanOutput").toString();
-            args.getInputTriples(Args.JAR_FILES_REGEX).forEach(t -> {
-                String outputDirVers = Paths.get(outputDir, t.getB(), t.getC()).toString();
-                runners.add(new ArcanRunner(t.getA(), t.getB(), t.getC(), outputDirVers));
-            });
-            File outDir = new File(outputDir);
-            outDir.mkdirs();
-            args.inputDirectory = new InputDirManager().convert(outputDir);
+        try {
+            if (args.runArcan) {
+                project.addJars(args.inputDirectory.toString());
+                String outputDir = Paths.get(args.getOutputDir().toString(), "arcanOutput").toString();
+                project.getVersionedSystem().forEach((version, t) -> {
+                    String outputDirVers = Paths.get(outputDir, project.getName(), version).toString();
+                    runners.add(new ArcanRunner(t.getA().toString(), project.isFolderOfJarsProject(), project.getName(), version, outputDirVers));
+                });
+                File outDir = new File(outputDir);
+                outDir.mkdirs();
+                args.inputDirectory = new InputDirManager().convert(outputDir);
+            }
+            project.addGraphMLs(args.inputDirectory.toString());
+        }catch (Exception e){
+            e.printStackTrace();
         }
-
-        runners.add(new TrackASRunner(args.projectName, args.inputDirectory.getAbsolutePath(), args.trackNonConsecutiveVersions));
+        runners.add(new TrackASRunner(project, args.trackNonConsecutiveVersions));
 
         if (args.similarityScores)
             PersistenceWriter.register(new SmellSimilarityDataGenerator(args.getSimilarityScoreFile()));
