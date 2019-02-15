@@ -1,5 +1,7 @@
 package org.rug.data.characteristics;
 
+import org.rug.data.characteristics.smells.*;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;

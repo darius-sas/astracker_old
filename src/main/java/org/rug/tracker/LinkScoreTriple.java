@@ -34,6 +34,8 @@ public class LinkScoreTriple extends Triple<ArchitecturalSmell, ArchitecturalSme
         return this.a.equals(other.a) && this.b.equals(other.b);
     }
 
+    private int hashCode;
+
     /**
      * Always return zero because all triples must be able to force Sets to use {@link #equals(Object)}
      * to check their presence in the set.
@@ -41,7 +43,13 @@ public class LinkScoreTriple extends Triple<ArchitecturalSmell, ArchitecturalSme
      */
     @Override
     public int hashCode() {
-        return 0;
+        int result = hashCode;
+        if (result == 0){
+            result = 31 * a.hashCode();
+            result = 31 * result + b.hashCode();
+            hashCode = result;
+        }
+        return result;
     }
 
     @Override

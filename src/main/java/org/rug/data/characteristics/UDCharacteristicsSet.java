@@ -1,4 +1,7 @@
-package org.rug.data.characteristics;
+package org.rug.data.characteristics.smells;
+
+import org.rug.data.characteristics.CharacteristicsSet;
+import org.rug.data.characteristics.ISmellCharacteristic;
 
 import java.util.Set;
 

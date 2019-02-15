@@ -1,9 +1,12 @@
 package org.rug.tracker;
 
+import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.smells.CDSmell;
 
 import java.util.*;
 
+
+/* CURRENTLY NOT WORKING */
 /**
  * A set that stores {@link LinkScoreTriple}. The set takes care of keeping only matches that maximize {@link LinkScoreTriple#getC()} score.
  * If two matches have the same score, the choice is made according to the pair that maintains type and shape.
@@ -13,11 +16,14 @@ import java.util.*;
  */
 public class BestMatchSet implements Set<LinkScoreTriple> {
 
-    private Map<LinkScoreTriple, LinkScoreTriple> triples = new HashMap<>();
+    private Set<LinkScoreTriple> triples = new LinkedHashSet<>();
+
+    private Set<ArchitecturalSmell> current = new LinkedHashSet<>();
+    private Set<ArchitecturalSmell> next = new LinkedHashSet<>();
 
     /**
-     * Initializes this set by adding all the elements to the
-     * @param c
+     * Initializes this set by adding all the elements to the internal collection.
+     * @param c the elements to add
      */
     public BestMatchSet(Collection<? extends LinkScoreTriple> c){
         addAll(c);
@@ -64,7 +70,7 @@ public class BestMatchSet implements Set<LinkScoreTriple> {
      */
     @Override
     public boolean contains(Object o) {
-        return triples.containsKey(o);
+        return triples.contains(o);
     }
 
     /**
@@ -76,7 +82,7 @@ public class BestMatchSet implements Set<LinkScoreTriple> {
      */
     @Override
     public Iterator<LinkScoreTriple> iterator() {
-        return triples.values().iterator();
+        return triples.iterator();
     }
 
     /**
@@ -97,7 +103,7 @@ public class BestMatchSet implements Set<LinkScoreTriple> {
      */
     @Override
     public Object[] toArray() {
-        return triples.values().toArray();
+        return triples.toArray();
     }
 
     /**
@@ -144,7 +150,7 @@ public class BestMatchSet implements Set<LinkScoreTriple> {
      */
     @Override
     public <T> T[] toArray(T[] a) {
-        return null;
+        return triples.toArray(a);
     }
 
     /**
@@ -157,8 +163,12 @@ public class BestMatchSet implements Set<LinkScoreTriple> {
      */
     @Override
     public boolean add(LinkScoreTriple otherTriple) {
-        if (triples.containsKey(otherTriple)){
-            LinkScoreTriple currentTriple = triples.get(otherTriple);
+        if (current.contains(otherTriple.getA()) || next.contains(otherTriple.getB())){
+            var currentTripleOpt = triples.stream()
+                    .filter(t -> t.getA().equals(otherTriple.getA()) || t.getB().equals(otherTriple.getB()))
+                    .findFirst();
+            assert currentTripleOpt.isPresent(); // this should be always true
+            var currentTriple = currentTripleOpt.get();
             int comparison = currentTriple.compareTo(otherTriple);
             if (comparison == 0){
                 var currentMaintainsType = currentTriple.getA().getType() == currentTriple.getB().getType();
@@ -184,8 +194,11 @@ public class BestMatchSet implements Set<LinkScoreTriple> {
                 return true;
             }
             return false;
+        }else {
+            current.add(otherTriple.getA());
+            next.add(otherTriple.getB());
+            return triples.add(otherTriple);
         }
-        return triples.put(otherTriple, otherTriple) == null;
     }
 
     /**
@@ -211,7 +224,7 @@ public class BestMatchSet implements Set<LinkScoreTriple> {
      */
     @Override
     public boolean remove(Object o) {
-        return triples.remove(o) != null;
+        return triples.remove(o);
     }
 
     /**
@@ -235,7 +248,7 @@ public class BestMatchSet implements Set<LinkScoreTriple> {
      */
     @Override
     public boolean containsAll(Collection<?> c) {
-        return triples.keySet().containsAll(c);
+        return triples.containsAll(c);
     }
 
     /**
@@ -291,7 +304,7 @@ public class BestMatchSet implements Set<LinkScoreTriple> {
      */
     @Override
     public boolean retainAll(Collection<?> c) {
-        return triples.keySet().retainAll(c);
+        return triples.retainAll(c);
     }
 
     /**
@@ -317,7 +330,7 @@ public class BestMatchSet implements Set<LinkScoreTriple> {
      */
     @Override
     public boolean removeAll(Collection<?> c) {
-        return triples.keySet().retainAll(c);
+        return triples.retainAll(c);
     }
 
     /**
@@ -333,7 +346,12 @@ public class BestMatchSet implements Set<LinkScoreTriple> {
     }
 
     private void replace(LinkScoreTriple current, LinkScoreTriple other){
-        triples.remove(current);
-        triples.put(other, other);
+        this.current.remove(current.getA());
+        this.next.remove(current.getB());
+        this.triples.remove(current);
+
+        this.current.add(other.getA());
+        this.next.add(other.getB());
+        this.triples.add(other);
     }
 }
