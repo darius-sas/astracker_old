@@ -99,6 +99,8 @@ analyse_single(){
 
 analyse_multiple(){
 
+
+
     while [ "$1" != "" ]; do
     case $1 in
         -m | --master-dir )     shift

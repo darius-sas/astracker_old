@@ -10,7 +10,7 @@ library(gridExtra)
 
 if(is.null(environment()$project)){
   project <- svDialogs::dlgInput("Project name: ")$res
-  type <- svDialogs::dlgForm(list("type:CB"=c("consecOnly", "nonConsec")), title="Consecutive or non consecutive smells?")$res$type
+  type <- svDialogs::dlgForm(list("type:CB"=c("consecOnly", "nonConsec")), title="Select project")$res$type
 }
 
 similarity_scores_file <- paste("similarity-scores-", type, ".csv", sep = "")
@@ -32,8 +32,8 @@ This notebook analyses the output of an architectural smell tracker and outputs 
 
 ##Number of smells per version
 ```{r}
-p <- ggplot(df, aes(version, group = smellType, fill = smellType)) + geom_bar()
-p2 <- ggplot(df, aes(version, group = affectedComponentType, fill = affectedComponentType)) + geom_bar()
+p <- ggplot(df, aes(version, group = smellType, fill = smellType)) + geom_bar() + theme(axis.text.x = element_text(angle=90, hjust = 1))
+p2 <- ggplot(df, aes(version, group = affectedComponentType, fill = affectedComponentType)) + geom_bar() + theme(axis.text.x = element_text(angle=90, hjust = 1))
 grid.arrange(p, p2)
 ```
 
@@ -47,7 +47,7 @@ m[is.na(m)] <- 0
 m$perc <- (m$n.y / m$n.x)/length(unique(m$smellType))
 p <- ggplot(m, aes(x=version, y=perc, group=smellType, fill=smellType)) + 
   geom_bar(stat="identity") +
-  geom_text(aes(label=n.x), position = "stack", size = 2)
+  geom_text(aes(label=n.x), position = "stack", size = 2) + theme(axis.text.x = element_text(angle=90, hjust = 1))
 print(p)
 ```
 
@@ -55,7 +55,7 @@ print(p)
 ##Age distribution of smells
 Here is the distribution for each type of smell and the mean age shown as a dashed blue vertical line.
 ```{r}
-df.unique <-df[!duplicated(df$uniqueSmellID), c(1,2,3,5)]
+df.unique <- df[!duplicated(df$uniqueSmellID), c(1,2,3,5)]
 p <- ggplot(df.unique, aes(age, group = smellType, colour = smellType)) +
   geom_density()+
   geom_vline(aes(xintercept=mean(age)), color="blue", linetype="dashed", size=1) +
@@ -63,6 +63,14 @@ p <- ggplot(df.unique, aes(age, group = smellType, colour = smellType)) +
   scale_y_continuous(breaks = pretty)
 print(p)
 ```
+This plot instead, visualizes each smell as a line from its starting to its removal versions.
+```{r}
+p <- ggplot(df, aes(version, uniqueSmellID, group = uniqueSmellID, color = smellType)) + 
+  geom_line() +  
+  theme(axis.text.x = element_text(angle=90, hjust = 1))
+print(p)
+```
+
 
 ##Smell overlap per version
 Below we plot the overlap of each smell for every version, some jitter is added to make it easier to understand when there are multiple smells that have high overlap.

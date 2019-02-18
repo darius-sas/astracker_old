@@ -29,31 +29,36 @@ public abstract class ToolRunner {
      * Initializes an external tool to be run using the properties file 'tools.properties' to retrieve the option
      * for the tool.
      * @param toolName The prefix toolName of the tool used in the properties file.
-     * @param args The arguments to use for the given tool
-     * @return an instance of a ToolRunner on which is possible to start the process of the given tool.
      */
-    protected ToolRunner(String toolName, String... args){
+    protected ToolRunner(String toolName){
         if (toolName != null) {
-            String command = properties.getProperty(String.join(".", toolName, "cmdLine"));
-            this.homeDir = properties.getProperty(String.join(".", toolName, "homeDirectory"));
             this.toolName = toolName;
-            boolean showOutput = Boolean.valueOf(properties.getProperty(String.join(".", toolName, "showOutput"), "false"));
+        }
+    }
 
-            if (args == null)
-                args = new String[]{""};
-            List<String> commandLine = new ArrayList<>(Arrays.asList(command.split(" ")));
-            commandLine.addAll(Arrays.asList(args));
-            this.command = commandLine.toArray(new String[0]);
+    /**
+     * Sets the arguments to pass to this tool.
+     * @param args the array containing the arguments.
+     */
+    protected final void setArgs(String... args){
+        String command = properties.getProperty(String.join(".", toolName, "cmdLine"));
+        this.homeDir = properties.getProperty(String.join(".", toolName, "homeDirectory"));
+        boolean showOutput = Boolean.valueOf(properties.getProperty(String.join(".", toolName, "showOutput"), "false"));
 
-            this.builder = new ProcessBuilder(commandLine);
-            this.builder.directory(new File(homeDir));
-            if (!showOutput) {
-                this.builder.redirectOutput(ProcessBuilder.Redirect.DISCARD);
-                this.builder.redirectError(ProcessBuilder.Redirect.DISCARD);
-            } else {
-                this.builder.redirectError(ProcessBuilder.Redirect.INHERIT);
-                this.builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-            }
+        if (args == null)
+            args = new String[]{""};
+        List<String> commandLine = new ArrayList<>(Arrays.asList(command.split(" ")));
+        commandLine.addAll(Arrays.asList(args));
+        this.command = commandLine.toArray(new String[0]);
+
+        this.builder = new ProcessBuilder(commandLine);
+        this.builder.directory(new File(homeDir));
+        if (!showOutput) {
+            this.builder.redirectOutput(ProcessBuilder.Redirect.DISCARD);
+            this.builder.redirectError(ProcessBuilder.Redirect.DISCARD);
+        } else {
+            this.builder.redirectError(ProcessBuilder.Redirect.INHERIT);
+            this.builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
         }
     }
 
@@ -62,21 +67,26 @@ public abstract class ToolRunner {
      * of the underlying process.
      * @return The process being executed.
      */
-    public void start(){
+    public int start(){
+        int exitCode;
         Process p;
         try {
             logger.info("Running {} with command: {}", getToolName(), String.join(" ", getCommand()));
             preProcess();
             p = builder.start();
-            int exitCode = p.waitFor();
-            postProcess(p);
+            exitCode = p.waitFor();
+            if (exitCode == 0)
+                postProcess(p);
             logger.info("Completed {} with exit code {}.", getToolName(), exitCode);
         }catch (IOException e) {
             logger.error("Could not start the following command: {}", String.join(" ", builder.command()));
             logger.error("The following error message was generated: {}", e.getMessage());
+            exitCode = -1;
         } catch (InterruptedException e) {
             logger.error(e.getMessage());
+            exitCode = -1;
         }
+        return exitCode;
     }
 
     protected abstract void preProcess();

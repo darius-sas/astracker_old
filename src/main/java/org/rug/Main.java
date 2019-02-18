@@ -10,6 +10,7 @@ import org.rug.runners.ToolRunner;
 import org.rug.runners.TrackASRunner;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,14 +42,13 @@ public class Main {
         try {
             if (args.runArcan) {
                 project.addJars(args.inputDirectory.toString());
-                String outputDir = Paths.get(args.getOutputDir().toString(), "arcanOutput").toString();
+                Path outputDir = Paths.get(args.getOutputDir().toString(), "arcanOutput", project.getName());
                 project.getVersionedSystem().forEach((version, t) -> {
-                    String outputDirVers = Paths.get(outputDir, project.getName(), version).toString();
-                    runners.add(new ArcanRunner(t.getA().toString(), project.isFolderOfJarsProject(), project.getName(), version, outputDirVers));
+                    Path outputDirVers = Paths.get(outputDir.toString(), version);
+                    outputDirVers.toFile().mkdirs();
+                    runners.add(new ArcanRunner(project, version, outputDirVers.toString(), false));
                 });
-                File outDir = new File(outputDir);
-                outDir.mkdirs();
-                args.inputDirectory = new InputDirManager().convert(outputDir);
+                args.inputDirectory = new InputDirManager().convert(outputDir.toString());
             }
             project.addGraphMLs(args.inputDirectory.toString());
         }catch (Exception e){
@@ -65,9 +65,17 @@ public class Main {
         PersistenceWriter.register(new CondensedGraphGenerator(args.getCondensedGraphFile()));
         PersistenceWriter.register(new TrackGraphGenerator(args.getTrackGraphFileName()));
 
-        runners.forEach(ToolRunner::start);
-
-        PersistenceWriter.writeAllCSV();
-        PersistenceWriter.writeAllGraphs();
+        boolean errorsOccurred = false;
+        for (var r : runners){
+            int exitCode = r.start();
+            errorsOccurred = exitCode != 0;
+            if (errorsOccurred) {
+                break;
+            }
+        }
+        if (!errorsOccurred) {
+            PersistenceWriter.writeAllCSV();
+            PersistenceWriter.writeAllGraphs();
+        }
     }
 }

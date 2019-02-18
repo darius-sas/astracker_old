@@ -12,9 +12,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Represents a project with multiple versions.
@@ -24,18 +28,18 @@ public class Project {
     private final static Logger logger = LoggerFactory.getLogger(Project.class);
 
     private String name;
-    private boolean isFolderOfJar;
+    private boolean isFolderOfFolderOfJars;
     private SortedMap<String, Triple<Path, Path, Graph>> versionedSystem;
 
     public Project(String name){
         this.versionedSystem = new TreeMap<>();
         this.name = name;
-        this.isFolderOfJar = false;
+        this.isFolderOfFolderOfJars = false;
     }
 
     public void addJars(String mainJarProjectDir) throws IOException {
         Path jarDirPath =Paths.get(mainJarProjectDir);
-        this.isFolderOfJar = !containsJars(jarDirPath);
+        this.isFolderOfFolderOfJars = !containsJars(jarDirPath);
 
         Consumer<Path> addVersion = j ->{
             var version = parseVersion(j);
@@ -44,7 +48,7 @@ public class Project {
             versionedSystem.putIfAbsent(version, t);
         };
 
-        if (isFolderOfJar){
+        if (!isFolderOfFolderOfJars){
             Files.list(jarDirPath)
                     .filter(Files::isRegularFile)
                     .filter(f -> f.getFileName().toString().matches(".*\\.jar"))
@@ -57,24 +61,32 @@ public class Project {
     }
 
 
+    /**
+     * Adds the given directory of graphML files to the current versioned system.
+     * If directory does not exist, this method will fill the current versioned systems
+     * with the paths to the ghost graphMl files. In that case, the paths will have
+     * the following format: graphMLDir/name/version/name-version.graphml.
+     * @param graphMLDir the directory where to read graph files from, or where they should be written.
+     * @throws IOException
+     */
     public void addGraphMLs(String graphMLDir) throws IOException{
         File dir = new File(graphMLDir);
-        if (!dir.exists() || !containsGraphml(dir.toPath())) {
+
+        var graphMlFiles = getGraphMls(dir.toPath());
+        if (!graphMlFiles.isEmpty()) {
+            graphMlFiles.forEach(f -> {
+                var version = parseVersion(f);
+                var t = versionedSystem.getOrDefault(version, new InputTriple(null, null));
+                t.setB(f);
+                versionedSystem.putIfAbsent(version, t);
+            });
+        } else {
             versionedSystem.forEach((version, inputTriple) -> {
-                var graphmlFile = Paths.get(graphMLDir, name, version, name, version, ".graphml");
+                var graphmlFile = Paths.get(graphMLDir,version, name + "-" + version + ".graphml");
                 inputTriple.setB(graphmlFile);
             });
-        }else {
-            Files.walk(Paths.get(graphMLDir))
-                    .filter(Files::isRegularFile)
-                    .filter(f -> f.getFileName().toString().matches(".*\\.graphml"))
-                    .forEach(f -> {
-                        var version = parseVersion(f);
-                        var t = versionedSystem.getOrDefault(version, new InputTriple(null, null));
-                        t.setB(f);
-                        versionedSystem.putIfAbsent(version, t);
-                    });
         }
+
     }
 
 
@@ -82,8 +94,8 @@ public class Project {
         return name;
     }
 
-    public boolean isFolderOfJarsProject() {
-        return isFolderOfJar;
+    public boolean isFolderOfFoldersOfJarsProject() {
+        return isFolderOfFolderOfJars;
     }
 
     /**
@@ -108,8 +120,8 @@ public class Project {
         return Files.list(dir).anyMatch(f -> Files.isRegularFile(f) && f.getFileName().toString().matches(".*\\.jar"));
     }
 
-    private boolean containsGraphml(Path dir) throws IOException{
-        return Files.list(dir).anyMatch(f -> Files.isRegularFile(f) && f.getFileName().toString().matches(".*\\.graphml"));
+    private List<Path> getGraphMls(Path dir) throws IOException{
+        return Files.walk(dir).filter(f -> Files.isRegularFile(f) && f.getFileName().toString().matches(".*\\.graphml")).collect(Collectors.toList());
     }
 
     /**

@@ -36,7 +36,7 @@ public class TrackASRunner extends ToolRunner {
     }
 
     @Override
-    public void start() {
+    public int start() {
         versionedSystem = project.getVersionedSystem();
         tracker = new ASmellTracker(new JaccardSimilarityLinker(), trackNonConsecutiveVersions);
         var componentCharacteristics = new ComponentCharacteristicSet().getCharacteristicSet();
@@ -57,6 +57,7 @@ public class TrackASRunner extends ToolRunner {
         PersistenceWriter.sendTo(SmellCharacteristicsGenerator.class, tracker);
         PersistenceWriter.sendTo(TrackGraphGenerator.class, tracker);
         PersistenceWriter.sendTo(CondensedGraphGenerator.class, tracker);
+        return 0;
     }
 
     @Override

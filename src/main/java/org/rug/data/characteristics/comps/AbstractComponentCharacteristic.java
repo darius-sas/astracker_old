@@ -8,17 +8,19 @@ import org.rug.data.labels.EdgeLabel;
 import org.rug.data.labels.VertexLabel;
 
 import java.util.EnumSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class AbstractComponentCharacteristic implements IComponentCharacteristic {
 
     protected String name;
-    protected String[] eLabels;
-    protected String[] vLabels;
+    protected List<String> eLabels;
+    protected List<String> vLabels;
 
     public AbstractComponentCharacteristic(String name, EnumSet<VertexLabel> vLabels, EnumSet<EdgeLabel> eLabels) {
         this.name = name;
-        this.vLabels = (String[])vLabels.stream().map(VertexLabel::toString).toArray();
-        this.eLabels = (String[])eLabels.stream().map(EdgeLabel::toString).toArray();
+        this.vLabels = vLabels.stream().map(VertexLabel::toString).collect(Collectors.toList());
+        this.eLabels = eLabels.stream().map(EdgeLabel::toString).collect(Collectors.toList());
     }
 
     /**
@@ -62,7 +64,7 @@ public abstract class AbstractComponentCharacteristic implements IComponentChara
      * @return an array of labels.
      */
     @Override
-    public String[] getOperatingEdgeLabels() {
+    public List<String> getOperatingEdgeLabels() {
         return eLabels;
     }
 
@@ -72,7 +74,7 @@ public abstract class AbstractComponentCharacteristic implements IComponentChara
      * @return an array of labels.
      */
     @Override
-    public String[] getOperatingVertexLabels() {
+    public List<String> getOperatingVertexLabels() {
         return vLabels;
     }
 }

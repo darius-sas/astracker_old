@@ -1,28 +1,33 @@
 package org.rug.runners;
 
+import org.rug.data.Project;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 public class ArcanRunner extends ToolRunner {
 
     private final String version;
-    private final String project;
-    private final String outputDir;
+    private final Project project;
 
     /**
      * Initializes an arcan runner with the following smells CD, HL, and UD.
      */
-    public ArcanRunner(String inputJar, boolean isFolderOfJars, String project, String version, String outputDir){
-        super("arcan", "-p", inputJar,
-                isFolderOfJars ? "-folderOfJars" : "-jar",
+    public ArcanRunner(Project project, String version, String outputDir, boolean useNeo4j){
+        super("arcan");
+        var args = Arrays.asList("-p", project.getVersionedSystem().get(version).getA().toString(),
+                project.isFolderOfFoldersOfJarsProject() ? "-folderOfJars" : "-jar",
                 "-CD", "-HL", "-UD", "-CM", "-PM",
-                "-out", outputDir + File.separator + "csv",
-                "-neo4j", "-d", outputDir + File.separator + "neo4j-db");
+                "-out", outputDir + File.separator + "csv");
+
+        if (useNeo4j)
+            args.addAll(Arrays.asList("-neo4j", "-d", outputDir + File.separator + "neo4j-db"));
+        setArgs(args.toArray(new String[0]));
         this.version = version;
         this.project = project;
-        this.outputDir = outputDir;
     }
 
     @Override
@@ -32,7 +37,11 @@ public class ArcanRunner extends ToolRunner {
 
     @Override
     protected void postProcess(Process p) throws IOException {
-        Files.move(Paths.get(getHomeDir(), "ToySystem-graph.graphml"),
-                Paths.get(outputDir, String.format("%s-%s.graphml", project, version)));
+        try {
+            Files.move(Paths.get(getHomeDir(), "ToySystem-graph.graphml"),
+                    project.getVersionedSystem().get(version).getB());
+        }catch (IOException e){
+            throw new IOException("Could not move the graph file: " + e.getMessage());
+        }
     }
 }

@@ -2,6 +2,8 @@ package org.rug.data.characteristics;
 
 import org.apache.tinkerpop.gremlin.structure.Graph;
 
+import java.util.List;
+
 public interface IComponentCharacteristic {
 
     /**
@@ -20,11 +22,11 @@ public interface IComponentCharacteristic {
      * Returns the label used for the main operations on the given graph.
      * @return an array of labels.
      */
-    String[] getOperatingEdgeLabels();
+    List<String> getOperatingEdgeLabels();
 
     /**
      * Returns the label used for the main operations on the given graph.
      * @return an array of labels.
      */
-    String[] getOperatingVertexLabels();
+    List<String> getOperatingVertexLabels();
 }
