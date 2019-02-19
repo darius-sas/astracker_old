@@ -10,6 +10,7 @@ import org.rug.data.util.Triple;
 import org.rug.persistence.*;
 import org.rug.tracker.ASmellTracker;
 import org.rug.tracker.JaccardSimilarityLinker;
+import org.rug.tracker.SimpleNameJaccardSimilarityLinker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,7 @@ public class TrackASRunner extends ToolRunner {
     @Override
     public int start() {
         versionedSystem = project.getVersionedSystem();
-        tracker = new ASmellTracker(new JaccardSimilarityLinker(), trackNonConsecutiveVersions);
+        tracker = new ASmellTracker(new SimpleNameJaccardSimilarityLinker(), trackNonConsecutiveVersions);
         var componentCharacteristics = new ComponentCharacteristicSet().getCharacteristicSet();
 
         logger.info("Starting tracking architectural smells of {} for {} versions", project.getName(), versionedSystem.size());

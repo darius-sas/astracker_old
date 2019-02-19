@@ -8,8 +8,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * This linker uses the simple names of the classes and or packages rather their full name.
- * This makes sense because it is rather difficult that a class with the same name to be affected
+ * This linker uses the simple names of the classes and or packages rather than their full name.
+ * This makes sense because it is quite improbable that a class with the same name to be affected
  * by the same type of smell and have the other elements involved in the smell named the same.
  * In case of homonyms, the threshold of the jaccard score of the set of affected elements
  * should be sufficient to eliminate the uncertainty in selecting the appropriate successor.
