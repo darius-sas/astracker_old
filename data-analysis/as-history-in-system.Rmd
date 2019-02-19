@@ -8,15 +8,22 @@ library(dplyr)
 library(ggplot2)
 library(gridExtra)
 
+projectChanged <- FALSE
+
 if(is.null(environment()$project)){
   project <- svDialogs::dlgInput("Project name: ")$res
   type <- svDialogs::dlgForm(list("type:CB"=c("consecOnly", "nonConsec")), title="Select project")$res$type
+  projectChanged <- TRUE
 }
 
-similarity_scores_file <- paste("similarity-scores-", type, ".csv", sep = "")
-similarity_scores_file <- paste("../test-data/output/trackASOutput", project, similarity_scores_file, sep="/")
-characteristics_file <- paste("smell-characteristics-", type, ".csv", sep = "")
-characteristics_file <- paste("../test-data/output/trackASOutput", project, characteristics_file, sep="/")
+if (is.null(environment()$similarity_scores_file) | projectChanged == TRUE) {
+  similarity_scores_file <- paste("similarity-scores-", type, ".csv", sep = "")
+  similarity_scores_file <- paste("../test-data/output/trackASOutput", project, similarity_scores_file, sep="/")
+  characteristics_file <- paste("smell-characteristics-", type, ".csv", sep = "")
+  characteristics_file <- paste("../test-data/output/trackASOutput", project, characteristics_file, sep="/") 
+  projectChanged <- FALSE
+}
+
 df <- read.table(characteristics_file, header = T, sep = ",")
 df <- df[!is.na(df$age),]
 df.similarity <- read.table(similarity_scores_file, header = T, sep = ",")
