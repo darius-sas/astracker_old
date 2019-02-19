@@ -108,12 +108,8 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
      * @param <S> the type of the elements contained in the set
      * @return a new set containing the result of the intersection
      */
-    private <S> Set<S> intersect(Set<S> a, Set<S> b){
+    protected  <S> Set<S> intersect(Set<S> a, Set<S> b){
         Set<S> c = new HashSet<>(a); c.retainAll(b); return c;
-    }
-
-    private String getName(Vertex vertex) {
-        return vertex.value("name").toString();
     }
 
     @Override
@@ -128,7 +124,7 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
      */
     @Override
     public Set<String> visit(CDSmell smell) {
-        return smell.getAffectedElements().stream().map(this::getName).collect(Collectors.toSet());
+        return smell.getAffectedElementsNames();
     }
 
     /**
@@ -138,7 +134,7 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
      */
     @Override
     public Set<String> visit(HLSmell smell) {
-        Set<String> elements = smell.getAffectedElements().stream().map(this::getName).collect(Collectors.toSet());
+        Set<String> elements = smell.getAffectedElementsNames();
         //elements.addAll(smell.getInDep().stream().map(this::getToolName).collect(Collectors.toSet()));
         //elements.add(getToolName(smell.getCentre()));
         return elements;
@@ -151,7 +147,7 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
      */
     @Override
     public Set<String> visit(UDSmell smell) {
-        Set<String> elements = smell.getAffectedElements().stream().map(this::getName).collect(Collectors.toSet());
+        Set<String> elements = smell.getAffectedElementsNames();
         //elements.add(getToolName(smell.getCentre()));
         return elements;
     }

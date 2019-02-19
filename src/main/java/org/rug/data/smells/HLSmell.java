@@ -7,6 +7,7 @@ import org.rug.data.labels.EdgeLabel;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Represents an Hublike dependency smell.
@@ -48,6 +49,12 @@ public class HLSmell extends SingleElementSmell {
     }
 
     /**
+     * Gets the set of incoming dependencies to the element affected by this smell as names.
+     * @return a set of strings.
+     */
+    public Set<String> getInDepNames(){return getInDep().stream().map(v -> v.property("name").toString()).collect(Collectors.toSet());}
+
+    /**
      * Gets the set of outgoing dependencies to the element affected by this smell.
      * @return an unmodifiable set.
      */
@@ -55,6 +62,11 @@ public class HLSmell extends SingleElementSmell {
         return Collections.unmodifiableSet(outDep);
     }
 
+    /**
+     * Gets the set of outgoing dependencies to the element affected by this smell as names.
+     * @return a set of strings.
+     */
+    public Set<String> getOutDepNames(){return getOutDep().stream().map(v -> v.property("name").toString()).collect(Collectors.toSet());}
 
     @Override
     public <R> R accept(SmellVisitor<R> visitor) {

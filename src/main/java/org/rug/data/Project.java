@@ -3,6 +3,7 @@ package org.rug.data;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
+import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.util.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,12 @@ public class Project {
         this.isFolderOfFolderOfJars = false;
     }
 
+    /**
+     * Add the jars contained in the given folder to the given project. The folder may point to either a folder
+     * of jars or a folder of folders of jars.
+     * @param mainJarProjectDir the home folder of the project.
+     * @throws IOException if cannot read the given directory.
+     */
     public void addJars(String mainJarProjectDir) throws IOException {
         Path jarDirPath =Paths.get(mainJarProjectDir);
         this.isFolderOfFolderOfJars = !containsJars(jarDirPath);
@@ -90,10 +97,22 @@ public class Project {
     }
 
 
+    /**
+     * Gets the name of the project as set up at instantiation time.
+     * @return the name of the project.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Returns the nature of the project represented by this instance.
+     * In a project where the main folder is full of jars, every version is represented by a single jar file.
+     * On the other side, a project that is a folder of folders of jars, every version is a folder of jars.
+     * NOTE: This value is by default false. You need to call {@link #addJars(String)} in order to correctly set
+     * this flag.
+     * @return true if this project is a folder of folder of jars.
+     */
     public boolean isFolderOfFoldersOfJarsProject() {
         return isFolderOfFolderOfJars;
     }
@@ -106,6 +125,15 @@ public class Project {
      */
     public SortedMap<String, Triple<Path, Path, Graph>> getVersionedSystem() {
         return versionedSystem;
+    }
+
+    /**
+     * Returns the architectural smells in the given version.
+     * @param version the version of the system to parse smells from
+     * @return the smells as a list.
+     */
+    public List<ArchitecturalSmell> getArchitecturalSmellsIn(String version){
+        return ArcanDependencyGraphParser.getArchitecturalSmellsIn(versionedSystem.get(version).getC());
     }
 
     private String parseVersion(Path f){

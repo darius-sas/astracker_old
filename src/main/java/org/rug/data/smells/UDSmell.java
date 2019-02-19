@@ -7,6 +7,7 @@ import org.rug.data.labels.EdgeLabel;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Represents an Unstable dependency smell.
@@ -37,6 +38,12 @@ public class UDSmell extends SingleElementSmell {
     public Set<Vertex> getBadDep() {
         return Collections.unmodifiableSet(badDep);
     }
+
+    /**
+     * Gets the set of outgoing dependencies to the element affected by this smell as ma,es.
+     * @return a set of strings.
+     */
+    public Set<String> getBadDepNames(){return getBadDep().stream().map(v -> v.property("name").toString()).collect(Collectors.toSet());}
 
     /**
      * UD is only defined at package Level, so we set it like that by default
