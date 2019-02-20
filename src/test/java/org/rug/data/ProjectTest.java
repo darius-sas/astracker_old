@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -59,5 +60,31 @@ class ProjectTest {
         return pr;
     }
 
+    @Test
+    void qualitasParseTest() throws IOException {
+        var project = new Project("ant");
+        var jarDirs = "./qualitas-corpus/input/" + project.getName();
 
+        var antversions = Arrays.asList("1.1", "1.2", "1.3", "1.4", "1.4.1", "1.5", "1.5.1", "1.5.2", "1.5.3.1",
+                "1.5.4", "1.6.0", "1.6.1", "1.6.2", "1.6.3", "1.6.4", "1.6.5", "1.7.0", "1.7.1", "1.8.0",
+                "1.8.1", "1.8.2", "1.8.3", "1.8.4");
+
+        project.addJars(jarDirs);
+
+        assertEquals(antversions, new ArrayList<>(project.getVersionedSystem().keySet()));
+
+        var wekaversions = Arrays.asList(
+        "3.0.1", "3.0.2", "3.0.3", "3.0.4", "3.0.5", "3.0.6", "3.1.7", "3.1.8", "3.1.9", "3.2", "3.2.1", "3.2.2",
+                "3.2.3", "3.3", "3.3.1", "3.3.2", "3.3.3", "3.3.4", "3.3.5", "3.3.6", "3.4", "3.4.1", "3.4.10",
+                "3.4.11", "3.4.12", "3.4.13", "3.4.2", "3.4.3", "3.4.4", "3.4.5", "3.4.6", "3.4.7", "3.4.8", "3.4.9",
+                "3.5.0", "3.5.1", "3.5.2", "3.5.3", "3.5.4", "3.5.5", "3.5.6", "3.5.7", "3.5.8", "3.6.0", "3.6.1",
+                "3.6.2", "3.6.3", "3.6.4", "3.6.5", "3.6.6", "3.6.7", "3.6.8", "3.6.9", "3.7.0", "3.7.1", "3.7.2",
+                "3.7.3", "3.7.4", "3.7.5", "3.7.6", "3.7.7", "3.7.8", "3.7.9");
+
+        project = new Project("weka");
+
+        project.addJars("./qualitas-corpus/input/" + project.getName());
+
+        assertEquals(wekaversions, new ArrayList<>(project.getVersionedSystem().keySet()));
+    }
 }

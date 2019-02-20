@@ -11,6 +11,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MainTest {
 
+    final String inputDir = "./test-data/input/";
+    final String outputDir = "./test-data/output/";
+
     @Test
     void executeMainArcan(){
         //executeMainProjectArcan("antlr");
@@ -18,8 +21,7 @@ class MainTest {
     }
 
     void executeMainProjectArcan(String projectName){
-        var inputDir = "./test-data/input/" + projectName;
-        var outputDir = "./test-data/output/";
+        var inputDir = this.inputDir + projectName;
 
         try {
             Files.delete(Paths.get(outputDir, "trackASOutput", projectName));

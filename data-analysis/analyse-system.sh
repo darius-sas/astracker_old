@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TRACKAS_JAR="../target/trackas/trackas-0.1.jar"
+TRACKAS_JAR="../target/trackas/trackas-0.5.jar"
 ANALYSE_NOTEBOOK="./as-history-in-system.Rmd"
 
 MASTERDIR=""
