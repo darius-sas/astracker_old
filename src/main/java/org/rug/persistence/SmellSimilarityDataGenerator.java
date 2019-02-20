@@ -45,8 +45,8 @@ public class SmellSimilarityDataGenerator extends CSVDataGenerator<ASmellTracker
         var scorer = tracker.getScorer();
         var bestMatch = scorer.bestMatch();
         for (var triple : scorer.getUnlinkedMatchScores()) {
-            List<String> affectedA = triple.getA().getAffectedElements().stream().map(v -> v.value("name").toString()).collect(Collectors.toList());
-            List<String> affectedB = triple.getB().getAffectedElements().stream().map(v -> v.value("name").toString()).collect(Collectors.toList());
+            List<Object> affectedA = triple.getA().getAffectedElements().stream().map(v -> v.value("name").toString()).collect(Collectors.toList());
+            List<Object> affectedB = triple.getB().getAffectedElements().stream().map(v -> v.value("name").toString()).collect(Collectors.toList());
 
             String shapeA = triple.getA() instanceof CDSmell ? ((CDSmell) triple.getA()).getShape().toString() : "NA";
             String shapeB = triple.getB() instanceof CDSmell ? ((CDSmell) triple.getB()).getShape().toString() : "NA";
