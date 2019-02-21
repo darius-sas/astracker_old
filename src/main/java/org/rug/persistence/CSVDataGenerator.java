@@ -13,7 +13,7 @@ import java.util.function.Consumer;
  */
 public abstract class CSVDataGenerator<T> implements ICSVGenerator<T>{
 
-    protected final List<List<Object>> records;
+    protected final List<List<String>> records;
     private final File outputFile;
 
     public CSVDataGenerator(String outputFile) {
@@ -29,7 +29,7 @@ public abstract class CSVDataGenerator<T> implements ICSVGenerator<T>{
      * @return an Iterator.
      */
     @Override
-    public Iterator<List<Object>> iterator() {
+    public Iterator<List<String>> iterator() {
         return records.iterator();
     }
 
@@ -54,7 +54,7 @@ public abstract class CSVDataGenerator<T> implements ICSVGenerator<T>{
      * @since 1.8
      */
     @Override
-    public void forEach(Consumer<? super List<Object>> action) {
+    public void forEach(Consumer<? super List<String>> action) {
         records.forEach(action);
     }
 
@@ -76,7 +76,7 @@ public abstract class CSVDataGenerator<T> implements ICSVGenerator<T>{
      * @since 1.8
      */
     @Override
-    public Spliterator<List<Object>> spliterator() {
+    public Spliterator<List<String>> spliterator() {
         return records.spliterator();
     }
 

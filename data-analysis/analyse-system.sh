@@ -10,6 +10,8 @@ RUN_TRACKER=""
 RECOMPILE_TRACKER=""
 NON_CONSEC_VERS="-dNC"
 OUTPUTDIR=""
+ERRORS=0
+PARALLELTASKS=4
 
 parse_args(){
 
@@ -59,9 +61,29 @@ similarity_score(){
     Rscript jaccard-linking.r $1 $2
 }
 
+configure_R(){
+    Rscript rconfig.r
+}
+
 # Synopsis: notebook <project-name> <type> <score-file> <characteristics-file> <output-file>
 notebook(){
     R -e "e<-new.env();e[['project']]<-'$1';e[['type']]<-'$2';e[['similarity_scores_file']]<-'$3';e[['characteristics_file']]<-'$4';rmarkdown::render('$ANALYSE_NOTEBOOK', output_file='$5',envir=e)"
+}
+
+recompile_tracker(){
+    oldir=$(pwd)
+    cd ..
+    echo "Compiling tracker..."
+    mvn package -Dmaven.compile.target=1.8 > /dev/null
+    if [ $? -eq 0 ] ; then
+        echo "Build successful."
+    else
+        echo "Build failed. Exiting..."
+        return -1
+    fi
+    cd $oldir
+    RECOMPILE_TRACKER=""
+    return 0
 }
 
 analyse_single(){
@@ -84,22 +106,14 @@ analyse_single(){
 
     if [[ $RUN_TRACKER == "-rT" ]] ; then
         if [[ $RECOMPILE_TRACKER == "-c" ]] ; then
-            oldir=$(pwd)
-            cd ..
-            echo "Compiling tracker..."
-            mvn package > /dev/null
-            if [ $? -eq 0 ] ; then
-                echo "Build successful."
-            else
-                echo "Build failed. Exiting..."
-                return
-            fi
-            cd $oldir
+            recompile_tracker
         fi
         trackas -p $PROJECT -i $INPUTDIR -o $OUTPUTDIR -pC -pS $RUN_ARCAN $NON_CONSEC_VERS
         if [ $? -ne 0 ] ; then
-            echo "Tracking failed. Exiting..."
-            return
+            echo "Tracking failed for project $PROJECT."
+            echo "$(date "+%F %T")\\t$PROJECT" >> $logfile
+            ERRORS=$((ERRORS + 1))
+            return -1
         fi
     fi
 
@@ -129,13 +143,38 @@ analyse_multiple(){
         return
     fi
 
+    logfile=$MASTERDIR/failed.log
+
+    echo "Analysis started on $(date "+%F %T")" > $logfile
+
+    configure_R
+
+    countpar=0
+
+    if [[ $RECOMPILE_TRACKER == "-c" ]] ; then
+        recompile_tracker
+    fi
+
     for project_dir in $MASTERDIR/*/
     do
         project_dir=${project_dir%*/} 
         PROJECT=$(basename $project_dir)
 
-        analyse_single -p $PROJECT -o $OUTPUTDIR $RUN_TRACKER $RUN_ARCAN $NON_CONSEC_VERS $RECOMPILE_TRACKER
-        RECOMPILE_TRACKER=""
+        projectLogfile=${MASTERDIR}/${PROJECT}-outputlog.log
+
+        echo "Running analysis on $PROJECT"
+
+        echo analyse_single -p $PROJECT -o $OUTPUTDIR $RUN_TRACKER $RUN_ARCAN $NON_CONSEC_VERS $RECOMPILE_TRACKER > ${projectLogfile}
+
+        analyse_single -p $PROJECT -o $OUTPUTDIR $RUN_TRACKER $RUN_ARCAN $NON_CONSEC_VERS $RECOMPILE_TRACKER 2>&1 > ${projectLogfile} &
+
+        if [[ $countpar == $PARALLELTASKS ]]; then
+            wait
+            countpar=0
+        fi
+        countpar=$((countpar + 1))
     done
+    wait
+    echo "Completed with $ERRORS errors."
 }
 
