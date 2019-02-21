@@ -31,7 +31,7 @@ public class Project {
     private SortedMap<String, Triple<Path, Path, Graph>> versionedSystem;
 
     public Project(String name){
-        this.versionedSystem = new TreeMap<>();
+        this.versionedSystem = new TreeMap<>(new VersionComparator());
         this.name = name;
         this.isFolderOfFolderOfJars = false;
     }
@@ -43,7 +43,7 @@ public class Project {
      * @throws IOException if cannot read the given directory.
      */
     public void addJars(String mainJarProjectDir) throws IOException {
-        Path jarDirPath =Paths.get(mainJarProjectDir);
+        Path jarDirPath = Paths.get(mainJarProjectDir);
         this.isFolderOfFolderOfJars = !containsJars(jarDirPath);
 
         Consumer<Path> addVersion = j ->{
