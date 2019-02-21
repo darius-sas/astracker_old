@@ -4,9 +4,10 @@
 #SBATCH --mail-user=d.d.sas@rug.nl
 #SBATCH --output=job-%j.log
 #SBATCH --partition=short
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
-#SBATCH --mem-per-cpu=6000
+#SBATCH --nodes=1
+#SBATCH --ntasks=4
+#SBATCH --cpus-per-task=2
+#SBATCH --mem=16000
 
 source analyse_system.sh
 srun analyse_multiple -m #MASTERDIR -o #OUTPUDIR
