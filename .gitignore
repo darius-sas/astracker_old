@@ -5,6 +5,7 @@
 /data-analysis/*.csv
 /test-data
 /arcan
+/qualitas-corpus
 
 /data-analysis/.Rhistory
 
