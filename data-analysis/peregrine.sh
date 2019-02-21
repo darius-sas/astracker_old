@@ -6,7 +6,7 @@
 #SBATCH --partition=short
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
-#SBATCH --mem-per-cpu=500
+#SBATCH --mem-per-cpu=6000
 
 source analyse_system.sh
-srun analyse_multiple -p #MASTERDIR -o #OUTPUDIR
+srun analyse_multiple -m #MASTERDIR -o #OUTPUDIR

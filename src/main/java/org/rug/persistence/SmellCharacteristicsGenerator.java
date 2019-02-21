@@ -47,7 +47,7 @@ public class SmellCharacteristicsGenerator extends CSVDataGenerator<ASmellTracke
         Set<Vertex> smells = g.V().hasLabel("smell").toSet();
         smells.forEach(smell -> {
             List<String> commonRecord = new ArrayList<>();
-            smellKeys.forEach(k -> commonRecord.add(smell.value(k)));
+            smellKeys.forEach(k -> commonRecord.add(smell.value(k).toString()));
 
             g.V(smell).outE("hasCharacteristic").as("e")
                     .inV().as("v")
@@ -55,10 +55,10 @@ public class SmellCharacteristicsGenerator extends CSVDataGenerator<ASmellTracke
                     .forEachRemaining(variables -> {
                         Edge incomingEdge = (Edge)variables.get("e");
                         Vertex characteristic = (Vertex)variables.get("v");
-                        List<Object> completeRecord = new ArrayList<>(commonRecord);
-                        completeRecord.add(incomingEdge.value("version"));
-                        completeRecord.add(incomingEdge.value("smellId"));
-                        characteristicKeys.forEach(k -> completeRecord.add(characteristic.property(k).orElse("NA")));
+                        List<String> completeRecord = new ArrayList<>(commonRecord);
+                        completeRecord.add(incomingEdge.value("version").toString());
+                        completeRecord.add(incomingEdge.value("smellId").toString());
+                        characteristicKeys.forEach(k -> completeRecord.add(characteristic.property(k).orElse("NA").toString()));
                         records.add(completeRecord);
                     });
         });
