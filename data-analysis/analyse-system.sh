@@ -74,7 +74,9 @@ recompile_tracker(){
     oldir=$(pwd)
     cd ..
     echo "Compiling tracker..."
+
     mvn package -Dmaven.compile.target=1.8 > /dev/null
+
     if [ $? -eq 0 ] ; then
         echo "Build successful."
     else
