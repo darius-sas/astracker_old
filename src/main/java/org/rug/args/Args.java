@@ -19,21 +19,20 @@ import java.util.stream.Collectors;
 
 public class Args {
 
-    private final static Logger logger = LoggerFactory.getLogger(Args.class);
-    public final static String JAR_FILES_REGEX = ".*\\.jar";
-    public final static String GRAPHML_FILES_REGEX = ".*\\.graphml";
-
     @Parameter(names = {"-projectName", "-p"}, description = "The name of the project being analyzed, this name will be used to build the path within the given output folder.", required = true)
     public String projectName;
 
     @Parameter(names = {"-outputDir", "-o"}, description = "This name will be used to generate an outputDir directory where the outputDir will be saved.", required = true, converter = OutputDirManager.class)
-    public File outputDir;
+    private File outputDir;
 
-    @Parameter(names = {"-input", "-i"}, description = "The input directory containing the JAR or graphML files. By default graphML files are used in order to avoid unnecessary computation. See -useJars for more information.", required = true, converter = InputDirManager.class)
-    public File inputDirectory;
+    @Parameter(names = {"-input", "-i"}, description = "The input directory containing a folder named as the given -projectName.", required = true, converter = InputDirManager.class)
+    private File inputDirectory;
 
-    @Parameter(names = {"-runArcan", "-rA"}, description = "Re-analyze JAR files with Arcan. This requires Arcan to be configured in the tools.properties file.")
-    public boolean runArcan = false;
+    @Parameter(names = {"-runArcan", "-rA"}, description = "Analyse files with Arcan. This parameter shall point to the command to run Arcan, without any parameters. Ex. java -jar ./path/to/Arcan.jar.")
+    public String runArcan = null;
+
+    @Parameter(names = {"-showArcanOutput", "-sAO"}, description = "Whether or not to show Arcan's output to the console.")
+    public boolean showArcanOutput = false;
 
     @Parameter(names = {"-pSimilarity", "-pS"}, description = "Print similarity scores of the matched smells. This file is saved within the outputDir directory.")
     public boolean similarityScores = false;
@@ -41,11 +40,15 @@ public class Args {
     @Parameter(names = {"-pCharacteristics", "-pC"}, description = "Print the characteristics of the tracked smells for every analyzed version.")
     public boolean smellCharacteristics = false;
 
-    @Parameter(names = {"-disableNonConsec", "-dNC"}, description = "Whether to track smells across non consecutive versions. This allows to track 'reappeared' smells.")
-    public boolean trackNonConsecutiveVersions = true;
+    @Parameter(names = {"-enableNonConsec", "-eNC"}, description = "Whether to track smells across non consecutive versions. This allows to track re-appeared smells, denoted by a special edge in the output track graph.")
+    public boolean trackNonConsecutiveVersions = false;
 
     @Parameter(names = {"--help", "-h", "-help", "-?"}, help = true)
     public boolean help;
+
+    public boolean runArcan(){
+        return runArcan != null;
+    }
 
     public String getSimilarityScoreFile(){
         return getOutputFileName("similarity-scores", "csv");
@@ -68,8 +71,18 @@ public class Args {
         return Paths.get(getTrackASOutDir(), fileName).toString();
     }
 
-    public File getOutputDir() {
-        return outputDir;
+    public String getHomeProjectDirectory(){
+        return Paths.get(inputDirectory.getAbsolutePath(), projectName).toAbsolutePath().toString();
+    }
+
+    public void adjustProjDirToArcanOutput(){
+        inputDirectory = new InputDirManager().convert(Paths.get(outputDir.getAbsolutePath(), "arcanOutput").toAbsolutePath().toString());
+    }
+
+    public String getArcanOutDir(){
+        Path p = Paths.get(outputDir.getAbsolutePath(), "arcanOutput", projectName);
+        p.toFile().mkdirs();
+        return p.toAbsolutePath().toString();
     }
 
     private String getTrackASOutDir(){
@@ -78,45 +91,4 @@ public class Args {
         return p.toAbsolutePath().toString();
     }
 
-    /**
-     * Gets all the input files that match the give format.
-     * @param regex the regexp to use
-     * @return a list of triples where the first element is the input file, the second element is the
-     * project name and the third element is the version.
-     */
-    public List<Triple<String, String, String>> getInputTriples(String regex){
-        Pattern p = Pattern.compile("[/\\\\][\\w\\d\\s]*-\\d");
-        Pattern v = Pattern.compile("\\d+\\.\\d+(\\.\\d+\\w*)?");
-
-        List<Triple<String, String, String>> inputTriples = new ArrayList<>();
-
-        try {
-            var files = Files.walk(inputDirectory.toPath())
-                    .filter(Files::isRegularFile)
-                    .filter(ff -> ff.getFileName().toString().matches(regex))
-                    .map(Path::toString)
-                    .collect(Collectors.toList());
-            files.forEach(f -> {
-                Matcher matcher = v.matcher(f);
-                Matcher matcher2 = p.matcher(f);
-                if (matcher.find() && matcher2.find()) {
-                    String version = matcher.group();
-                    String project = matcher2.group();
-                    project = project.substring(1, project.length()-2);
-                    inputTriples.add(new Triple<>(f, project, version));
-                }else {
-                    logger.error("Could not match the version of file: {}", f);
-                    logger.info("The file was ignored.");
-                    logger.info("Please make sure the input files match the following name convention: (projectName)-(version).(jar|graphml).");
-                    logger.info("The version must match the following regex as well: {}", v.pattern());
-                }
-            });
-            if (files.isEmpty())
-                throw new IOException("Could not find any JAR file in the given input directory and subdirectories.");
-        } catch (IOException e) {
-            logger.error("Unable to read from input directory: {}", e.getMessage());
-        }
-        inputTriples.sort(Comparator.comparing(Triple::getC));
-        return inputTriples;
-    }
 }

@@ -11,24 +11,25 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MainTest {
 
-    final String inputDir = "./test-data/input/";
-    final String outputDir = "./test-data/output/";
+    final String inputDir = "./qualitas-corpus/input/";
+    final String outputDir = "./qualitas-corpus/output/";
+    final String arcanCommand = "java -jar ./arcan/Arcan-1.4.0-SNAPSHOT.jar";
 
     @Test
     void executeMainArcan(){
-        //executeMainProjectArcan("antlr");
-        executeMainProjectArcan("argouml");
+        executeMainProjectArcan("antlr");
+        //executeMainProjectArcan("argouml");
     }
 
     void executeMainProjectArcan(String projectName){
-        var inputDir = this.inputDir + projectName;
+        var inputDir = this.inputDir;
 
         try {
             Files.delete(Paths.get(outputDir, "trackASOutput", projectName));
             Files.delete(Paths.get(outputDir, "arcanOutput", projectName));
         } catch (IOException e) {}
 
-        Main.main(new String[]{"-p", projectName, "-i", inputDir, "-o", outputDir, "-rA", "-pC", "-pS", "-dNC"});
+        Main.main(new String[]{"-p", projectName, "-i", inputDir, "-o", outputDir, "-rA", arcanCommand, "-pC", "-pS"});
 
         assertTrue(Files.exists(Paths.get(outputDir, "arcanOutput", projectName)),
                 error(projectName, "checking existence arcanOutput directory"));
@@ -46,13 +47,11 @@ class MainTest {
 
     void executeMainProject(String projectName){
 
-        var inputDir = "./test-data/output/arcanOutput/" + projectName;
-        var outputDir = "./test-data/output/";
         try {
             Files.delete(Paths.get(outputDir, "trackASOutput", projectName));
         } catch (IOException e) {}
 
-        Main.main(new String[]{"-p", projectName, "-i", inputDir, "-o", outputDir, "-pC", "-pS", "-dNC"});
+        Main.main(new String[]{"-p", projectName, "-i", inputDir, "-o", outputDir, "-pC", "-pS"});
 
         assertTrue(Files.exists(Paths.get(outputDir, "trackASOutput", projectName, "smell-characteristics-consecOnly.csv")),
                 error(projectName, "checking existence of smell characteristics file"));
@@ -62,5 +61,10 @@ class MainTest {
 
     Supplier<String> error(String projectName, String cause){
         return ()-> String.format("Error %s for project %s.", cause, projectName);
+    }
+    
+    @Test
+    void testExecute(){
+        Main.main(new String[]{"-p", "antlr", "-i", "./qualitas-corpus/input/", "-o", "./qualitas-corpus/output", "-pC", "-pS", "-rA", "java", "-jar", "../arcan/Arcan-1.4.0-SNAPSHOT.jar"});
     }
 }

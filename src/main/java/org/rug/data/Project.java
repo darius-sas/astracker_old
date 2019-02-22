@@ -28,12 +28,14 @@ public class Project {
 
     private String name;
     private boolean isFolderOfFolderOfJars;
+    private boolean hasJars;
     private SortedMap<String, Triple<Path, Path, Graph>> versionedSystem;
 
     public Project(String name){
         this.versionedSystem = new TreeMap<>(new VersionComparator());
         this.name = name;
         this.isFolderOfFolderOfJars = false;
+        this.hasJars = false;
     }
 
     /**
@@ -63,6 +65,7 @@ public class Project {
                     .filter(Files::isDirectory)
                     .forEach(addVersion);
         }
+        hasJars = true;
     }
 
 
@@ -78,7 +81,7 @@ public class Project {
         File dir = new File(graphMLDir);
 
         var graphMlFiles = getGraphMls(dir.toPath());
-        if (!graphMlFiles.isEmpty()) {
+        if (!graphMlFiles.isEmpty() && !hasJars) {
             graphMlFiles.forEach(f -> {
                 var version = parseVersion(f);
                 var t = versionedSystem.getOrDefault(version, new InputTriple(null, null));
@@ -87,7 +90,7 @@ public class Project {
             });
         } else {
             versionedSystem.forEach((version, inputTriple) -> {
-                var graphmlFile = Paths.get(graphMLDir,version, name + "-" + version + ".graphml");
+                var graphmlFile = Paths.get(graphMLDir, name + "-" + version + ".graphml");
                 inputTriple.setB(graphmlFile);
             });
         }
@@ -147,7 +150,7 @@ public class Project {
     }
 
     private List<Path> getGraphMls(Path dir) throws IOException{
-        return Files.walk(dir).filter(f -> Files.isRegularFile(f) && f.getFileName().toString().matches(".*\\.graphml")).collect(Collectors.toList());
+        return Files.list(dir).filter(f -> Files.isRegularFile(f) && f.getFileName().toString().matches(".*\\.graphml")).collect(Collectors.toList());
     }
 
     /**

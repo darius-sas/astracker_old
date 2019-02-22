@@ -22,18 +22,19 @@ public abstract class ToolRunner {
 
     private ProcessBuilder builder;
     private String homeDir;
-    private String[] command;
+    private String command;
+    private List<String> commandLine;
     private String toolName;
 
     /**
-     * Initializes an external tool to be run using the properties file 'tools.properties' to retrieve the option
-     * for the tool.
+     * Initializes a tool with the given name and the given command.
      * @param toolName The prefix toolName of the tool used in the properties file.
+     * @param command The command to execute.
      */
-    protected ToolRunner(String toolName){
-        if (toolName != null) {
-            this.toolName = toolName;
-        }
+    public ToolRunner(String toolName, String command){
+        this.toolName = toolName;
+        this.command = command;
+        this.homeDir = new java.io.File( "." ).getAbsolutePath();
     }
 
     /**
@@ -41,25 +42,12 @@ public abstract class ToolRunner {
      * @param args the array containing the arguments.
      */
     protected final void setArgs(String... args){
-        String command = properties.getProperty(String.join(".", toolName, "cmdLine"));
-        this.homeDir = properties.getProperty(String.join(".", toolName, "homeDirectory"));
-        boolean showOutput = Boolean.valueOf(properties.getProperty(String.join(".", toolName, "showOutput"), "false"));
-
         if (args == null)
             args = new String[]{""};
-        List<String> commandLine = new ArrayList<>(Arrays.asList(command.split(" ")));
+        commandLine = new ArrayList<>(Arrays.asList(command.split(" ")));
         commandLine.addAll(Arrays.asList(args));
-        this.command = commandLine.toArray(new String[0]);
-
         this.builder = new ProcessBuilder(commandLine);
-        this.builder.directory(new File(homeDir));
-        if (!showOutput) {
-            this.builder.redirectOutput(ProcessBuilder.Redirect.DISCARD);
-            this.builder.redirectError(ProcessBuilder.Redirect.DISCARD);
-        } else {
-            this.builder.redirectError(ProcessBuilder.Redirect.INHERIT);
-            this.builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-        }
+
     }
 
     /**
@@ -71,7 +59,7 @@ public abstract class ToolRunner {
         int exitCode;
         Process p;
         try {
-            logger.info("Running {} with command: {}", getToolName(), String.join(" ", getCommand()));
+            logger.info("Running {} with command: {}", getToolName(), String.join(" ", commandLine));
             preProcess();
             p = builder.start();
             exitCode = p.waitFor();
@@ -79,7 +67,7 @@ public abstract class ToolRunner {
                 postProcess(p);
             logger.info("Completed {} with exit code {}.", getToolName(), exitCode);
         }catch (IOException e) {
-            logger.error("Could not start the following command: {}", String.join(" ", builder.command()));
+            logger.error("Could not start the following command: {}", String.join(" ", commandLine));
             logger.error("The following error message was generated: {}", e.getMessage());
             exitCode = -1;
         } catch (InterruptedException e) {
@@ -96,48 +84,33 @@ public abstract class ToolRunner {
         return builder;
     }
 
-    public String[] getCommand() {
-        return command;
+    public void setHomeDir(String homeDir) {
+        this.homeDir = homeDir;
+        this.builder.directory(new File(this.homeDir));
+    }
+
+    public void inheritOutput(boolean showOutput){
+        if (!showOutput) {
+            this.builder.redirectOutput(ProcessBuilder.Redirect.DISCARD);
+            this.builder.redirectError(ProcessBuilder.Redirect.DISCARD);
+        } else {
+            this.builder.redirectError(ProcessBuilder.Redirect.INHERIT);
+            this.builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        }
     }
 
     public String getToolName() {
         return toolName;
     }
 
-    public static Properties getProperties() {
-        return properties;
-    }
 
     public String getHomeDir() {
         return homeDir;
     }
 
-    private static Properties properties;
-
-    static {
-        properties = new Properties();
-        try(InputStream is = ToolRunner.class.getClassLoader().getResourceAsStream("tools.properties")){
-            if (is == null)
-                throw new IOException("Resource tools.properties not found.");
-            properties.load(is);
-        }catch (IOException e){
-            logger.error("Could not read properties file because: {}.", e.getMessage());
-        }
-    }
-
-    private static <T> T[] append(T[] arr, T lastElement) {
-        final int N = arr.length;
-        arr = java.util.Arrays.copyOf(arr, N+1);
-        arr[N] = lastElement;
-        return arr;
-    }
-
-    private static <T> T[] prepend(T[] arr, T firstElement) {
-        final int N = arr.length;
-        arr = java.util.Arrays.copyOf(arr, N+1);
-        System.arraycopy(arr, 0, arr, 1, N);
-        arr[0] = firstElement;
-        return arr;
+    @Override
+    public String toString() {
+        return String.join(" ", commandLine);
     }
 
 }

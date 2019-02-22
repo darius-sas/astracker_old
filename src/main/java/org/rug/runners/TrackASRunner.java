@@ -25,20 +25,19 @@ public class TrackASRunner extends ToolRunner {
 
     private final static Logger logger = LoggerFactory.getLogger(TrackASRunner.class);
 
-    private SortedMap<String, Triple<Path, Path, Graph>> versionedSystem;
     private ASmellTracker tracker;
     private Project project;
     private boolean trackNonConsecutiveVersions;
 
     public TrackASRunner(Project project, boolean trackNonConsecutiveVersions) {
-        super(null);
+        super("trackas", "");
         this.project = project;
         this.trackNonConsecutiveVersions = trackNonConsecutiveVersions;
     }
 
     @Override
     public int start() {
-        versionedSystem = project.getVersionedSystem();
+        var versionedSystem = project.getVersionedSystem();
         tracker = new ASmellTracker(new SimpleNameJaccardSimilarityLinker(), trackNonConsecutiveVersions);
         var componentCharacteristics = new ComponentCharacteristicSet().getCharacteristicSet();
 

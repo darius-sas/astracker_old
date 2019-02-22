@@ -1,6 +1,7 @@
 #!/bin/bash
 
 TRACKAS_JAR="../target/trackas/trackas-0.5.jar"
+ARCAN_COMMAND="java -jar ../arcan/Arcan-1.4.0-SNAPSHOT.jar"
 ANALYSE_NOTEBOOK="./as-history-in-system.Rmd"
 
 MASTERDIR=""
@@ -8,7 +9,8 @@ PROJECT=""
 RUN_ARCAN=""
 RUN_TRACKER=""
 RECOMPILE_TRACKER=""
-NON_CONSEC_VERS="-dNC"
+NON_CONSEC_VERS=""
+INPUTDIR=""
 OUTPUTDIR=""
 ERRORS=0
 PARALLELTASKS=4
@@ -23,16 +25,17 @@ parse_args(){
         -o | --outdir )         shift
                                 OUTPUTDIR=$1
                                 ;;
+        -i | --inputdir )       shift
+                                INPUTDIR=$1
+                                ;;
         -rT | --run-tracker )   RUN_TRACKER="-rT"
                                 ;;
         -p | --project )        shift
                                 PROJECT=$1
                                 ;;
-        -rT | --run-tracker )   RUN_TRACKER="-rT"
-                                ;;
         -rA | --run-arcan )     RUN_ARCAN="-rA"
                                 ;;
-        -tNC | --track-non-consec ) NON_CONSEC_VERS=""
+        -tNC | --track-non-consec ) NON_CONSEC_VERS="-eNC"
                                 ;;
         -c  | --recompile-tracker ) RECOMPILE_TRACKER="-c"
                                 ;;
@@ -45,7 +48,7 @@ parse_args(){
 }
 
 usage_single() {
-    echo "Usage:\n    analyse-single -p <project-name> -o <out-directory> [-rA|-run-Arcan][-rT|-run-Tracker][-c|--recompile-tracker][-tC|-track-consec-only][-h|--help]"
+    echo "Usage:\n    analyse-single -p <project-name> -i <in-directory> -o <out-directory> [-rA|-run-Arcan][-rT|-run-Tracker][-c|--recompile-tracker][-tC|-track-consec-only][-h|--help]"
 }
 
 usage_multiple(){
@@ -104,27 +107,30 @@ analyse_single(){
         return
     fi
 
-    INPUTDIR="$OUTPUTDIR/arcanOutput/$PROJECT/"
-
     if [[ $RUN_TRACKER == "-rT" ]] ; then
         if [[ $RECOMPILE_TRACKER == "-c" ]] ; then
             recompile_tracker
         fi
-        trackas -p $PROJECT -i $INPUTDIR -o $OUTPUTDIR -pC -pS $RUN_ARCAN $NON_CONSEC_VERS
+
+        if [[ $RUN_ARCAN == "-rA" ]]; then
+            trackas -p $PROJECT -i $INPUTDIR -o $OUTPUTDIR -pC -pS $NON_CONSEC_VERS $RUN_ARCAN "$ARCAN_COMMAND"
+        else
+            trackas -p $PROJECT -i $INPUTDIR -o $OUTPUTDIR -pC -pS $NON_CONSEC_VERS
+        fi
+
         if [ $? -ne 0 ] ; then
             echo "Tracking failed for project $PROJECT."
-            echo "$(date "+%F %T")\\t$PROJECT" >> $logfile
-            ERRORS=$((ERRORS + 1))
+            ERRORS=$(($ERRORS + 1))
             return -1
         fi
     fi
 
-    OUTPUTDIR_PROJECT=$OUTPUTDIR/trackASOutput/$PROJECT
+    OUTPUTDIR_PROJECT="$OUTPUTDIR/trackASOutput/$PROJECT"
 
     if [ -z $NON_CONSEC_VERS ] ; then
-        SUFFIX="nonConsec"
-    else
         SUFFIX="consecOnly"
+    else
+        SUFFIX="nonConsec"
     fi
 
     SIMILARITY_SCORES_FILE=$OUTPUTDIR_PROJECT/similarity-scores-$SUFFIX.csv
@@ -166,7 +172,7 @@ analyse_multiple(){
 
         echo "Running analysis on $PROJECT"
 
-        echo analyse_single -p $PROJECT -o $OUTPUTDIR $RUN_TRACKER $RUN_ARCAN $NON_CONSEC_VERS $RECOMPILE_TRACKER > ${projectLogfile}
+        echo analyse_single -p "$PROJECT -o $OUTPUTDIR $RUN_TRACKER $RUN_ARCAN $NON_CONSEC_VERS $RECOMPILE_TRACKER > ${projectLogfile}"
 
         analyse_single -p $PROJECT -o $OUTPUTDIR $RUN_TRACKER $RUN_ARCAN $NON_CONSEC_VERS $RECOMPILE_TRACKER 2>&1 > ${projectLogfile} &
 
