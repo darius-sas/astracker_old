@@ -49,7 +49,8 @@ public class Main {
                 project.getVersionedSystem().forEach((version, t) -> {
                     Path outputDirVers = Paths.get(outputDir, version);
                     outputDirVers.toFile().mkdirs();
-                    var arcan = new ArcanRunner(args.runArcan, project, version, outputDirVers.toString(), false);
+                    var arcan = new ArcanRunner(args.getArcanJarFile(), project, version, outputDirVers.toString(), false);
+                    arcan.setHomeDir(args.getHomeProjectDirectory());
                     arcan.inheritOutput(args.showArcanOutput);
                     runners.add(arcan);
                 });
@@ -79,7 +80,7 @@ public class Main {
             if (!errorsOccurred) {
                 PersistenceWriter.writeAllCSV();
                 PersistenceWriter.writeAllGraphs();
-            }else {
+            } else {
                 System.exit(-1);
             }
         }catch (Exception e){

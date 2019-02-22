@@ -1,7 +1,7 @@
 #!/bin/bash
 
 TRACKAS_JAR="../target/trackas/trackas-0.5.jar"
-ARCAN_COMMAND="java -jar ../arcan/Arcan-1.4.0-SNAPSHOT.jar"
+ARCAN_JAR="../arcan/Arcan-1.4.0-SNAPSHOT.jar"
 ANALYSE_NOTEBOOK="./as-history-in-system.Rmd"
 
 MASTERDIR=""
@@ -113,7 +113,7 @@ analyse_single(){
         fi
 
         if [[ $RUN_ARCAN == "-rA" ]]; then
-            trackas -p $PROJECT -i $INPUTDIR -o $OUTPUTDIR -pC -pS $NON_CONSEC_VERS $RUN_ARCAN "$ARCAN_COMMAND"
+            trackas -p $PROJECT -i $INPUTDIR -o $OUTPUTDIR -pC -pS $NON_CONSEC_VERS $RUN_ARCAN "$ARCAN_JAR"
         else
             trackas -p $PROJECT -i $INPUTDIR -o $OUTPUTDIR -pC -pS $NON_CONSEC_VERS
         fi
@@ -168,13 +168,11 @@ analyse_multiple(){
         project_dir=${project_dir%*/} 
         PROJECT=$(basename $project_dir)
 
-        projectLogfile=${MASTERDIR}/${PROJECT}-outputlog.log
+        projectLogfile=${OUTPUTDIR}/${PROJECT}-outputlog.log
 
         echo "Running analysis on $PROJECT"
 
-        echo analyse_single -p "$PROJECT -o $OUTPUTDIR $RUN_TRACKER $RUN_ARCAN $NON_CONSEC_VERS $RECOMPILE_TRACKER > ${projectLogfile}"
-
-        analyse_single -p $PROJECT -o $OUTPUTDIR $RUN_TRACKER $RUN_ARCAN $NON_CONSEC_VERS $RECOMPILE_TRACKER 2>&1 > ${projectLogfile} &
+        analyse_single -p $PROJECT -i $MASTERDIR -o $OUTPUTDIR $RUN_TRACKER $RUN_ARCAN $NON_CONSEC_VERS $RECOMPILE_TRACKER 2>&1 > ${projectLogfile} &
 
         if [[ $countpar == $PARALLELTASKS ]]; then
             wait

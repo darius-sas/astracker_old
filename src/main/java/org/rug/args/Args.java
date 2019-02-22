@@ -28,8 +28,8 @@ public class Args {
     @Parameter(names = {"-input", "-i"}, description = "The input directory containing a folder named as the given -projectName.", required = true, converter = InputDirManager.class)
     private File inputDirectory;
 
-    @Parameter(names = {"-runArcan", "-rA"}, description = "Analyse files with Arcan. This parameter shall point to the command to run Arcan, without any parameters. Ex. java -jar ./path/to/Arcan.jar.")
-    public String runArcan = null;
+    @Parameter(names = {"-runArcan", "-rA"}, description = "Analyse files with Arcan. This parameter shall point to the command to the JAR containing Arcan, without any parameters. Ex. ./path/to/Arcan.jar.")
+    private String runArcan = null;
 
     @Parameter(names = {"-showArcanOutput", "-sAO"}, description = "Whether or not to show Arcan's output to the console.")
     public boolean showArcanOutput = false;
@@ -48,6 +48,10 @@ public class Args {
 
     public boolean runArcan(){
         return runArcan != null;
+    }
+
+    public String getArcanJarFile(){
+        return new File(runArcan).getAbsolutePath();
     }
 
     public String getSimilarityScoreFile(){
