@@ -41,10 +41,12 @@ public class TrackASRunner extends ToolRunner {
         tracker = new ASmellTracker(new SimpleNameJaccardSimilarityLinker(), trackNonConsecutiveVersions);
         var componentCharacteristics = new ComponentCharacteristicSet().getCharacteristicSet();
 
-        logger.info("Starting tracking architectural smells of {} for {} versions", project.getName(), versionedSystem.size());
+        var count = new Counter(1);
+        var total = versionedSystem.size();
+        logger.info("Starting tracking architectural smells of {} for {} versions", project.getName(), total);
         logger.info("Tracking non consecutive versions: {}", trackNonConsecutiveVersions ? "yes" : "no");
         versionedSystem.forEach( (version, inputTriple) -> {
-            logger.info("Tracking version {}", version);
+            logger.info("Tracking version {} (n. {} of {})", version, count.postIncrement(), total);
             var graph = inputTriple.getC();
             List<ArchitecturalSmell> smells = ArcanDependencyGraphParser.getArchitecturalSmellsIn(graph);
             componentCharacteristics.forEach(c -> c.calculate(graph));
@@ -65,4 +67,14 @@ public class TrackASRunner extends ToolRunner {
 
     @Override
     protected void postProcess(Process p){}
+
+    private static class Counter{
+        int counter;
+        public Counter(int val){
+            counter = val;
+        }
+        public int postIncrement(){
+            return counter++;
+        }
+    }
 }

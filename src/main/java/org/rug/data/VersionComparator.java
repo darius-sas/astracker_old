@@ -72,6 +72,9 @@ public class VersionComparator implements Comparator<String> {
         else if (split1Matches && split2Matches) {
             split1[split1.length - 1] = addOrderPrefixes(split1[split1.length - 1]);
             split2[split2.length - 1] = addOrderPrefixes(split2[split2.length - 1]);
+        }else{
+            split1[split1.length - 1] = String.format("%" + 5 + "s", split1[split1.length - 1]).replace(' ', '0');
+            split2[split2.length - 1] = String.format("%" + 5 + "s", split2[split2.length - 1]).replace(' ', '0');
         }
 
         return new String[]{standardize(String.join(dot, split1)),
