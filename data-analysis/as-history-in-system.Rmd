@@ -18,15 +18,15 @@ if(is.null(environment()$project)){
 
 if (is.null(environment()$similarity_scores_file) | projectChanged == TRUE) {
   similarity_scores_file <- paste("similarity-scores-", type, ".csv", sep = "")
-  similarity_scores_file <- paste("../test-data/output/trackASOutput", project, similarity_scores_file, sep="/")
+  similarity_scores_file <- paste("../qualitas-corpus/output/trackASOutput", project, similarity_scores_file, sep="/")
   characteristics_file <- paste("smell-characteristics-", type, ".csv", sep = "")
-  characteristics_file <- paste("../test-data/output/trackASOutput", project, characteristics_file, sep="/") 
+  characteristics_file <- paste("../qualitas-corpus/output/trackASOutput", project, characteristics_file, sep="/") 
   projectChanged <- FALSE
 }
 
 df <- read.table(characteristics_file, header = T, sep = ",")
 df <- df[!is.na(df$age),]
-df.similarity <- read.table(similarity_scores_file, header = T, sep = ",")
+df.similarity <- tryCatch(read.table(similarity_scores_file, header = T, sep = ","), error = function(x) return(data.frame()))
 ```
 
 **Project:** ``r project``
@@ -47,6 +47,7 @@ grid.arrange(p, p2)
 ##Ratio of smells linked to their predecessor
 The number of smells in a certain version that are the evolution of a smell in the previous version
 ```{r}
+if(length(df.similarity) > 0){
 df.count <- df %>% group_by(version, smellType) %>% tally()
 df.similarity.count <- df.similarity %>% filter(matched == "true") %>% group_by(nextVersion, nextType) %>% tally()
 m <- merge(df.count, df.similarity.count, by.x = c(1,2), by.y = c(1,2), all = T)
@@ -56,6 +57,7 @@ p <- ggplot(m, aes(x=version, y=perc, group=smellType, fill=smellType)) +
   geom_bar(stat="identity") +
   geom_text(aes(label=n.x), position = "stack", size = 2) + theme(axis.text.x = element_text(angle=90, hjust = 1))
 print(p)
+}
 ```
 
 

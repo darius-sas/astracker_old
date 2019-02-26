@@ -56,7 +56,7 @@ usage_multiple(){
 }
 
 trackas(){
-    java -jar $TRACKAS_JAR $@
+    java -Xmx6000m -jar $TRACKAS_JAR $@
 }
 
 # Synopsis: similarity_score <input-scores-file> <output-pdf-file>
@@ -95,14 +95,8 @@ analyse_single(){
 
     parse_args $@
 
-    if [ -z $PROJECT ] ; then
-        echo "Please provide a project name."
-        usage_single
-        return
-    fi
-
-    if [ -z $OUTPUTDIR ] ; then
-        echo "Please provide an output directory."
+    if [[ -z $PROJECT || -z $OUTPUTDIR ]] ; then
+        echo "Please provide a project name and/or an output directory."
         usage_single
         return
     fi
@@ -113,15 +107,15 @@ analyse_single(){
         fi
 
         if [[ $RUN_ARCAN == "-rA" ]]; then
-            trackas -p $PROJECT -i $INPUTDIR -o $OUTPUTDIR -pC -pS $NON_CONSEC_VERS $RUN_ARCAN "$ARCAN_JAR"
+            trackas -p $PROJECT -i $INPUTDIR -o $OUTPUTDIR -pC $NON_CONSEC_VERS $RUN_ARCAN "$ARCAN_JAR"
         else
-            trackas -p $PROJECT -i $INPUTDIR -o $OUTPUTDIR -pC -pS $NON_CONSEC_VERS
+            trackas -p $PROJECT -i $INPUTDIR -o $OUTPUTDIR -pC $NON_CONSEC_VERS
         fi
 
         if [ $? -ne 0 ] ; then
             echo "Tracking failed for project $PROJECT."
             ERRORS=$(($ERRORS + 1))
-            return -1
+            return $?
         fi
     fi
 
@@ -157,7 +151,7 @@ analyse_multiple(){
 
     configure_R
 
-    countpar=0
+    countpar=1
 
     if [[ $RECOMPILE_TRACKER == "-c" ]] ; then
         recompile_tracker
@@ -176,7 +170,7 @@ analyse_multiple(){
 
         if [[ $countpar == $PARALLELTASKS ]]; then
             wait
-            countpar=0
+            countpar=1
         fi
         countpar=$((countpar + 1))
     done

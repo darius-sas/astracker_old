@@ -14,7 +14,7 @@ fix_lucene(){
 run_failed(){
     source ./analyse-system.sh
     
-    projects=(azureus freecol hibernate lucene)
+    projects=(freecol lucene hibernate azureus)
 
     for project in ${projects[@]}
     do
@@ -22,7 +22,6 @@ run_failed(){
 
         if [ $? -ne 0 ] ; then
             echo "Tracking failed for project ${project}."
-            return $?
         fi
     done
 }
