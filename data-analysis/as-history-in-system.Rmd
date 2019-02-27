@@ -26,7 +26,11 @@ if (is.null(environment()$similarity_scores_file) | projectChanged == TRUE) {
 
 df <- read.table(characteristics_file, header = T, sep = ",")
 df <- df[!is.na(df$age),]
-df.similarity <- tryCatch(read.table(similarity_scores_file, header = T, sep = ","), error = function(x) return(data.frame()))
+if (file.exists(similarity_scores_file)) {
+ df.similarity <- read.table(similarity_scores_file, header = T, sep = ",") 
+}else{
+  df.similarity <- data.frame()
+}
 ```
 
 **Project:** ``r project``
