@@ -49,11 +49,11 @@ public class SimilarityLinkerComparison {
         PersistenceWriter.writeCSV(normalGenerator);
         PersistenceWriter.writeCSV(simpleNameGenerator);
 
-        var normalCharactGen = new SmellCharacteristicsGenerator(outputDir + "test-normal-characteristics.csv");
+        var normalCharactGen = new SmellCharacteristicsGenerator(outputDir + "test-normal-characteristics.csv", project);
         normalCharactGen.accept(normalTracker);
         PersistenceWriter.writeCSV(normalCharactGen);
 
-        var simpleCharactGen = new SmellCharacteristicsGenerator(outputDir + "test-simple-characteristics.csv");
+        var simpleCharactGen = new SmellCharacteristicsGenerator(outputDir + "test-simple-characteristics.csv", project);
         simpleCharactGen.accept(simpleNameTracker);
         PersistenceWriter.writeCSV(simpleCharactGen);
 

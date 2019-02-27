@@ -26,7 +26,7 @@ class ASmellTrackerTest {
         ASmellTracker tracker = new ASmellTracker(scorer, false);
 
         PersistenceWriter.register(new SmellSimilarityDataGenerator("data/jaccard-scores-antlr-consecutives-only.csv"));
-        PersistenceWriter.register(new SmellCharacteristicsGenerator("data/smells-characteristics.csv"));
+        PersistenceWriter.register(new SmellCharacteristicsGenerator("data/smells-characteristics.csv", null)); // this test is out of date, added null to allow compilation
 
         versionedSystem.forEach( (version, graph) -> {
             List<ArchitecturalSmell> smells = ArcanDependencyGraphParser.getArchitecturalSmellsIn(graph);

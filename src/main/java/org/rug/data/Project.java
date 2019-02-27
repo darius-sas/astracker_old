@@ -13,9 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -30,6 +28,7 @@ public class Project {
     private boolean isFolderOfFolderOfJars;
     private boolean hasJars;
     private SortedMap<String, Triple<Path, Path, Graph>> versionedSystem;
+    private Map<String, Integer> versionsIndexes = new HashMap<>();
 
     public Project(String name){
         this.versionedSystem = new TreeMap<>(new VersionComparator());
@@ -97,6 +96,22 @@ public class Project {
 
     }
 
+    /**
+     * Returns the index in the order list of versions of this project.
+     * This collection is automatically updated when the system's versions change.
+     * @param version the version to return the position of.
+     * @return the position of the given version in the ordered list of versions of this system.
+     */
+    public Integer getVersionIndex(String version){
+        if (!versionsIndexes.keySet().equals(versionedSystem.keySet())) {
+            versionsIndexes.clear();
+            int order = 1;
+            for(var v : versionedSystem.keySet()){
+                versionsIndexes.put(v, order++);
+            }
+        }
+        return versionsIndexes.get(version);
+    }
 
     /**
      * Gets the name of the project as set up at instantiation time.

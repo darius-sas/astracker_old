@@ -4,6 +4,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.rug.data.Project;
 import org.rug.tracker.ASmellTracker;
 
 import java.util.*;
@@ -11,9 +12,11 @@ import java.util.*;
 public class SmellCharacteristicsGenerator extends CSVDataGenerator<ASmellTracker>{
 
     private List<String> header = new ArrayList<>();
+    private Project project;
 
-    public SmellCharacteristicsGenerator(String outputFile) {
+    public SmellCharacteristicsGenerator(String outputFile, Project project) {
         super(outputFile);
+        this.project = project;
     }
 
     /**
@@ -41,6 +44,7 @@ public class SmellCharacteristicsGenerator extends CSVDataGenerator<ASmellTracke
         Set<String> characteristicKeys = new TreeSet<>();
         g.V().hasLabel("characteristic").forEachRemaining(v -> characteristicKeys.addAll(v.keys()));
         header.add("version");
+        header.add("versionPosition");
         header.add("smellIdInVersion");
         header.addAll(characteristicKeys);
 
@@ -56,7 +60,9 @@ public class SmellCharacteristicsGenerator extends CSVDataGenerator<ASmellTracke
                         Edge incomingEdge = (Edge)variables.get("e");
                         Vertex characteristic = (Vertex)variables.get("v");
                         List<String> completeRecord = new ArrayList<>(commonRecord);
-                        completeRecord.add(incomingEdge.value("version").toString());
+                        String version = incomingEdge.value("version").toString();
+                        completeRecord.add(version);
+                        completeRecord.add(project.getVersionIndex(version).toString());
                         completeRecord.add(incomingEdge.value("smellId").toString());
                         characteristicKeys.forEach(k -> completeRecord.add(characteristic.property(k).orElse("NA").toString()));
                         records.add(completeRecord);

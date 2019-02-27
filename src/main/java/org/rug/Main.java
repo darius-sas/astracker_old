@@ -64,7 +64,7 @@ public class Main {
                 PersistenceWriter.register(new SmellSimilarityDataGenerator(args.getSimilarityScoreFile()));
 
             if (args.smellCharacteristics)
-                PersistenceWriter.register(new SmellCharacteristicsGenerator(args.getSmellCharacteristicsFile()));
+                PersistenceWriter.register(new SmellCharacteristicsGenerator(args.getSmellCharacteristicsFile(), project));
 
             PersistenceWriter.register(new CondensedGraphGenerator(args.getCondensedGraphFile()));
             PersistenceWriter.register(new TrackGraphGenerator(args.getTrackGraphFileName()));
