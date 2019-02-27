@@ -26,4 +26,3 @@ run_failed(){
     done
 }
 
-run_failed

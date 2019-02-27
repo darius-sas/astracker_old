@@ -48,11 +48,11 @@ parse_args(){
 }
 
 usage_single() {
-    echo "Usage:\n    analyse-single -p <project-name> -i <in-directory> -o <out-directory> [-rA|-run-Arcan][-rT|-run-Tracker][-c|--recompile-tracker][-tC|-track-consec-only][-h|--help]"
+    echo "Usage:\n    analyse_single -p <project-name> -i <in-directory> -o <out-directory> [-rA|-run-Arcan][-rT|-run-Tracker][-c|--recompile-tracker][-tC|-track-consec-only][-h|--help]"
 }
 
 usage_multiple(){
-    echo "Usage:\n    analyse-multiple -m <master-directory> -o <out-directory> [-rA|-run-Arcan][-rT|-run-Tracker][-c|--recompile-tracker][-tC|-track-consec-only][-h|--help]"
+    echo "Usage:\n    analyse_multiple -m <master-directory> -o <out-directory> [-rA|-run-Arcan][-rT|-run-Tracker][-c|--recompile-tracker][-tC|-track-consec-only][-h|--help]"
 }
 
 trackas(){

@@ -13,7 +13,8 @@ ui <- fluidPage(
       sidebarPanel(
          fileInput("dataset", "Choose a file", accept = c("text/csv","text/comma-separated-values,text/plain",".csv")),
          actionButton("calculate", "Calculate"),
-         uiOutput("projectSelector")
+         uiOutput("projectSelector"),
+         uiOutput("characteristicSelector")
       ),
       
       # Show a plot of the generated distribution
@@ -37,17 +38,34 @@ server <- function(input, output) {
       projectsToSelect <- df$project == input$inputProject; 
     }
     df <- df[projectsToSelect,]
-    df.unique <- df[!duplicated(df$uniqueSmellID), c(1,2,3,5)]
-    ggplot(df.unique, aes(age, group = smellType, colour = smellType)) +
-      geom_density()+
-      geom_vline(aes(xintercept=mean(age)), color="blue", linetype="dashed", size=1) +
-      scale_x_continuous(breaks = seq(1, length(df.unique$age), 1)) +
-      scale_y_continuous(breaks = pretty)
+    
+    df.sig <- classifySignal(df, input$characteristic)
+    df.sig <- df.sig %>% group_by(classification) %>% add_tally()
+    p1<-ggplot(df.sig[df.sig$smellType=="cyclicDep",], aes(x="", group=classification, fill=classification)) + 
+        geom_bar(width = 1, position = "stack") + coord_polar("y") + 
+        labs(title = "Trend analysis CD") +
+        scale_fill_brewer(palette="Dark2") +
+        theme_minimal()
+    p2<-ggplot(df.sig[df.sig$smellType=="unstableDep",], aes(x="", group=classification, fill=classification)) + 
+      geom_bar(width = 1, position = "stack") + coord_polar("y") + 
+      labs(title = "Trend analysis UD") +
+      scale_fill_brewer(palette="Dark2") +
+      theme_minimal()
+    p3<-ggplot(df.sig[df.sig$smellType=="hubLikeDep",], aes(x="", group=classification, fill=classification)) + 
+        geom_bar(width = 1, position = "stack") + coord_polar("y") + 
+        labs(title = "Trend analysis HL") +
+        scale_fill_brewer(palette="Dark2") +
+        theme_minimal()
+    grid.arrange(p1, p2, p3, nrow = 2)
   })
   
   output$projectSelector <- renderUI({
     df <- data()
     selectInput("inputProject", "Select a project", c(allProjects, levels(df$project)), selected = allProjects)
+  })
+  
+  output$characteristicSelector <- renderUI({
+    selectInput("characteristic", "Select a characteristic", c("size", "pageRankMax", "overlapRatio"), selected = "size")
   })
 }
 
