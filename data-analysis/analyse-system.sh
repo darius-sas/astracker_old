@@ -15,6 +15,7 @@ OUTPUTDIR=""
 ERRORS=0
 PARALLELTASKS=4
 
+
 parse_args(){
 
     while [ "$1" != "" ]; do
