@@ -3,13 +3,12 @@
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=d.d.sas@rug.nl
 #SBATCH --output=job-%j.log
-#SBATCH --partition=short
+#SBATCH --partition=regular
 #SBATCH --nodes=1
-#SBATCH --ntasks=4
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=32000
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=64000
 
 module restore trackas
 
-source analyse_system.sh
-srun analyse_multiple -m #MASTERDIR -o #OUTPUDIR
+srun ./analyse-system -m /data/p284098/qualitas-corpus/input -o /data/p284098/qualitas-corpus/output

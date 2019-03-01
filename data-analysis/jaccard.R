@@ -14,7 +14,7 @@ jaccardMatr <- function(n, m){
   return(jmat)
 }
 
-scores <- jaccardMatr(10,10)
+scores <- jaccardMatr(10,16)
 scores <- round(scores, digits=2)
 
 myPalette <- colorRampPalette(c("red", "yellow", "green"))(n = 299)
@@ -34,3 +34,5 @@ heatmap.2(scores,
           ylab = "current version cardinality",
           Colv="NA")               # turn off column clustering
 title("Jaccard scores matrix", line = -4, adj=0.62)
+rect(3, 4, 5, 9, border="red", col = "blue")
+ 

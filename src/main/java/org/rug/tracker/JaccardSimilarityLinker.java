@@ -42,11 +42,11 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
     }
 
     /**
-     * Builds a linker with few elements equal to 4, few elements threshold equal to 0.6, and more elements threshold equal to 0.75.
+     * Builds a linker with few elements equal to 5, few elements threshold equal to 0.6, and more elements threshold equal to 0.75.
      * These thresholds were chosen to protect smells with low elements to be excluded from calculation since variations
      * of a single element when the size is less than three has a great variation on the score computed.
      */
-    public JaccardSimilarityLinker(){this(0.6, 0.70, 6);}
+    public JaccardSimilarityLinker(){this(0.6, 0.67, 5);}
 
     /**
      * Calculates the best match for every pair of smell in the two given lists and returns an ordered list

@@ -10,6 +10,8 @@ RUN_ARCAN=""
 RUN_TRACKER=""
 RECOMPILE_TRACKER=""
 NON_CONSEC_VERS=""
+SIMIL_SCORES=""
+SMELL_CHARAC=""
 INPUTDIR=""
 OUTPUTDIR=""
 ERRORS=0
@@ -38,6 +40,10 @@ parse_args(){
         -tNC | --track-non-consec ) NON_CONSEC_VERS="-eNC"
                                 ;;
         -c  | --recompile-tracker ) RECOMPILE_TRACKER="-c"
+                                ;;
+        -pC  | --print-characteristics ) SMELL_CHARAC="-pC"
+                                ;;
+        -pS  | --print-similarity-scores ) SIMIL_SCORES="-pS"
                                 ;;
         -h | --help )           usage_single
                                 usage_multiple
@@ -107,9 +113,9 @@ analyse_single(){
         fi
 
         if [[ $RUN_ARCAN == "-rA" ]]; then
-            trackas -p $PROJECT -i $INPUTDIR -o $OUTPUTDIR -pC $NON_CONSEC_VERS $RUN_ARCAN "$ARCAN_JAR"
+            trackas -p $PROJECT -i $INPUTDIR -o $OUTPUTDIR $SMELL_CHARAC $SIMIL_SCORES $NON_CONSEC_VERS $RUN_ARCAN "$ARCAN_JAR"
         else
-            trackas -p $PROJECT -i $INPUTDIR -o $OUTPUTDIR -pC $NON_CONSEC_VERS
+            trackas -p $PROJECT -i $INPUTDIR -o $OUTPUTDIR $SMELL_CHARAC $SIMIL_SCORES $NON_CONSEC_VERS
         fi
 
         if [ $? -ne 0 ] ; then
@@ -145,14 +151,6 @@ analyse_multiple(){
         return
     fi
 
-    logfile=$MASTERDIR/failed.log
-
-    echo "Analysis started on $(date "+%F %T")" > $logfile
-
-    configure_R
-
-    countpar=1
-
     if [[ $RECOMPILE_TRACKER == "-c" ]] ; then
         recompile_tracker
     fi
@@ -165,16 +163,10 @@ analyse_multiple(){
         projectLogfile=${OUTPUTDIR}/${PROJECT}-outputlog.log
 
         echo "Running analysis on $PROJECT"
-
-        analyse_single -p $PROJECT -i $MASTERDIR -o $OUTPUTDIR $RUN_TRACKER $RUN_ARCAN $NON_CONSEC_VERS $RECOMPILE_TRACKER 2>&1 > ${projectLogfile} &
-
-        if [[ $countpar == $PARALLELTASKS ]]; then
-            wait
-            countpar=1
-        fi
-        countpar=$((countpar + 1))
+        analyse_single -p $PROJECT -i $MASTERDIR -o $OUTPUTDIR $RUN_TRACKER $RUN_ARCAN $NON_CONSEC_VERS $SMELL_CHARAC $SIMIL_SCORES $RECOMPILE_TRACKER 2>&1 > ${projectLogfile}
     done
-    wait
+
     echo "Completed with $ERRORS errors."
 }
 
+analyse_multiple $@
