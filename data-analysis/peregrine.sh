@@ -11,4 +11,4 @@
 
 module restore trackas
 
-srun ./analyse-system -m /data/p284098/qualitas-corpus/input -o /data/p284098/qualitas-corpus/output
+srun ./analyse-system.sh -m /data/p284098/qualitas-corpus/input -o /data/p284098/qualitas-corpus/output -rT -rA -pC -pS 

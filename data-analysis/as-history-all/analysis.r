@@ -1,6 +1,19 @@
 library(dtw)
 library(dplyr)
 
+# Signals column names
+classifiableSignals <- data.frame(rbind(c("size", "generic"), 
+                                     c("overlapRatio", "generic"),
+                                     c("pageRankAvrg", "generic"),
+                                     c("pageRankMax", "generic"),
+                                     c("strength", "unstableDep"),
+                                     c("instabilityGap", "unstableDep"),
+                                     c("avrgEdgeWeight", "cyclicDep"),
+                                     c("numOfEdges", "cyclicDep"),
+                                     c("numOfInheritanceEdges", "cyclicDep")))
+colnames(classifiableSignals) <- c("signal", "type")
+signalNames <- classifiableSignals$signal
+
 # Templates
 tConstantA <- function(high, medium, low) c(high, high)
 tIncreaseB <- function(high, medium, low) c(low, medium, high)
