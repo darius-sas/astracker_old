@@ -33,19 +33,19 @@ templateLevels = c("A-Constant", "B-Gradual Increase", "C-Sharp Increase", "D-Te
 classifySignal <- function(df, colName){
   df.temp <- df %>% 
     filter(age > 1)  %>% # Filter smells that do not have enough data points
-    select_at(c("uniqueSmellID", colName)) %>% 
-    group_by(uniqueSmellID) %>%
+    select_at(c("uniqueSmellID", "project", colName)) %>% 
+    group_by(uniqueSmellID, project) %>%
     mutate(scaledCol = scale_this(!!sym(colName)) %>% as.vector) %>%
     summarise(high = max(scaledCol), low = min(scaledCol)) %>%
     mutate(med = (low + high) / 2)
 
-  df.temp <- inner_join(df, df.temp, by = "uniqueSmellID") %>%
+  df.temp <- inner_join(df, df.temp, by = c("uniqueSmellID", "project")) %>%
     group_by(uniqueSmellID) %>%
     mutate(scaledCol = scale_this(!!sym(colName)) %>% as.vector)
     
   
   df.sig <- df.temp %>% 
-    group_by(uniqueSmellID) %>%
+    group_by(uniqueSmellID, project) %>%
     summarise(dtwA = dtw(scaledCol, tConstantA(high, med, low))$normalizedDistance,
               dtwB = dtw(scaledCol, tIncreaseB(high, med, low))$normalizedDistance,
               dtwC = dtw(scaledCol, tIncreaseC(high, med, low))$normalizedDistance,
@@ -54,10 +54,14 @@ classifySignal <- function(df, colName){
               dtwF = dtw(scaledCol, tDecreaseF(high, med, low))$normalizedDistance,
               dtwG = dtw(scaledCol, tDecreaseG(high, med, low))$normalizedDistance)
   
-  df.sig$min <- apply(df.sig, 1, function(x) which.min(x[2:length(x)]) + 1)
-  df.sig$classification <- factor(templateLevels[df.sig$min - 1], levels = templateLevels)
+  offset <- 2 # non-numeric columns: project and uniqueSmellID
+  df.sig$min <- apply(df.sig, 1, function(x) which.min(x[(offset + 1):length(x)]) + offset)
+  df.sig$classification <- factor(templateLevels[df.sig$min - offset], levels = templateLevels)
   
-  df.sig <- inner_join(df, df.sig, by = "uniqueSmellID")
+  df.sig <- inner_join(df.sig, df, by = c("uniqueSmellID", "project"))
+  df.sig <- df.sig[!duplicated(df.sig[,c("uniqueSmellID", "project")]), c("uniqueSmellID", "version", "smellType", 
+                                                    "project", "classification", "age", 
+                                                    "dtwA", "dtwB", "dtwC", "dtwD", "dtwE", "dtwF", "dtwG")]
   
   return(df.sig)
 }

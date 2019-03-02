@@ -1,13 +1,12 @@
 # My ignore
 /src/test/graphimages/*
 /data-analysis/*.pdf
-/data-analysis/.Rhistory
 /data-analysis/*.csv
 /test-data
 /arcan
 /qualitas-corpus
 
-/data-analysis/.Rhistory
+**/.Rhistory
 
 # Created by https://www.gitignore.io/api/java,intellij
 # Edit at https://www.gitignore.io/?templates=java,intellij
