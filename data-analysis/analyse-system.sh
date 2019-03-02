@@ -1,8 +1,8 @@
 #!/bin/bash
 
-TRACKAS_JAR="../target/trackas/trackas-0.5.jar"
-ARCAN_JAR="../arcan/Arcan-1.4.0-SNAPSHOT.jar"
-ANALYSE_NOTEBOOK="./as-history-in-system.Rmd"
+TRACKAS_JAR="/home/p284098/git/trackas/target/trackas/trackas-0.5.jar"
+ARCAN_JAR="/home/p284098/git/trackas/arcan/Arcan-1.4.0-SNAPSHOT.jar"
+ANALYSE_NOTEBOOK="/home/p284098/git/trackas/data-analysis/as-history-in-system.Rmd"
 
 MASTERDIR=""
 PROJECT=""
