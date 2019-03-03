@@ -47,7 +47,7 @@ server <- function(input, output) {
     df.sig <- classifySignal(df, input$characteristic)
     
     df.sig <- df.sig %>% group_by(classification) %>% add_tally()
-    for (smellType in levels(df.sig$smellType)) {
+    for (smellType in unique(df.sig$smellType)) {
       p <- ggplot(df.sig[df.sig$smellType==smellType,], aes(x="", group=classification, fill=classification)) + 
         geom_bar(width = 1, position = "stack") + coord_polar("y") + 
         labs(x = element_blank(), y = element_blank(), title = paste(smellType, "in all projects")) +
@@ -58,12 +58,11 @@ server <- function(input, output) {
       i <- i + 1
     }
 
-    for (project in levels(df$project)) {
-      df.sig <- classifySignal(df[df$project==project,], input$characteristic)
-      df.sig <- df.sig %>% group_by(classification) %>% add_tally()
-      
-      for (smellType in levels(df.sig$smellType)) {
-        p <- ggplot(df.sig[df.sig$smellType==smellType,], aes(x="", group=classification, fill=classification)) + 
+    for (project in levels(df.sig$project)) {
+      df.sig.p <- df.sig[df.sig$project == project,]
+
+      for (smellType in unique(df.sig.p$smellType)) {
+        p <- ggplot(df.sig.p[df.sig.p$smellType==smellType,], aes(x="", group=classification, fill=classification)) + 
           geom_bar(width = 1, position = "stack") + coord_polar("y") + 
           labs(x = element_blank(), y = element_blank(), title = paste(smellType, "in", project)) +
           scale_fill_brewer(palette=palette) +
@@ -78,7 +77,7 @@ server <- function(input, output) {
     print("completed")
     ggarrange(plotlist=plots, ncol = length(levels(df$smellType)), 
               nrow = length(levels(df$project)) + 1, common.legend = TRUE, 
-              font.label = list(size=11))
+              font.label = list(size=11)) + labs(title = paste("Trend evolution of '", input$characteristic, "'", sep = ""))
   }, 
   height = 300 * 5,
   res = 100)
