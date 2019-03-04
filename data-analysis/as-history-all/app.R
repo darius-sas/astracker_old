@@ -2,27 +2,25 @@ library(shiny)
 library(ggplot2)
 library(gridExtra)
 library(ggpubr)
-source("analysis.r")
+library(ggrepel)
+source("signal-analysis.R")
+source("correlation-analysis.R")
 
-options(shiny.maxRequestSize = 30*1024^2)
+options(shiny.maxRequestSize = 60*1024^2)
 
-# Define UI for application that draws a histogram
 ui <- fluidPage(
    
-   # Application title
    titlePanel("Trend analysis: smell-generic characteristic evolution"),
    
-   # Sidebar with a slider input for number of bins 
    sidebarLayout(
       sidebarPanel(
          fileInput("dataset", "Choose a file", accept = c("text/csv","text/comma-separated-values,text/plain",".csv")),
          actionButton("calculate", "Calculate"),
-         #uiOutput("projectSelector"),
          uiOutput("characteristicSelector")
       ),
       
-      # Show a plot of the generated distribution
       mainPanel(
+         plotOutput("corPlot1"),
          plotOutput("trendPlot")
       )
    )
@@ -90,6 +88,33 @@ server <- function(input, output) {
   output$characteristicSelector <- renderUI({
     df <- data()
     selectInput("characteristic", "Select a signal to classify", signalNames, selected = "size")
+  })
+  
+  output$corPlot1 <- renderPlot({
+    df <- data()
+    
+    signalType <- classifiableSignals[classifiableSignals$signal == input$characteristic, "type"]
+    if (signalType != "generic") {
+      df <- df[df$smellType == as.character(signalType), ]  
+    }
+    
+    df.sig <- classifySignal(df, input$characteristic)
+    
+    df.icc <- data.frame()
+    for (smellType in unique(df.sig$smellType)) {
+      df.smell <- df.sig[df.sig$smellType == smellType,]
+      icc <- computeCorrelMatrix(df.smell)
+      icc$smellType <- smellType
+      df.icc <- rbind(df.icc, icc)
+    }
+    ggplot(df.icc, aes(type, ICC), group=smellType, color=smellType, fill=smellType) + 
+      geom_point(aes(size = p, color=smellType, fill=smellType), alpha=0.9) +
+      geom_label_repel(aes(label = ifelse(p<=0.05, as.character(round(p, digits = 3)), "")),
+                       box.padding   = 0.35, 
+                       point.padding = 0.5,
+                       segment.color = 'grey50') +
+      labs(title = paste("ICC correlation analysis of", input$characteristic, "with signal classification")) +
+      theme_classic()
   })
 }
 
