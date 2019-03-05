@@ -4,18 +4,22 @@ TRACKAS_JAR="/home/p284098/git/trackas/target/trackas/trackas-0.5.jar"
 ARCAN_JAR="/home/p284098/git/trackas/arcan/Arcan-1.4.0-SNAPSHOT.jar"
 ANALYSE_NOTEBOOK="/home/p284098/git/trackas/data-analysis/as-history-in-system.Rmd"
 
-MASTERDIR=""
-PROJECT=""
-RUN_ARCAN=""
-RUN_TRACKER=""
-RECOMPILE_TRACKER=""
-NON_CONSEC_VERS=""
-SIMIL_SCORES=""
-SMELL_CHARAC=""
-INPUTDIR=""
-OUTPUTDIR=""
-ERRORS=0
-PARALLELTASKS=4
+init_var(){
+    MASTERDIR=""
+    PROJECT=""
+    RUN_ARCAN=""
+    RUN_TRACKER=""
+    RECOMPILE_TRACKER=""
+    NON_CONSEC_VERS=""
+    SIMIL_SCORES=""
+    SMELL_CHARAC=""
+    INPUTDIR=""
+    OUTPUTDIR=""
+    ERRORS=0
+    PARALLELTASKS=4
+}
+
+init_var 
 
 parse_args(){
 
@@ -173,20 +177,12 @@ analyse_failed(){
     
     echo "Analysing lucene..."
     analyse_single -p lucene -i /data/p284098/qualitas-corpus/input -o /data/p284098/qualitas-corpus/output -rA -rT -pC -pS
-    if [ $? -ne 0 ] ; then
-        echo "Tracking failed for project lucene."
-    else
-        echo "Completed successfully."
-    fi
+
+    init_var
 
     echo "Analysing azureus..."
     analyse_single -p azureus -i /data/p284098/qualitas-corpus/output/arcanOutput -o /data/p284098/qualitas-corpus/output -rT -pC -pS
 
-    if [ $? -ne 0 ] ; then
-        echo "Tracking failed for project lucene."
-    else
-        echo "Completed successfully."
-    fi
 }
 
 analyse_failed $@
