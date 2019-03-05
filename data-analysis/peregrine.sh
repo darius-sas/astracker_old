@@ -1,6 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=track_as_qualitas_corpus
 #SBATCH --mail-type=ALL
+#SBATCH --time=2-20:00:00
 #SBATCH --mail-user=d.d.sas@rug.nl
 #SBATCH --output=job-%j.log
 #SBATCH --partition=regular
@@ -11,4 +12,4 @@
 
 module restore trackas
 
-srun ./analyse-system -m /data/p284098/qualitas-corpus/input -o /data/p284098/qualitas-corpus/output -pC -pS -rA -rT
+srun ./analyse-system.sh -m /data/p284098/qualitas-corpus/input -o /data/p284098/qualitas-corpus/output -pC -pS -rA -rT

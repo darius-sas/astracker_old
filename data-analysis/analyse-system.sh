@@ -62,7 +62,7 @@ usage_multiple(){
 }
 
 trackas(){
-    java -Xmx6000m -jar $TRACKAS_JAR $@
+    java -Xmx63000m -jar $TRACKAS_JAR $@
 }
 
 # Synopsis: similarity_score <input-scores-file> <output-pdf-file>
