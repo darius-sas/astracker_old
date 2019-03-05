@@ -1,0 +1,121 @@
+---
+title: "Untitled"
+author: "Darius Sas"
+date: "February 26, 2019"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(gridExtra)
+library(ggpubr)
+library(ggrepel)
+knitr::opts_chunk$set(echo = TRUE)
+source("as-history-all/signal-analysis.R")
+source("as-history-all/correlation-analysis.R")
+
+options(shiny.maxRequestSize = 60*1024^2)
+```
+# Research question 1
+## Smell characteristic trend analysis
+
+```{r fileinput, echo=FALSE}
+inputPanel(
+         fileInput("dataset", "Choose a file", accept = c("text/csv","text/comma-separated-values,text/plain",".csv")),
+         actionButton("calculate", "Upload"),
+         uiOutput("characteristicSelector")
+)
+data <- eventReactive(input$calculate, {read.csv(input$dataset$datapath)})
+characteristic <- eventReactive(input$compute, {input$characteristic})
+data.sig <- reactive({
+    df <- data()
+    char <- characteristic()
+    signalType <- classifiableSignals[classifiableSignals$signal == char, "type"]
+    if (signalType != "generic") {
+      df <- df[df$smellType == as.character(signalType), ]  
+    }
+
+   return(classifySignal(df, char))
+})
+```
+The analysed signal is shown below as a matrix of pie plots. Each row is a different project,  whereas columns are the different smell types.
+The first row shows the data grouped for all projects.
+```{r signalAnalysis, echo=FALSE}
+renderUI({
+    df <- data()
+    inputPanel(
+      selectInput("characteristic", "Select a signal to classify", signalNames, selected = "size"),
+      actionButton("compute", "Compute"))
+})
+renderPlot({
+    df.sig <- data.sig()
+    print("Initiated signal analysis")
+    palette = "Dark2"
+    plots <- list()
+    i <- 1
+    
+    df.sig <- df.sig %>% group_by(classification) %>% add_tally()
+    for (smellType in unique(df.sig$smellType)) {
+      p <- ggplot(df.sig[df.sig$smellType==smellType,], aes(x="", group=classification, fill=classification)) + 
+        geom_bar(width = 1, position = "stack") + coord_polar("y") + 
+        labs(x = element_blank(), y = element_blank(), title = paste(smellType, "in all projects")) +
+        scale_fill_brewer(palette=palette) +
+        theme_minimal() +
+        theme(plot.title = element_text(size=9))
+      plots[[i]] <- p
+      i <- i + 1
+    }
+
+    for (project in levels(df.sig$project)) {
+      df.sig.p <- df.sig[df.sig$project == project,]
+
+      for (smellType in unique(df.sig.p$smellType)) {
+        p <- ggplot(df.sig.p[df.sig.p$smellType==smellType,], aes(x="", group=classification, fill=classification)) + 
+          geom_bar(width = 1, position = "stack") + coord_polar("y") + 
+          labs(x = element_blank(), y = element_blank(), title = paste(smellType, "in", project)) +
+          scale_fill_brewer(palette=palette) +
+          theme_minimal() +
+          theme(plot.title = element_text(size=9))
+        plots[[i]] <- p
+        i <- i + 1
+      }
+    }
+
+    print("Signal analysis completed")
+    ggarrange(plotlist=plots, ncol = length(levels(df.sig$smellType)), 
+              nrow = length(levels(df.sig$project)) + 1, common.legend = TRUE, 
+              font.label = list(size=11)) + labs(title = paste("Trend evolution of '", input$characteristic, "'", sep = ""))
+},height = 300 * 14,res = 100)
+
+```
+
+The plot below, instead, shows us the correlation between the classifications of the selected signal and the age of that smell.
+```{r iccor, echo=FALSE}
+
+renderPlot({
+    df.sig <- data.sig()
+    
+    df.icc <- data.frame()
+    for (smellType in unique(df.sig$smellType)) {
+      df.smell <- df.sig[df.sig$smellType == smellType,]
+      icc <- computeCorrelMatrix(df.smell)
+      icc$smellType <- smellType
+      df.icc <- rbind(df.icc, icc)
+    }
+    ggplot(df.icc, aes(type, ICC), group=smellType, color=smellType, fill=smellType) + 
+      geom_point(aes(size = p, color=smellType, fill=smellType), alpha=0.9) +
+      geom_label_repel(aes(label = ifelse(p<=0.05, as.character(round(p, digits = 3)), "")),
+                       box.padding   = 0.35, 
+                       point.padding = 0.5,
+                       segment.color = 'grey50') +
+      labs(title = paste("ICC correlation analysis of", input$characteristic, "with signal classification")) +
+      theme_classic()
+  })
+
+```
+
+
+
+
+
