@@ -19,7 +19,7 @@ public class ArcanRunner extends ToolRunner {
      * Initializes an arcan runner with the following smells CD, HL, and UD.
      */
     public ArcanRunner(String command, Project project, String version, String outputDir, boolean useNeo4j){
-        super("arcan", "java -jar " + command);
+        super("arcan", "java -Xmx63000m -jar " + command);
         var args = Arrays.asList("-p", project.getVersionedSystem().get(version).getA().toString(),
                 project.isFolderOfFoldersOfJarsProject() ? "-folderOfJars" : "-jar",
                 "-CD", "-HL", "-UD", "-CM", "-PM",

@@ -169,4 +169,24 @@ analyse_multiple(){
     echo "Completed with $ERRORS errors."
 }
 
-analyse_multiple $@
+analyse_failed(){
+    
+    echo "Analysing lucene..."
+    analyse_single -p lucene -i /data/p284098/qualitas-corpus/input -o /data/p284098/qualitas-corpus/output -rA -rT -pC -pS
+    if [ $? -ne 0 ] ; then
+        echo "Tracking failed for project lucene."
+    else
+        echo "Completed successfully."
+    fi
+
+    echo "Analysing azureus..."
+    analyse_single -p azureus -i /data/p284098/qualitas-corpus/output/arcanOutput -o /data/p284098/qualitas-corpus/output -rT -pC -pS
+
+    if [ $? -ne 0 ] ; then
+        echo "Tracking failed for project lucene."
+    else
+        echo "Completed successfully."
+    fi
+}
+
+analyse_failed $@
