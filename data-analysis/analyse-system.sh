@@ -136,7 +136,7 @@ analyse_single(){
     SIMILARITY_SCORES_FILE=$OUTPUTDIR_PROJECT/similarity-scores-$SUFFIX.csv
     SMELL_CHARACTERISTICS_FILE=$OUTPUTDIR_PROJECT/smell-characteristics-$SUFFIX.csv
 
-    similarity_score $SIMILARITY_SCORES_FILE $OUTPUTDIR_PROJECT/smell-similarity-matrices-$SUFFIX.pdf
+    #similarity_score $SIMILARITY_SCORES_FILE $OUTPUTDIR_PROJECT/smell-similarity-matrices-$SUFFIX.pdf
     notebook $PROJECT $SUFFIX $SIMILARITY_SCORES_FILE $SMELL_CHARACTERISTICS_FILE "$OUTPUTDIR_PROJECT/as-history-in-system-$SUFFIX.nb.html"
 }
 
