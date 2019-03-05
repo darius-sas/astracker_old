@@ -19,7 +19,7 @@ options(shiny.maxRequestSize = 60*1024^2)
 ```
 # Research question 1
 ## Smell characteristic trend analysis
-
+Select an input file and click the "Upload" button. Next, after selecting the characteristic which signal to analyse, click "Compute" and wait for the computation to complete and the plots to appear.
 ```{r fileinput, echo=FALSE}
 inputPanel(
          fileInput("dataset", "Choose a file", accept = c("text/csv","text/comma-separated-values,text/plain",".csv")),
@@ -86,11 +86,12 @@ renderPlot({
     ggarrange(plotlist=plots, ncol = length(levels(df.sig$smellType)), 
               nrow = length(levels(df.sig$project)) + 1, common.legend = TRUE, 
               font.label = list(size=11)) + labs(title = paste("Trend evolution of '", input$characteristic, "'", sep = ""))
-},height = 300 * 14,res = 100)
+},height = 300 * 14, res = 100)
 
 ```
 
 The plot below, instead, shows us the correlation between the classifications of the selected signal and the age of that smell.
+For each test performed, p-values are shown only if less than ```0.05```.
 ```{r iccor, echo=FALSE}
 
 renderPlot({
@@ -109,12 +110,22 @@ renderPlot({
                        box.padding   = 0.35, 
                        point.padding = 0.5,
                        segment.color = 'grey50') +
-      labs(title = paste("ICC correlation analysis of", input$characteristic, "with signal classification")) +
+      labs(title = paste("ICC correlation analysis of", input$characteristic, "with signal classification"), y = "Correlation test", "Correlation factor") +
       theme_classic()
   })
 
 ```
 
+## Smell-generic characteristics correlation
+The correlation between the smell-generic characteristics is depicted below
+```{r charcorr, echo=FALSE}
+renderPlot({
+  df <- data()
+  df.corr <- computeCharacteristicCorrelation(df)
+  #df.corr.validity <- df.corr %>% mutate(isValid = p.value >= 0.05) %>% group_by(isValid) %>% tally()
+  #ggplot(df.corr.validity, aes(isValid, n)) + geom_bar(aes(color = isValid, fill=isValid), stat = "identity")
+})
+```
 
 
 
