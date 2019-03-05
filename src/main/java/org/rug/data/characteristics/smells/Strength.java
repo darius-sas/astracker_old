@@ -1,5 +1,6 @@
 package org.rug.data.characteristics.smells;
 
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.smells.UDSmell;
 
 /**
@@ -16,6 +17,7 @@ public class Strength extends AbstractSmellCharacteristic {
 
     @Override
     public String visit(UDSmell smell) {
-        return smell.getCentre().property("DUD").orElse(NO_VALUE).toString();
+        Vertex smellNode = smell.getSmellNodes().iterator().next();
+        return smellNode.property("DUD").orElse(NO_VALUE).toString();
     }
 }
