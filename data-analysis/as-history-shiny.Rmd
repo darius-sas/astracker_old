@@ -52,41 +52,23 @@ renderPlot({
     df.sig <- data.sig()
     print("Initiated signal analysis")
     palette = "Dark2"
-    plots <- list()
-    i <- 1
     
     df.sig <- df.sig %>% group_by(classification) %>% add_tally()
-    for (smellType in unique(df.sig$smellType)) {
-      p <- ggplot(df.sig[df.sig$smellType==smellType,], aes(x="", group=classification, fill=classification)) + 
-        geom_bar(width = 1, position = "stack") + coord_polar("y") + 
-        labs(x = element_blank(), y = element_blank(), title = paste(smellType, "in all projects")) +
-        scale_fill_brewer(palette=palette) +
-        theme_minimal() +
-        theme(plot.title = element_text(size=9))
-      plots[[i]] <- p
-      i <- i + 1
-    }
-
-    for (project in levels(df.sig$project)) {
-      df.sig.p <- df.sig[df.sig$project == project,]
-
-      for (smellType in unique(df.sig.p$smellType)) {
-        p <- ggplot(df.sig.p[df.sig.p$smellType==smellType,], aes(x="", group=classification, fill=classification)) + 
-          geom_bar(width = 1, position = "stack") + coord_polar("y") + 
-          labs(x = element_blank(), y = element_blank(), title = paste(smellType, "in", project)) +
-          scale_fill_brewer(palette=palette) +
-          theme_minimal() +
-          theme(plot.title = element_text(size=9))
-        plots[[i]] <- p
-        i <- i + 1
-      }
-    }
+    p <- ggplot(df.sig, aes(x="", group=classification, fill=classification)) + 
+      geom_bar(stat="count", position=position_fill(vjust =1)) + coord_polar("y") +
+      scale_fill_brewer(palette=palette) +
+      theme(plot.title = element_text(size=9),
+            axis.text = element_blank(),
+            axis.ticks = element_blank(),
+            legend.position = "top") + 
+      labs(x="Projects", y="Smell types") 
+   
+    singleProjectsPlot <- p + facet_grid(vars(project), vars(smellType))
+    allProjectsPlot <- p + facet_grid(cols = vars(smellType))
 
     print("Signal analysis completed")
-    ggarrange(plotlist=plots, ncol = length(levels(df.sig$smellType)), 
-              nrow = length(levels(df.sig$project)) + 1, common.legend = TRUE, 
-              font.label = list(size=11)) + labs(title = paste("Trend evolution of '", input$characteristic, "'", sep = ""))
-},height = 300 * 14, res = 100)
+    grid.arrange(allProjectsPlot, singleProjectsPlot)
+},width = 900, height = 2000, res = 100)
 
 ```
 
@@ -121,9 +103,12 @@ The correlation between the smell-generic characteristics is depicted below
 ```{r charcorr, echo=FALSE}
 renderPlot({
   df <- data()
-  df.corr <- computeCharacteristicCorrelation(df)
-  #df.corr.validity <- df.corr %>% mutate(isValid = p.value >= 0.05) %>% group_by(isValid) %>% tally()
-  #ggplot(df.corr.validity, aes(isValid, n)) + geom_bar(aes(color = isValid, fill=isValid), stat = "identity")
+  df.corr <- computeCharacteristicCorrelation(df, c("generic"))
+  df.corr$var <- paste(df.corr$var1, df.corr$var2)
+  df.corr.validity <- df.corr %>% mutate(isValid = p.value >= 0.05) %>% group_by(isValid) %>% tally()
+  ggplot(df.corr.validity, aes(isValid, n)) + geom_bar(aes(color = isValid, fill=isValid), stat = "identity")
+  df.corr <- df.corr %>% filter(p.value <= 0.05)
+  ggplot(df.corr, aes(project, estimate, group = var)) + geom_point(aes(size = age, fill=smellType, color=smellType)) + facet_wrap(~var)
 })
 ```
 
