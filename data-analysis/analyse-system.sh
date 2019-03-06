@@ -175,13 +175,8 @@ analyse_multiple(){
 
 analyse_failed(){
     
-    echo "Analysing lucene..."
-    analyse_single -p lucene -i /data/p284098/qualitas-corpus/input -o /data/p284098/qualitas-corpus/output -rA -rT -pC -pS
-
-    init_var
-
     echo "Analysing azureus..."
-    analyse_single -p azureus -i /data/p284098/qualitas-corpus/output/arcanOutput -o /data/p284098/qualitas-corpus/output -rT -pC -pS
+    analyse_single -p azureus -i /data/p284098/qualitas-corpus/output/arcanOutput -o /data/p284098/qualitas-corpus/output -rT -pC
 
 }
 
