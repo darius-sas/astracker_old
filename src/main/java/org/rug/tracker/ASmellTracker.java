@@ -193,7 +193,8 @@ public class ASmellTracker {
                     .repeat(__.in(EVOLVED_FROM, REAPPEARED, END))
                     .until(__.hasLabel(END))
                     .path().toSet();
-            for (Path p : dynasties) {
+            dynasties.parallelStream().forEach(p -> {
+            //for (Path p : dynasties) {
                 Vertex smellVertex = gs.addV(SMELL).next();
                 int age = 0;
                 for (Object o : p) { // beware: the path unfolds the visited vertices backwards
@@ -228,8 +229,8 @@ public class ASmellTracker {
                             smellVertex.property(AGE, age, "lastDetected", ((Vertex) o).value(VERSION));
                         }
                     }
-                }
-            }
+                }   
+            });
         }
         return condensedGraph;
     }
