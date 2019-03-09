@@ -19,6 +19,7 @@ library(ggplot2)
 library(gridExtra)
 library(ggpubr)
 library(ggrepel)
+library(reshape2)
 knitr::opts_chunk$set(echo = TRUE)
 source("as-history-all/signal-analysis.R")
 source("as-history-all/correlation-analysis.R")
@@ -26,15 +27,12 @@ source("as-history-all/survival-analysis.R")
 
 options(shiny.maxRequestSize = 60*1024^2)
 ```
-# Research question 1
-## Smell characteristic trend analysis
-Select an input file and click the "Start analysis" button. Next, after selecting the characteristic which signal to analyse, click "Compute" and wait for the computation to complete and the plots to appear.
+Select an input file and click the "Start analysis" button. Next, after selecting the characteristic which signal to analyse.
 ```{r fileinput, echo=FALSE}
-inputPanel(
-         fileInput("dataset", "Choose a file", accept = c("text/csv","text/comma-separated-values,text/plain",".csv")),
-         actionButton("calculate", "Start analysis"),
-         uiOutput("characteristicSelector"))
-
+inputPanel(         
+  fileInput("dataset", "Choose a file", 
+            accept = c("text/csv","text/comma-separated-values,text/plain",".csv")),
+  actionButton("calculate", "Start analysis"))
 data <- eventReactive(input$calculate, {read.csv(input$dataset$datapath)})
 characteristic <- eventReactive(input$compute, {input$characteristic})
 data.sig <- reactive({
@@ -47,6 +45,63 @@ data.sig <- reactive({
 
    return(classifySignal(df, char))
 })
+```
+
+Some descriptive statistics
+```{r descriptiveStat, echo=FALSE}
+renderPlot({  
+  df <- data()
+  df.tally <- df %>% group_by(project, versionPosition, smellType) %>% tally()
+  ggplot(df.tally, aes(versionPosition, n, group = smellType, color = smellType)) + 
+    geom_line() + 
+    theme(axis.text.x = element_text(angle=90, hjust = 1)) +
+    facet_wrap(~project, scales = "free") +
+    labs(x = "Version number",
+         y = "Number of smells",
+         title = "Number of smells in the system by smell type")
+}, height=1000)
+
+```
+
+```{r descriptiveStat2, echo=FALSE}
+ggboxplots<-function(df.melt){
+  ggplot(df.melt, aes("", value, group = smellType, fill = smellType)) + 
+    geom_boxplot() + 
+    theme(axis.text.x = element_text(angle=90, hjust = 1)) +
+    facet_wrap(project~variable, scales = "free", ncol = length(levels(df.melt$variable)) * 2)
+}
+renderPlot({
+  df <- data()
+  df.melt <- melt(df, c("project", "uniqueSmellID", "versionPosition", "smellType"), 
+                      c("size", "overlapRatio", "pageRankMax", "pageRankAvrg"))
+  ggboxplots(df.melt) + labs(title = "Boxplots of smell-generic characteristics by smell type")
+}, height = 1000)
+renderPlot({
+  df <- data()
+  df.melt <- melt(df, c("project", "uniqueSmellID", "versionPosition", "smellType"), 
+                      c("strength", "instabilityGap", "avrgEdgeWeight", "numOfEdges", 
+                        "numOfInheritanceEdges"))
+ ggboxplots(df.melt) + labs(title = "Boxplots of smell-specific characteristics by smell type")
+}, height = 1000)
+
+renderPlot({
+  df <- data()
+  df.melt <- df %>% filter(smellType == "cyclicDep") %>%
+    group_by(project, versionPosition, shape) %>%
+    tally()
+  ggplot(df.melt, aes(versionPosition, n, group = shape, color = shape)) + 
+    geom_line() + 
+    theme(axis.text.x = element_text(angle=90, hjust = 1)) +
+    facet_wrap(~project, scales = "free")
+}, height = 1000)
+ 
+```
+
+# Research question 1
+## Smell characteristic trend analysis
+Click "Compute" and wait for the computation to complete and the plots to appear.
+```{r characteristicSelection, echo=FALSE}
+inputPanel(uiOutput("characteristicSelector"))
 ```
 The analysed signal is shown below as a matrix of pie plots. Each row is a different project,  whereas columns are the different smell types.
 The first row shows the data grouped for all projects.
@@ -61,7 +116,7 @@ renderPlot({
     df.sig <- data.sig()
     palette = "Dark2"
     df.sig <- df.sig %>% group_by(classification) %>% add_tally()
-    p <- ggplot(df.sig, aes(x="", group=classification, fill=classification)) + 
+    ggplot(df.sig, aes(x="", group=classification, fill=classification)) + 
       geom_bar(stat="count", position=position_fill(vjust =1)) + coord_polar("y") +
       scale_fill_brewer(palette=palette) +
       theme(plot.title = element_text(size=16),
