@@ -20,28 +20,28 @@ import java.util.stream.Collectors;
  */
 public class ASmellTracker {
 
-    private static final String NAME = "name";
-    private static final String SMELL = "smell";
-    private static final String VERSION = "version";
-    private static final String SMELL_OBJECT = "smellObject";
-    private static final String LATEST_VERSION = "latestVersion";
-    private static final String EVOLVED_FROM = "evolvedFrom";
-    private static final String HEAD = "head";
-    private static final String UNIQUE_SMELL_ID = "uniqueSmellID";
-    private static final String REAPPEARED = "reappeared";
-    private static final String STARTED_IN = "startedIn";
-    private static final String END = "end";
-    private static final String SIMILARITY = "similarity";
-    private static final String CHARACTERISTIC = "characteristic";
-    private static final String HAS_CHARACTERISTIC = "hasCharacteristic";
-    private static final String COMPONENT = "component";
-    private static final String AFFECTS = "affects";
-    private static final String SMELL_TYPE = "smellType";
-    private static final String AGE = "age";
-    private static final String NA = "NA";
-    private static final String FIRST_APPEARED = "firstAppeared";
-    private static final String SMELL_ID = "smellId";
-    private static final String COMPONENT_TYPE = "componentType";
+    public static final String NAME = "name";
+    public static final String SMELL = "smell";
+    public static final String VERSION = "version";
+    public static final String SMELL_OBJECT = "smellObject";
+    public static final String LATEST_VERSION = "latestVersion";
+    public static final String EVOLVED_FROM = "evolvedFrom";
+    public static final String HEAD = "head";
+    public static final String UNIQUE_SMELL_ID = "uniqueSmellID";
+    public static final String REAPPEARED = "reappeared";
+    public static final String STARTED_IN = "startedIn";
+    public static final String END = "end";
+    public static final String SIMILARITY = "similarity";
+    public static final String CHARACTERISTIC = "characteristic";
+    public static final String HAS_CHARACTERISTIC = "hasCharacteristic";
+    public static final String COMPONENT = "component";
+    public static final String AFFECTS = "affects";
+    public static final String SMELL_TYPE = "smellType";
+    public static final String AGE = "age";
+    public static final String NA = "NA";
+    public static final String FIRST_APPEARED = "firstAppeared";
+    public static final String SMELL_ID = "smellId";
+    public static final String COMPONENT_TYPE = "componentType";
 
     private Graph trackGraph;
     private Graph condensedGraph;
@@ -201,8 +201,8 @@ public class ASmellTracker {
                     if (o instanceof Vertex) {
                         Vertex v = (Vertex) o;
                         if (((Vertex) o).label().equals(HEAD)) {
-                            smellVertex.property(UNIQUE_SMELL_ID, v.value(UNIQUE_SMELL_ID),
-                                    FIRST_APPEARED, v.values(VERSION));
+                            smellVertex.property(UNIQUE_SMELL_ID, v.value(UNIQUE_SMELL_ID))
+                                    .property(FIRST_APPEARED, v.values(VERSION));
                         } else if (((Vertex) o).label().equals(SMELL)) {
                             ArchitecturalSmell as = v.value(SMELL_OBJECT);
                             if (!smellVertex.property(SMELL_TYPE).isPresent()) {
@@ -216,7 +216,9 @@ public class ASmellTracker {
 
                             as.getAffectedElements().stream().map(e -> e.value(NAME)).forEach(name -> {
                                 if (!gs.V().has(NAME, name).hasNext()) {
-                                    gs.addV(COMPONENT).property(NAME, name, COMPONENT_TYPE, as.getLevel().toString()).next();
+                                    gs.addV(COMPONENT)
+                                            .property(NAME, name)
+                                            .property(COMPONENT_TYPE, as.getLevel().toString()).next();
                                 }
                                 gs.addE(AFFECTS)
                                         .from(smellVertex).to(gs.V().has(NAME, name).next())

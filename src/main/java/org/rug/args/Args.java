@@ -62,6 +62,10 @@ public class Args {
         return getOutputFileName("smell-characteristics", "csv");
     }
 
+    public String getAffectedComponentsFile(){
+        return getOutputFileName("affected-components", "csv");
+    }
+
     public String getCondensedGraphFile(){
         return getOutputFileName("condensed-graph", "graphml");
     }
