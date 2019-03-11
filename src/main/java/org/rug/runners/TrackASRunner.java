@@ -57,6 +57,7 @@ public class TrackASRunner extends ToolRunner {
         });
         logger.info("Tracking complete, writing files to output directory...");
         PersistenceWriter.sendTo(SmellCharacteristicsGenerator.class, tracker);
+        PersistenceWriter.sendTo(ComponentAffectedByGenerator.class, tracker);
         PersistenceWriter.sendTo(TrackGraphGenerator.class, tracker);
         PersistenceWriter.sendTo(CondensedGraphGenerator.class, tracker);
         return 0;
