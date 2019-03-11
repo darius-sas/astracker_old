@@ -1,14 +1,14 @@
 #!/bin/bash
 #SBATCH --job-name=track_as_qualitas_corpus
 #SBATCH --mail-type=ALL
-#SBATCH --time=3-20:00:00
+#SBATCH --time=2-01:00:00
 #SBATCH --mail-user=d.d.sas@rug.nl
 #SBATCH --output=job-%j.log
 #SBATCH --partition=regular
 #SBATCH --nodes=1
-#SBATCH --ntasks=4
+#SBATCH --ntasks=3
 #SBATCH --cpus-per-task=24
-#SBATCH --mem=90000
+#SBATCH --mem=64000
 
 module restore trackas
 
@@ -23,4 +23,4 @@ srun ./analyse-system.sh -m /data/p284098/qualitas-corpus/output/arcanOutput -o 
 
 srun ./analyse-system.sh -m /data/p284098/qualitas-corpus/output/arcanOutput -o /data/p284098/qualitas-corpus/output -mP ${projects_task3} -pC -rT
 
-srun ./analyse-system.sh -m /data/p284098/qualitas-corpus/output/arcanOutput -o /data/p284098/qualitas-corpus/output -mP ${projects_task4} -pC -rT
+#srun ./analyse-system.sh -m /data/p284098/qualitas-corpus/output/arcanOutput -o /data/p284098/qualitas-corpus/output -mP ${projects_task4} -pC -rT
