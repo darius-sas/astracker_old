@@ -170,7 +170,7 @@ analyse_multiple(){
         projectLogfile=${OUTPUTDIR}/${project}-outputlog.log
 
         echo "Running analysis on $project"
-        echo "analyse_single -p $project -i $MASTERDIR -o $OUTPUTDIR $RUN_TRACKER $RUN_ARCAN $NON_CONSEC_VERS $SMELL_CHARAC $SIMIL_SCORES $RECOMPILE_TRACKER 2>&1 > ${projectLogfile}"
+        "analyse_single -p $project -i $MASTERDIR -o $OUTPUTDIR $RUN_TRACKER $RUN_ARCAN $NON_CONSEC_VERS $SMELL_CHARAC $SIMIL_SCORES $RECOMPILE_TRACKER 2>&1 > ${projectLogfile}"
     done
 
     echo "Completed with $ERRORS errors."
