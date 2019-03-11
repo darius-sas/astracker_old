@@ -8,7 +8,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=4
 #SBATCH --cpus-per-task=24
-#SBATCH --mem=127000
+#SBATCH --mem=100000
 
 module restore trackas
 
