@@ -7,7 +7,7 @@
 #SBATCH --partition=regular
 #SBATCH --nodes=1
 #SBATCH --ntasks=3
-#SBATCH --cpus-per-task=24
+#SBATCH --cpus-per-task=8
 #SBATCH --mem=64000
 
 module restore trackas
