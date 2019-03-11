@@ -169,10 +169,10 @@ analyse_multiple(){
         project_dir=${MASTERDIR}/${project}
         projectLogfile=${OUTPUTDIR}/${project}-outputlog.log
 
-        echo "Running analysis on $project"
-        "analyse_single -p $project -i $MASTERDIR -o $OUTPUTDIR $RUN_TRACKER $RUN_ARCAN $NON_CONSEC_VERS $SMELL_CHARAC $SIMIL_SCORES $RECOMPILE_TRACKER 2>&1 > ${projectLogfile}"
+        echo "Starting analysis in parallel on $project"
+        analyse_single -p $project -i $MASTERDIR -o $OUTPUTDIR $RUN_TRACKER $RUN_ARCAN $NON_CONSEC_VERS $SMELL_CHARAC $SIMIL_SCORES $RECOMPILE_TRACKER 2>&1 > ${projectLogfile} &
     done
-
+    wait
     echo "Completed with $ERRORS errors."
 }
 
@@ -182,5 +182,15 @@ analyse_failed(){
     analyse_single -p azureus -i /data/p284098/qualitas-corpus/output/arcanOutput -o /data/p284098/qualitas-corpus/output -rT -pC
 
 }
+projects_task1="freemind,jmeter,jung,freecol"
+projects_task2="jstock,junit,lucene,weka"
+projects_task3="ant,antlr,argouml,hibernate"
+projects_task4="jgraph,azureus"
 
-analyse_multiple $@
+analyse_multiple -m /data/p284098/qualitas-corpus/output/arcanOutput -o /data/p284098/qualitas-corpus/output -mP ${projects_task1} -pC -rT
+
+analyse_multiple -m /data/p284098/qualitas-corpus/output/arcanOutput -o /data/p284098/qualitas-corpus/output -mP ${projects_task2} -pC -rT
+
+analyse_multiple -m /data/p284098/qualitas-corpus/output/arcanOutput -o /data/p284098/qualitas-corpus/output -mP ${projects_task3} -pC -rT
+
+analyse_multiple -m /data/p284098/qualitas-corpus/output/arcanOutput -o /data/p284098/qualitas-corpus/output -mP ${projects_task4} -pC -rT
