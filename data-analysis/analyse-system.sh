@@ -173,6 +173,7 @@ analyse_multiple(){
         analyse_single -p $project -i $MASTERDIR -o $OUTPUTDIR $RUN_TRACKER $RUN_ARCAN $NON_CONSEC_VERS $SMELL_CHARAC $SIMIL_SCORES $RECOMPILE_TRACKER 2>&1 > ${projectLogfile} &
     done
     wait
+    echo "Finished projects: ${projects[@]}"
     echo "Completed with $ERRORS errors."
 }
 
