@@ -7,6 +7,7 @@ ANALYSE_NOTEBOOK="/home/p284098/git/trackas/data-analysis/as-history-in-system.R
 init_var(){
     MASTERDIR=""
     PROJECT=""
+    MULTIPLE_PROJECTS=""
     RUN_ARCAN=""
     RUN_TRACKER=""
     RECOMPILE_TRACKER=""
@@ -39,6 +40,9 @@ parse_args(){
         -p | --project )        shift
                                 PROJECT=$1
                                 ;;
+        -mP | --multiple-projects ) shift
+                                MULTIPLE_PROJECTS=$1
+                                ;;
         -rA | --run-arcan )     RUN_ARCAN="-rA"
                                 ;;
         -tNC | --track-non-consec ) NON_CONSEC_VERS="-eNC"
@@ -62,11 +66,11 @@ usage_single() {
 }
 
 usage_multiple(){
-    echo "Usage:\n    analyse_multiple -m <master-directory> -o <out-directory> [-rA|-run-Arcan][-rT|-run-Tracker][-c|--recompile-tracker][-tC|-track-consec-only][-h|--help]"
+    echo "Usage:\n    analyse_multiple -m <master-directory> -o <out-directory> -mP <comma-separated-projects-name-list> [-rA|-run-Arcan][-rT|-run-Tracker][-c|--recompile-tracker][-tC|-track-consec-only][-h|--help]"
 }
 
 trackas(){
-    java -Xmx63000m -jar $TRACKAS_JAR $@
+    java -Xmx31500m -jar $TRACKAS_JAR $@
 }
 
 # Synopsis: similarity_score <input-scores-file> <output-pdf-file>
@@ -137,11 +141,11 @@ analyse_single(){
         SUFFIX="nonConsec"
     fi
 
-    SIMILARITY_SCORES_FILE=$OUTPUTDIR_PROJECT/similarity-scores-$SUFFIX.csv
-    SMELL_CHARACTERISTICS_FILE=$OUTPUTDIR_PROJECT/smell-characteristics-$SUFFIX.csv
+    #SIMILARITY_SCORES_FILE=$OUTPUTDIR_PROJECT/similarity-scores-$SUFFIX.csv
+    #SMELL_CHARACTERISTICS_FILE=$OUTPUTDIR_PROJECT/smell-characteristics-$SUFFIX.csv
 
     #similarity_score $SIMILARITY_SCORES_FILE $OUTPUTDIR_PROJECT/smell-similarity-matrices-$SUFFIX.pdf
-    notebook $PROJECT $SUFFIX $SIMILARITY_SCORES_FILE $SMELL_CHARACTERISTICS_FILE "$OUTPUTDIR_PROJECT/as-history-in-system-$SUFFIX.nb.html"
+    #notebook $PROJECT $SUFFIX $SIMILARITY_SCORES_FILE $SMELL_CHARACTERISTICS_FILE "$OUTPUTDIR_PROJECT/as-history-in-system-$SUFFIX.nb.html"
 }
 
 analyse_multiple(){
@@ -159,15 +163,14 @@ analyse_multiple(){
         recompile_tracker
     fi
 
-    for project_dir in $MASTERDIR/*/
+    IFS="," read -ra projects <<< "${MULTIPLE_PROJECTS}"
+    for project in "${projects[@]}"
     do
-        project_dir=${project_dir%*/} 
-        PROJECT=$(basename $project_dir)
+        project_dir=${MASTERDIR}/${project}
+        projectLogfile=${OUTPUTDIR}/${project}-outputlog.log
 
-        projectLogfile=${OUTPUTDIR}/${PROJECT}-outputlog.log
-
-        echo "Running analysis on $PROJECT"
-        analyse_single -p $PROJECT -i $MASTERDIR -o $OUTPUTDIR $RUN_TRACKER $RUN_ARCAN $NON_CONSEC_VERS $SMELL_CHARAC $SIMIL_SCORES $RECOMPILE_TRACKER 2>&1 > ${projectLogfile}
+        echo "Running analysis on $project"
+        echo "analyse_single -p $project -i $MASTERDIR -o $OUTPUTDIR $RUN_TRACKER $RUN_ARCAN $NON_CONSEC_VERS $SMELL_CHARAC $SIMIL_SCORES $RECOMPILE_TRACKER 2>&1 > ${projectLogfile}"
     done
 
     echo "Completed with $ERRORS errors."
@@ -180,4 +183,4 @@ analyse_failed(){
 
 }
 
-analyse_failed $@
+analyse_multiple $@
