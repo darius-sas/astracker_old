@@ -34,18 +34,19 @@ classifySignal <- function(df, colName){
   df.temp <- df %>% 
     filter(age > 1)  %>% # Filter smells that do not have enough data points
     select_at(c("uniqueSmellID", "project", colName)) %>% 
-    group_by(uniqueSmellID, project) %>%
-    mutate(scaledCol = scale_this(!!sym(colName)) %>% as.vector) %>%
+    group_by(project, uniqueSmellID) %>%
+    mutate(scaledCol = scale_this(!!sym(colName)) %>% as.vector) %>% # Scale to save low, high, med
     summarise(high = max(scaledCol), low = min(scaledCol)) %>%
     mutate(med = (low + high) / 2)
 
   df.temp <- inner_join(df, df.temp, by = c("uniqueSmellID", "project")) %>%
-    group_by(uniqueSmellID) %>%
-    mutate(scaledCol = scale_this(!!sym(colName)) %>% as.vector)
+    group_by(project, uniqueSmellID) %>%
+    mutate(scaledCol = scale_this(!!sym(colName)) %>% as.vector) # Scale again to save whole scaled col
     
   
   df.sig <- df.temp %>% 
-    group_by(uniqueSmellID, project) %>%
+    group_by(project, uniqueSmellID) %>%
+    arrange(project, uniqueSmellID, versionPosition) %>%
     summarise(dtwA = dtw(scaledCol, tConstantA(high, med, low))$normalizedDistance,
               dtwB = dtw(scaledCol, tIncreaseB(high, med, low))$normalizedDistance,
               dtwC = dtw(scaledCol, tIncreaseC(high, med, low))$normalizedDistance,

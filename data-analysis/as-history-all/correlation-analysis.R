@@ -31,12 +31,14 @@ computeCharacteristicCorrelation <- function(df, smellCharcteristicTypes = c("ge
   characteristics <- subset(smellCharacteristics$name, smellCharacteristics$type %in% smellCharcteristicTypes)
   characteristics <- combinations(n=length(characteristics), r=2, v=as.character(characteristics))
   df.corr.all <- data.frame()
-  df.corr <- df %>% filter(age >= minAge) %>% group_by(uniqueSmellID, project)
+  df.corr <- df %>% filter(age >= minAge) %>% 
+    group_by(project, uniqueSmellID) %>%
+    arrange(project, uniqueSmellID, versionPosition)
   for(i in 1:nrow(characteristics)){
     v1 = characteristics[i, 1]
     v2 = characteristics[i, 2]
     df.tmp <- df.corr %>%
-      filter(sd(!!sym(v1)) > 0 & sd(!!sym(v2)) > 0) %>% 
+      filter(sd(!!sym(v1)) > 0 & sd(!!sym(v2)) > 0) %>% # TODO: ORDER BY VERSION POSITION!!!!!
       summarise(estimate = cor.test(!!sym(v1), !!sym(v2), exact = T, method = method)$estimate, 
                 p.value  = cor.test(!!sym(v1), !!sym(v2), exact = T, method = method)$p.value)
     df.tmp$var1<- v1

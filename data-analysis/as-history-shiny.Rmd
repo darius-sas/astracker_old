@@ -25,7 +25,7 @@ source("as-history-all/signal-analysis.R")
 source("as-history-all/correlation-analysis.R")
 source("as-history-all/survival-analysis.R")
 
-options(shiny.maxRequestSize = 60*1024^2)
+options(shiny.maxRequestSize = 100*1024^2)
 ```
 Select an input file and click the "Start analysis" button. Next, after selecting the characteristic which signal to analyse.
 ```{r fileinput, echo=FALSE}
@@ -44,6 +44,13 @@ data.sig <- reactive({
     }
 
    return(classifySignal(df, char))
+})
+
+data.corr <- reactive({
+  df <- data()
+  df.corr <- computeCharacteristicCorrelation(df, c("generic"))
+  df.corr$var <- paste(df.corr$var1, "and", df.corr$var2)
+  return(df.corr)
 })
 ```
 
@@ -112,38 +119,32 @@ renderUI({
       selectInput("characteristic", "Select a signal to classify", signalNames, selected = "size"),
       actionButton("compute", "Compute"))
 })
+ggplotsignaltrends <- function(df.sig, legend.position = "right", palette = "Paired"){
+  df.sig <- df.sig %>% tally() %>% mutate(percentage = n/sum(n) * 100)
+  ggplot(df.sig, aes(x=smellType, y = percentage, group=classification, fill=classification)) + 
+    geom_bar(stat="identity") +
+    scale_fill_brewer(palette = palette) +
+    theme(plot.title = element_text(size=16),
+            legend.position = legend.position)
+}
 renderPlot({
     df.sig <- data.sig()
-    palette = "Dark2"
-    df.sig <- df.sig %>% group_by(classification) %>% add_tally()
-    ggplot(df.sig, aes(x="", group=classification, fill=classification)) + 
-      geom_bar(stat="count", position=position_fill(vjust =1)) + coord_polar("y") +
-      scale_fill_brewer(palette=palette) +
-      theme(plot.title = element_text(size=16),
-            axis.text = element_blank(),
-            axis.ticks = element_blank(),
-            legend.position = "top") + 
-      facet_grid(~smellType) + 
+    df.grp <- df.sig %>% group_by(smellType, classification)
+    ggplotsignaltrends(df.grp) +
       labs(x = "Projects", title = "Trend classification all the projects")
-}, height = 300)
+}, height = 500)
 ```
 
 ```{r signalAnalysis2,echo=FALSE}
 renderPlot({
   df.sig <- data.sig()
-  palette = "Dark2"
-  ggplot(df.sig, aes(x="", group=classification, fill=classification)) + 
-      geom_bar(stat="count", position=position_fill(vjust =1)) + coord_polar("y") +
-      scale_fill_brewer(palette=palette) +
-      theme(plot.title = element_text(size=16),
-            axis.text = element_blank(),
-            axis.ticks = element_blank(),
-            legend.position = "right") + 
-      facet_grid(project ~ smellType) +
-      labs(title = "Trend classification per project",
-           y = "Projects",
-           x = "Smell types") 
-}, height = 1500)
+  df.grp <- df.sig %>% group_by(project, smellType, classification)
+  ggplotsignaltrends(df.grp) + 
+    theme(axis.text.x = element_text(angle = 90)) +
+    facet_grid(~project) +
+    labs(x = "Smell types", y = "Projects",
+         title = "Trend classification per project") 
+}, height = 500)
 ```
 
 The plot below, instead, shows us the correlation between the classifications of the selected signal and the age of that smell.
@@ -194,24 +195,34 @@ renderPlot({
 The correlation between the smell-generic characteristics is depicted below
 ```{r charcorr,echo=FALSE}
 renderPlot({
-  df <- data()
-  df.corr <- computeCharacteristicCorrelation(df, c("generic"))
-  df.corr$var <- paste(df.corr$var1, "and", df.corr$var2)
+  df.corr <- data.corr()
   df.corr.validity <- df.corr %>% mutate(isValid = p.value >= 0.05) %>% group_by(isValid) %>% tally()
-  ggplot(df.corr.validity, aes(isValid, n)) + geom_bar(aes(color = isValid, fill=isValid), stat = "identity")
-  df.corr <- df.corr %>% filter(p.value <= 0.05)
-  ggplot(df.corr, aes(project, estimate, group = var)) + 
-    geom_point(aes(size = age, fill=smellType, color=smellType)) + 
-    facet_wrap(~var) + 
-    theme_grey() +
-    labs(x = "Project",
-         y = "Correlation value",
-         title = "Correlation among characteristics per project and smell type",
-         subtitle = "Each smell is a point")
-}, height = 900)
+  ggplot(df.corr.validity, aes(isValid, n)) + 
+    geom_bar(aes(color = isValid, fill=isValid), stat = "identity") +
+    labs(x = "Validity",
+         y = "Count",
+         title = "Number of statistically significant tests",
+         subtitle = "p = 0.05")
+}, height = 500)
 ```
 
 ```{r charcorr2,echo=FALSE}
+renderPlot({
+  df.corr <- data.corr()
+  df.corr <- df.corr %>% filter(p.value <= 0.05)
+  ggplot(df.corr, aes(project, estimate, group = var)) + 
+      geom_point(aes(size = age, fill=smellType, color=smellType)) + 
+      facet_wrap(~var) + 
+      theme(axis.text.x = element_text(angle = 90, size = 14)) +
+      theme_grey() +
+      labs(x = "Project",
+           y = "Correlation value",
+           title = "Correlation among characteristics per project and smell type (only p < 0.05)",
+           subtitle = "Each smell is a point")
+}, height = 900)
+```
+
+```{r charcorr3,echo=FALSE}
 renderPlot({
   df <- data()
   charact <- characteristic()
