@@ -1,5 +1,5 @@
 ---
-title: "Untitled"
+title: "Smell evolution analysis"
 author: "Darius Sas"
 date: "February 26, 2019"
 output: html_document
@@ -15,16 +15,8 @@ runtime: shiny
 </style>
 
 ```{r setup, include=FALSE}
-library(ggplot2)
-library(gridExtra)
-library(ggpubr)
-library(ggrepel)
-library(reshape2)
 knitr::opts_chunk$set(echo = TRUE)
-source("as-history-all/signal-analysis.R")
-source("as-history-all/correlation-analysis.R")
-source("as-history-all/survival-analysis.R")
-
+source("as-history-all/plotting.R")
 options(shiny.maxRequestSize = 100*1024^2)
 ```
 Select an input file and click the "Start analysis" button. Next, after selecting the characteristic which signal to analyse.
@@ -57,49 +49,20 @@ data.corr <- reactive({
 Some descriptive statistics
 ```{r descriptiveStat, echo=FALSE}
 renderPlot({  
-  df <- data()
-  df.tally <- df %>% group_by(project, versionPosition, smellType) %>% tally()
-  ggplot(df.tally, aes(versionPosition, n, group = smellType, color = smellType)) + 
-    geom_line() + 
-    theme(axis.text.x = element_text(angle=90, hjust = 1)) +
-    facet_wrap(~project, scales = "free") +
-    labs(x = "Version number",
-         y = "Number of smells",
-         title = "Number of smells in the system by smell type")
+  plotSmellCountPerVersion(data())
 }, height=1000)
 
 ```
 
 ```{r descriptiveStat2, echo=FALSE}
-ggboxplots<-function(df.melt){
-  ggplot(df.melt, aes("", value, group = smellType, fill = smellType)) + 
-    geom_boxplot() + 
-    theme(axis.text.x = element_text(angle=90, hjust = 1)) +
-    facet_wrap(project~variable, scales = "free", ncol = length(levels(df.melt$variable)) * 2)
-}
 renderPlot({
-  df <- data()
-  df.melt <- melt(df, c("project", "uniqueSmellID", "versionPosition", "smellType"), 
-                      c("size", "overlapRatio", "pageRankMax", "pageRankAvrg"))
-  ggboxplots(df.melt) + labs(title = "Boxplots of smell-generic characteristics by smell type")
+  plotBoxplotsSmellGenericCharacteristics(data())
 }, height = 1000)
 renderPlot({
-  df <- data()
-  df.melt <- melt(df, c("project", "uniqueSmellID", "versionPosition", "smellType"), 
-                      c("strength", "instabilityGap", "avrgEdgeWeight", "numOfEdges", 
-                        "numOfInheritanceEdges"))
- ggboxplots(df.melt) + labs(title = "Boxplots of smell-specific characteristics by smell type")
+  plotBoxplotsSmellSpecificCharacteristics(data())
 }, height = 1000)
-
 renderPlot({
-  df <- data()
-  df.melt <- df %>% filter(smellType == "cyclicDep") %>%
-    group_by(project, versionPosition, shape) %>%
-    tally()
-  ggplot(df.melt, aes(versionPosition, n, group = shape, color = shape)) + 
-    geom_line() + 
-    theme(axis.text.x = element_text(angle=90, hjust = 1)) +
-    facet_wrap(~project, scales = "free")
+  plotCycleShapesCountPerVersion(data())
 }, height = 1000)
  
 ```
@@ -119,75 +82,29 @@ renderUI({
       selectInput("characteristic", "Select a signal to classify", signalNames, selected = "size"),
       actionButton("compute", "Compute"))
 })
-ggplotsignaltrends <- function(df.sig, legend.position = "right", palette = "Paired"){
-  df.sig <- df.sig %>% tally() %>% mutate(percentage = n/sum(n) * 100)
-  ggplot(df.sig, aes(x=smellType, y = percentage, group=classification, fill=classification)) + 
-    geom_bar(stat="identity") +
-    scale_fill_brewer(palette = palette) +
-    theme(plot.title = element_text(size=16),
-            legend.position = legend.position)
-}
+
 renderPlot({
-    df.sig <- data.sig()
-    df.grp <- df.sig %>% group_by(smellType, classification)
-    ggplotsignaltrends(df.grp) +
-      labs(x = "Projects", title = "Trend classification all the projects")
+    plotSignalTrendCharacteristicAllProjects(df.sig())
 }, height = 500)
 ```
 
 ```{r signalAnalysis2,echo=FALSE}
 renderPlot({
-  df.sig <- data.sig()
-  df.grp <- df.sig %>% group_by(project, smellType, classification)
-  ggplotsignaltrends(df.grp) + 
-    theme(axis.text.x = element_text(angle = 90)) +
-    facet_grid(~project) +
-    labs(x = "Smell types", y = "Projects",
-         title = "Trend classification per project") 
+  plotSignalTrendCharacteristic(data.sig())
 }, height = 500)
 ```
 
 The plot below, instead, shows us the correlation between the classifications of the selected signal and the age of that smell.
 For each test performed, p-values are shown only if less than ```0.05```.
 ```{r iccor, echo=FALSE}
-
 renderPlot({
-    df.sig <- data.sig()
-    
-    df.icc <- data.frame()
-    for (smellType in unique(df.sig$smellType)) {
-      df.smell <- df.sig[df.sig$smellType == smellType,]
-      icc <- computeCorrelMatrix(df.smell)
-      icc$smellType <- smellType
-      df.icc <- rbind(df.icc, icc)
-    }
-    ggplot(df.icc, aes(type, ICC), group=smellType, color=smellType, fill=smellType) + 
-      geom_point(aes(size = p, color=smellType, fill=smellType), alpha=0.9) +
-      geom_label_repel(aes(label = ifelse(p<=0.05, as.character(round(p, digits = 3)), "")),
-                       box.padding   = 0.35, 
-                       point.padding = 0.5,
-                       segment.color = 'grey50') +
-      theme_grey() +
-      labs(x = "Correlation factor",
-           y = "Correlation test",
-           title = paste("ICC correlation analysis of", input$characteristic, "with signal classification"))
-      
-  })
-
+    plotSignalTrendCorrelationWithAge(data.sig())
+})
 ```
 
 ```{r charatrend, echo=FALSE}
 renderPlot({
-  df <- data()
-  charact <- characteristic()
-  ggplot(df, aes(versionPosition, !!sym(charact), group = uniqueSmellID, color = smellType)) + 
-    geom_line() +  
-    scale_y_sqrt() +
-    facet_wrap(~project, scales = "free") +
-    theme_grey() +
-    labs(x = "Version Number",
-         y = charact,
-         title = paste("Evolution of", charact, " for each smell and for each project"))
+  plotCharacteristicEvolutionTrend(data(), characteristic())
 }, height = 900)
 ```
 
@@ -195,48 +112,13 @@ renderPlot({
 The correlation between the smell-generic characteristics is depicted below
 ```{r charcorr,echo=FALSE}
 renderPlot({
-  df.corr <- data.corr()
-  df.corr.validity <- df.corr %>% mutate(isValid = p.value >= 0.05) %>% group_by(isValid) %>% tally()
-  ggplot(df.corr.validity, aes(isValid, n)) + 
-    geom_bar(aes(color = isValid, fill=isValid), stat = "identity") +
-    labs(x = "Validity",
-         y = "Count",
-         title = "Number of statistically significant tests",
-         subtitle = "p = 0.05")
-}, height = 500)
-```
-
-```{r charcorr2,echo=FALSE}
-renderPlot({
-  df.corr <- data.corr()
-  df.corr <- df.corr %>% filter(p.value <= 0.05)
-  ggplot(df.corr, aes(project, estimate, group = var)) + 
-      geom_point(aes(size = age, fill=smellType, color=smellType)) + 
-      facet_wrap(~var) + 
-      theme(axis.text.x = element_text(angle = 90, size = 14)) +
-      theme_grey() +
-      labs(x = "Project",
-           y = "Correlation value",
-           title = "Correlation among characteristics per project and smell type (only p < 0.05)",
-           subtitle = "Each smell is a point")
-}, height = 900)
+  plotCharacteristicCorrelationBoth(data.corr())
+}, height = 1000)
 ```
 
 ```{r charcorr3,echo=FALSE}
 renderPlot({
-  df <- data()
-  charact <- characteristic()
-  ggplot(df, aes(age, !!sym(charact), group = smellType, colour = smellType)) +
-    geom_point() +
-    geom_jitter(width = 0.05, height = 0.05) +
-    scale_x_continuous(breaks = pretty) +
-    scale_y_continuous(breaks = pretty) +
-    facet_wrap(~project, scales = "free_x") + 
-    theme_grey() +
-    labs(x = "Version number",
-         y = paste(charact, "value"),
-         title = paste("Distribution of", charact, "by age and smell type"),
-         subtitle = "Each smell is a point")
+  plotCharacteristicDistribution(data(), characteristic())
 }, height = 900)
 ```
 
@@ -245,48 +127,21 @@ renderPlot({
 This analysis computes the survival probability for each smell type in each project.
 ```{r survival, echo=FALSE}
 renderPlot({
-  df <- data()
-  surv <- computeSurvivalAnalysis(df)
-  ggsurvplot(surv$model, data = surv$data,
-                   facet.by = "project",
-                   short.panel.labs = T, ncol = 3, scales = "free",
-                   surv.median.line = "v") +
-    theme_grey() + 
-    labs(title = "Survival analysis by project and smell type")
+  plotSurvivalProbabilities(data())
 }, height = 900)
 ```
 
 Whereas the following plot shows the age density for each project
 ```{r agedensity, echo=FALSE}
 renderPlot({
-  df <- data()
-  df.unique <- df[!duplicated(df[,c("project", "uniqueSmellID")]), c("project", "uniqueSmellID", "age", "smellType")]
-  ggplot(df.unique, aes(age, group = smellType, colour = smellType, fill = smellType)) +
-    geom_density(alpha=0.2)+
-    geom_vline(data = filter(df.unique, smellType == "cyclicDep"), aes(xintercept=median(age), color=smellType), linetype="dashed", size=1) +
-    geom_vline(data = filter(df.unique, smellType == "hubLikeDep"), aes(xintercept=median(age), color=smellType), linetype="dashed", size=1) +
-    geom_vline(data = filter(df.unique, smellType == "unstableDep"), aes(xintercept=median(age), color=smellType), linetype="dashed", size=1) +
-    scale_x_continuous(breaks = pretty) +
-    scale_y_continuous(breaks = pretty) +
-    facet_wrap(~project, scales = "free") +
-    theme_grey() +
-      labs(x = "Age",
-           y = "Smell density",
-           title = "Age density distribution by smell type and project")
+  plotAgeDensity(data())
 }, height = 900)
 ```
 
 And the lifetime of each smell detected in the system
 ```{r smelllifetime, echo=FALSE}
 renderPlot({
-  df <- data()
-  ggplot(df, aes(versionPosition, uniqueSmellID, group = uniqueSmellID, color = smellType)) + 
-    geom_line() +  
-    facet_wrap(~project, scales = "free") +
-    theme_grey() +
-    labs(x = "Version Number",
-         y = "Unique Smell ID",
-         title = "Smell lifetime per project and smell type")
+  plotSmellLifetimeLines(data())
 }, height = 900)
 ```
 
