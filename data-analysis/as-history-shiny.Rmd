@@ -41,7 +41,6 @@ data.sig <- reactive({
 data.corr <- reactive({
   df <- data()
   df.corr <- computeCharacteristicCorrelation(df, c("generic"))
-  df.corr$var <- paste(df.corr$var1, "and", df.corr$var2)
   return(df.corr)
 })
 ```
@@ -90,7 +89,7 @@ renderPlot({
 
 ```{r signalAnalysis2,echo=FALSE}
 renderPlot({
-  plotSignalTrendCharacteristic(data.sig())
+  plotSignalTrendCharacteristic(data.sig(), characteristic())
 }, height = 500)
 ```
 
@@ -98,7 +97,7 @@ The plot below, instead, shows us the correlation between the classifications of
 For each test performed, p-values are shown only if less than ```0.05```.
 ```{r iccor, echo=FALSE}
 renderPlot({
-    plotSignalTrendCorrelationWithAge(data.sig())
+    plotSignalTrendCorrelationWithAge(data.sig(), characteristic)
 })
 ```
 

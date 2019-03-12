@@ -80,28 +80,31 @@ ggplotsignaltrends <- function(df.sig, legend.position = "right", palette = "Pai
 
 #' Barplot of the trend classification for all projects combined
 #' @param df.sig Data frame containing the signal classification as returned by classifySignal()
-plotSignalTrendCharacteristicAllProjects <- function(df.sig){
+plotSignalTrendCharacteristicAllProjects <- function(df.sig, characteristic = ""){
   df.grp <- df.sig %>% group_by(smellType, classification)
   ggplotsignaltrends(df.grp) +
-    labs(x = "Smell types", y = "Percentage", title = "Trend classification all the projects")
+    labs(x = "Smell types", y = "Percentage", 
+         title = "Trend classification all the projects", 
+         subtitle = characteristic)
 }
 
 
 #' Barplot of the trend classification for each project
 #' @param df.sig Data frame containing the signal classification as returned by classifySignal()
-plotSignalTrendCharacteristic <- function(df.sig){
+plotSignalTrendCharacteristic <- function(df.sig, characteristic = ""){
   df.grp <- df.sig %>% group_by(project, smellType, classification)
   ggplotsignaltrends(df.grp) + 
     theme(axis.text.x = element_text(angle = 90)) +
     facet_grid(~project) +
     labs(x = "Smell types", y = "Percentage",
-         title = "Trend classification per project") 
+         title = "Trend classification per project",
+         subtitle = characteristic) 
 }
 
 
 #' Scatterplot of different correlation statistics
 #' @param df.sig Data frame containing the signal classification as returned by classifySignal()
-plotSignalTrendCorrelationWithAge <- function(df.sig){
+plotSignalTrendCorrelationWithAge <- function(df.sig, characteristic){
   df.icc <- data.frame()
   for (smellType in unique(df.sig$smellType)) {
     df.smell <- df.sig[df.sig$smellType == smellType,]
@@ -118,7 +121,7 @@ plotSignalTrendCorrelationWithAge <- function(df.sig){
     theme_grey() +
     labs(x = "Correlation factor",
          y = "Correlation test",
-         title = paste("ICC correlation analysis of", input$characteristic, "with signal classification"))
+         title = paste("ICC correlation analysis of", characteristic, "with signal classification"))
 }
 
 
@@ -170,8 +173,8 @@ plotCharacteristicCorrelationEstimates <- function(df.corr){
 
 #' Plots both validity scores and correlation scores.
 plotCharacteristicCorrelationBoth <- function(df.corr){
-  gridExtra::grid.arrange(plotCharacteristicCorrelationValidity(),
-                          plotCharacteristicCorrelationEstimates())
+  gridExtra::grid.arrange(plotCharacteristicCorrelationValidity(df.corr),
+                          plotCharacteristicCorrelationEstimates(df.corr))
 }
 
 
@@ -242,8 +245,54 @@ plotSmellLifetimeLines <- function(df){
 
 ## SAVING TO FILE
 
-saveAllPlotsToFiles <- function(dir = "analysis-plots", format = "png"){
+saveAllPlotsToFiles <- function(dataset.file, dir = "plots", format = "png"){
+  df <- read.csv(dataset.file)
   
+  dest <- file.path(dir)
+  dir.create(dest, showWarnings = FALSE)
+
+  
+  # PRINT DESCRIPTIVE STATS
+  plotSmellCountPerVersion(df)
+  ggsave(paste("descriptive-smell-count.", format, sep = ""), path = dest, width = 20, height = 16)
+  
+  plotBoxplotsSmellGenericCharacteristics(df)
+  ggsave(paste("descriptive-generic-charact.", format, sep = ""), path = dest, width = 20, height = 16)
+  
+  plotBoxplotsSmellSpecificCharacteristics(df)
+  ggsave(paste("descriptive-specific-charact.", format, sep = ""), path = dest, width = 20, height = 16)
+  
+  plotCycleShapesCountPerVersion(df)
+  ggsave(paste("descriptive-shape-count.", format, sep = ""), path = dest, width = 20, height = 16)
+  
+  
+  # PRINT RQ2
+  plotSurvivalProbabilities(df)
+  ggsave(paste("survival-probabilities.", format, sep = ""), path = dest, width = 20, height = 16)
+  
+  plotAgeDensity(df)
+  ggsave(paste("survival-age-density.", format, sep = ""), path = dest, width = 20, height = 16)
+  
+  
+  # PRINT RQ1 (LONGEST, LEAVE FOR LAST)
+  corrSmellTypes = c("cyclicDep", "unstableDep")
+  for (smellType in corrSmellTypes) {
+    df.corr <- computeCharacteristicCorrelation(df, c("generic", smellType))
+    plotCharacteristicCorrelationBoth(df.corr)
+    ggsave(paste("correl-generic-", smellType, ".", format, sep = ""), path = dest, width = 15, height = 12)
+  }
+  
+  return()
+  
+  for(characteristic in unique(classifiableSignals$signal)){
+    df.sig <- classifySignal(df, characteristic)
+    plotSignalTrendCharacteristic(df.sig, characteristic)
+    ggsave(paste("signal-trend-", characteristic, "-individual.", format, sep = ""), path = dest)
+    plotSignalTrendCharacteristicAllProjects(df.sig, characteristic)
+    ggsave(paste("signal-trend-", characteristic, "-all-projects.", format, sep = ""), path = dest)
+    plotSignalTrendCorrelationWithAge(df.sig, characteristic)
+    ggsave(paste("signal-corr-", characteristic, "-age.", format, sep = ""), path = dest)
+  }
 }
 
 

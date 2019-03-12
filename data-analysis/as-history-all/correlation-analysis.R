@@ -23,8 +23,8 @@ computeCorrelMatrix <- function(df.sig){
 
 #' Computes a correlation matrix using given the smell-generic characteristics.
 #' @param df the dataframe to use
-#' @param smellTypes an array of smell characteristic types to use for the correlation analysis. The expected values are of 
-#'                   maximum length of 2, in which case one of the values must be "generic".
+#' @param smellCharcteristicTypes an array of smell characteristic types to use for the correlation analysis.
+#'        The expected values are of maximum length of 2, in which case one of the values must be "generic".
 #' @param minAge the minimun age to use for the analysis
 #' @param method the correlation method name to pass to corr.test
 computeCharacteristicCorrelation <- function(df, smellCharcteristicTypes = c("generic"), minAge = 3, method = "pearson"){
@@ -38,7 +38,8 @@ computeCharacteristicCorrelation <- function(df, smellCharcteristicTypes = c("ge
     v1 = characteristics[i, 1]
     v2 = characteristics[i, 2]
     df.tmp <- df.corr %>%
-      filter(sd(!!sym(v1)) > 0 & sd(!!sym(v2)) > 0) %>% # TODO: ORDER BY VERSION POSITION!!!!!
+      filter(sd(!!sym(v1)) > 0 & sd(!!sym(v2)) > 0) %>%
+      arrange(project, uniqueSmellID, versionPosition) %>%
       summarise(estimate = cor.test(!!sym(v1), !!sym(v2), exact = T, method = method)$estimate, 
                 p.value  = cor.test(!!sym(v1), !!sym(v2), exact = T, method = method)$p.value)
     df.tmp$var1<- v1
@@ -49,6 +50,7 @@ computeCharacteristicCorrelation <- function(df, smellCharcteristicTypes = c("ge
   df.corr.all <- inner_join(df.corr.all, df[!duplicated(df[,c("uniqueSmellID", "project")]), 
                                                    c("uniqueSmellID", "project", "smellType", "age")], 
                                    by = c("uniqueSmellID", "project"))
+  df.corr.all$var <- paste(df.corr.all$var1, "and", df.corr.all$var2)
   return(df.corr.all)
   #df.corr.validity <- df.corr %>% mutate(isValid = p.value >= 0.05) %>% group_by(isValid) %>% tally()
   #ggplot(df.corr.validity, aes(isValid, n)) + geom_bar(aes(color = isValid, fill=isValid), stat = "identity")
