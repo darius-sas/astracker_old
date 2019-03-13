@@ -40,6 +40,14 @@ plotBoxplotsSmellGenericCharacteristics <- function(df){
   ggboxplots(df.melt) + labs(title = "Boxplots of smell-generic characteristics by smell type")
 }
 
+plotBoxplotsCharacteristics <- function(df, characteristic, scales = "fixed"){
+  df.melt <- melt(df, c("project", "uniqueSmellID", "versionPosition", "smellType"), characteristic)
+  ggplot(df.melt, aes("", value, group = smellType, fill = smellType)) + 
+    geom_boxplot() + 
+    theme(axis.text.x = element_text(angle=90, hjust = 1)) +
+    facet_wrap(~project, scales=scales) + 
+    labs(title = paste("Boxplots of", characteristic, "by project"))
+}
 
 #' Boxplots the values of each smell-specific characteristic
 #' @param df a data frame containing the data
@@ -282,8 +290,7 @@ saveAllPlotsToFiles <- function(dataset.file, dir = "plots", format = "png"){
     ggsave(paste("correl-generic-", smellType, ".", format, sep = ""), path = dest, width = 15, height = 12)
   }
   
-  return()
-  
+
   for(characteristic in unique(classifiableSignals$signal)){
     df.sig <- classifySignal(df, characteristic)
     plotSignalTrendCharacteristic(df.sig, characteristic)
@@ -292,6 +299,8 @@ saveAllPlotsToFiles <- function(dataset.file, dir = "plots", format = "png"){
     ggsave(paste("signal-trend-", characteristic, "-all-projects.", format, sep = ""), path = dest)
     plotSignalTrendCorrelationWithAge(df.sig, characteristic)
     ggsave(paste("signal-corr-", characteristic, "-age.", format, sep = ""), path = dest)
+    plotCharacteristicEvolutionTrend(df, characteristic)
+    ggsave(paste("signal-evol-", characteristic, ".", format, sep=""), path = dest)
   }
 }
 
