@@ -17,8 +17,8 @@ computeSurvivalAnalysis<- function(df){
   
   df.dup <- df[!duplicated(df[, c("project", "uniqueSmellID")]), c("project", "uniqueSmellID", "smellType", "age", "versionPosition")]
   df.surv <- left_join(df.smel, df.dup, by=c("project", "uniqueSmellID"))
-  
-  fitmodel = survfit(Surv(time = age, event = presentInLastVersion) ~ smellType + project, data = df.surv)
+  # We need to negate presentInLastVersion because event is whether the smell is 'dead' in the last version
+  fitmodel = survfit(Surv(time = age, event = !presentInLastVersion) ~ smellType + project, data = df.surv)
   
   return(list(model=fitmodel, data = df.surv))
 }
