@@ -46,6 +46,7 @@ classifySignal <- function(df, colName){
   
   df.sig <- df.temp %>% 
     group_by(project, uniqueSmellID) %>%
+    filter(!is.na(scaledCol) & !is.na(med)) %>%
     arrange(project, uniqueSmellID, versionPosition) %>%
     summarise(dtwA = dtw(scaledCol, tConstantA(high, med, low))$normalizedDistance,
               dtwB = dtw(scaledCol, tIncreaseB(high, med, low))$normalizedDistance,

@@ -282,9 +282,8 @@ saveAllPlotsToFiles <- function(dataset.file, dir = "plots", format = "png"){
     ggsave(paste("correl-generic-", smellType, ".", format, sep = ""), path = dest, width = 15, height = 12)
   }
   
-  return()
-  
   for(characteristic in unique(classifiableSignals$signal)){
+    print(characteristic)
     df.sig <- classifySignal(df, characteristic)
     plotSignalTrendCharacteristic(df.sig, characteristic)
     ggsave(paste("signal-trend-", characteristic, "-individual.", format, sep = ""), path = dest)
