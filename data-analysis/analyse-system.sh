@@ -177,21 +177,32 @@ analyse_multiple(){
     echo "Completed with $ERRORS errors."
 }
 
-analyse_failed(){
-    
-    echo "Analysing azureus..."
-    analyse_single -p azureus -i /data/p284098/qualitas-corpus/output/arcanOutput -o /data/p284098/qualitas-corpus/output -rT -pC
+analyse_all_no_arcan(){
+    projects_task1="freemind,jmeter,jung,freecol"
+    projects_task2="jstock,junit,lucene,weka"
+    projects_task3="ant,antlr,argouml,hibernate"
+    projects_task4="jgraph,azureus"
 
+    analyse_multiple -m /data/p284098/qualitas-corpus/output/arcanOutput -o /data/p284098/qualitas-corpus/output -mP ${projects_task1} -pC -rT
+
+    analyse_multiple -m /data/p284098/qualitas-corpus/output/arcanOutput -o /data/p284098/qualitas-corpus/output -mP ${projects_task2} -pC -rT
+
+    analyse_multiple -m /data/p284098/qualitas-corpus/output/arcanOutput -o /data/p284098/qualitas-corpus/output -mP ${projects_task3} -pC -rT
+
+    analyse_multiple -m /data/p284098/qualitas-corpus/output/arcanOutput -o /data/p284098/qualitas-corpus/output -mP ${projects_task4} -pC -rT
 }
-projects_task1="freemind,jmeter,jung,freecol"
-projects_task2="jstock,junit,lucene,weka"
-projects_task3="ant,antlr,argouml,hibernate"
-projects_task4="jgraph,azureus"
 
-analyse_multiple -m /data/p284098/qualitas-corpus/output/arcanOutput -o /data/p284098/qualitas-corpus/output -mP ${projects_task1} -pC -rT
+analyse_all_sizes(){
 
-analyse_multiple -m /data/p284098/qualitas-corpus/output/arcanOutput -o /data/p284098/qualitas-corpus/output -mP ${projects_task2} -pC -rT
+    MASTERDIR=$1
+    OUTDIR=$2
 
-analyse_multiple -m /data/p284098/qualitas-corpus/output/arcanOutput -o /data/p284098/qualitas-corpus/output -mP ${projects_task3} -pC -rT
+    for project in ${MASTERDIR}/*/
+    do
+        project=${project%*/}
+        project_dir=${MASTERDIR}/${project}
 
-analyse_multiple -m /data/p284098/qualitas-corpus/output/arcanOutput -o /data/p284098/qualitas-corpus/output -mP ${projects_task4} -pC -rT
+        echo java -jar target/trackas/trackas-0.5.jar -p ${project} -i ${MASTERDIR} -o ${OUTDIR} -dRT -rS
+
+    done
+}
