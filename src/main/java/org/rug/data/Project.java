@@ -27,6 +27,7 @@ public class Project {
     private String name;
     private boolean isFolderOfFolderOfJars;
     private boolean hasJars;
+    private boolean hasGraphMLs;
     private SortedMap<String, Triple<Path, Path, Graph>> versionedSystem;
     private Map<String, Integer> versionsIndexes = new HashMap<>();
 
@@ -35,6 +36,7 @@ public class Project {
         this.name = name;
         this.isFolderOfFolderOfJars = false;
         this.hasJars = false;
+        this.hasGraphMLs = false;
     }
 
     /**
@@ -93,7 +95,7 @@ public class Project {
                 inputTriple.setB(graphmlFile);
             });
         }
-
+        hasGraphMLs = true;
     }
 
     /**
@@ -131,6 +133,22 @@ public class Project {
      */
     public boolean isFolderOfFoldersOfJarsProject() {
         return isFolderOfFolderOfJars;
+    }
+
+    /**
+     * Indicates whether any graphML file has been added to this project.
+     * @return true if there are graphML files in the project, false otherwise
+     */
+    public boolean hasGraphMLs() {
+        return hasGraphMLs;
+    }
+
+    /**
+     * Indicates whether any JAR file has been added to this project.
+     * @return true if there are JAR files in the project, false otherwise
+     */
+    public boolean hasJars(){
+        return hasJars;
     }
 
     /**

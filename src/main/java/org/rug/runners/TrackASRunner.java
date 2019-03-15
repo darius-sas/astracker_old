@@ -1,22 +1,16 @@
 package org.rug.runners;
 
-import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.rug.data.ArcanDependencyGraphParser;
 import org.rug.data.Project;
 import org.rug.data.characteristics.ComponentCharacteristicSet;
-import org.rug.data.characteristics.IComponentCharacteristic;
 import org.rug.data.smells.ArchitecturalSmell;
-import org.rug.data.util.Triple;
 import org.rug.persistence.*;
 import org.rug.tracker.ASmellTracker;
-import org.rug.tracker.JaccardSimilarityLinker;
 import org.rug.tracker.SimpleNameJaccardSimilarityLinker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Path;
 import java.util.List;
-import java.util.SortedMap;
 
 /**
  * Models the execution of the tracking tool.
@@ -55,7 +49,7 @@ public class TrackASRunner extends ToolRunner {
             logger.info("Linked {} smells out of a total of {} in this version.", tracker.getScorer().bestMatch().size(), smells.size());
             PersistenceWriter.sendTo(SmellSimilarityDataGenerator.class, tracker);
         });
-        logger.info("Tracking complete, writing files to output directory...");
+        logger.info("Tracking complete, processing data...");
         PersistenceWriter.sendTo(SmellCharacteristicsGenerator.class, tracker);
         PersistenceWriter.sendTo(ComponentAffectedByGenerator.class, tracker);
         PersistenceWriter.sendTo(TrackGraphGenerator.class, tracker);

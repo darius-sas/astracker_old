@@ -6,6 +6,7 @@ import org.rug.args.InputDirManager;
 import org.rug.data.Project;
 import org.rug.persistence.*;
 import org.rug.runners.ArcanRunner;
+import org.rug.runners.ProjecSizeRunner;
 import org.rug.runners.ToolRunner;
 import org.rug.runners.TrackASRunner;
 import org.slf4j.Logger;
@@ -58,18 +59,25 @@ public class Main {
             }
             project.addGraphMLs(args.getHomeProjectDirectory());
 
-            runners.add(new TrackASRunner(project, args.trackNonConsecutiveVersions));
+            if (args.runTracker()) {
+                runners.add(new TrackASRunner(project, args.trackNonConsecutiveVersions));
 
-            if (args.similarityScores)
-                PersistenceWriter.register(new SmellSimilarityDataGenerator(args.getSimilarityScoreFile()));
+                if (args.similarityScores)
+                    PersistenceWriter.register(new SmellSimilarityDataGenerator(args.getSimilarityScoreFile()));
 
-            if (args.smellCharacteristics) {
-                PersistenceWriter.register(new SmellCharacteristicsGenerator(args.getSmellCharacteristicsFile(), project));
-                PersistenceWriter.register(new ComponentAffectedByGenerator(args.getAffectedComponentsFile()));
+                if (args.smellCharacteristics) {
+                    PersistenceWriter.register(new SmellCharacteristicsGenerator(args.getSmellCharacteristicsFile(), project));
+                    PersistenceWriter.register(new ComponentAffectedByGenerator(args.getAffectedComponentsFile()));
+                }
+
+                PersistenceWriter.register(new CondensedGraphGenerator(args.getCondensedGraphFile()));
+                PersistenceWriter.register(new TrackGraphGenerator(args.getTrackGraphFileName()));
             }
 
-            PersistenceWriter.register(new CondensedGraphGenerator(args.getCondensedGraphFile()));
-            PersistenceWriter.register(new TrackGraphGenerator(args.getTrackGraphFileName()));
+            if (args.runProjectSizes()) {
+                runners.add(new ProjecSizeRunner(project));
+                PersistenceWriter.register(new ProjectSizeGenerator(args.getProjectSizesFile()));
+            }
 
             boolean errorsOccurred = false;
             for (var r : runners) {
@@ -80,6 +88,7 @@ public class Main {
                 }
             }
             if (!errorsOccurred) {
+                logger.info("Writing to output directory...");
                 PersistenceWriter.writeAllCSV();
                 PersistenceWriter.writeAllGraphs();
             } else {

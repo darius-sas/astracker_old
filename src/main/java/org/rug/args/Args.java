@@ -31,6 +31,12 @@ public class Args {
     @Parameter(names = {"-runArcan", "-rA"}, description = "Analyse files with Arcan. This parameter shall point to the command to the JAR containing Arcan, without any parameters. Ex. ./path/to/Arcan.jar.")
     private String runArcan = null;
 
+    @Parameter(names = {"-doNotRunTracker", "-dRT"}, description = "Do not execute the tracking algorithm runner.")
+    private boolean disableTrackerRunner = false;
+
+    @Parameter(names = {"-runProjectSize", "-rS"}, description = "Whether to run the project size runner.")
+    private boolean runProjectSizes = false;
+
     @Parameter(names = {"-showArcanOutput", "-sAO"}, description = "Whether or not to show Arcan's output to the console.")
     public boolean showArcanOutput = false;
 
@@ -49,6 +55,10 @@ public class Args {
     public boolean runArcan(){
         return runArcan != null;
     }
+
+    public boolean runTracker(){ return !disableTrackerRunner; }
+
+    public boolean runProjectSizes(){ return runProjectSizes; }
 
     public String getArcanJarFile(){
         return new File(runArcan).getAbsolutePath();
@@ -73,6 +83,8 @@ public class Args {
     public String getTrackGraphFileName(){
         return getOutputFileName("track-graph", "graphml");
     }
+
+    public String getProjectSizesFile(){return getOutputFileName("project-sizes", "csv");}
 
     private String getOutputFileName(String name, String format){
         String fileName = String.format("%s-%s.%s", name, (!trackNonConsecutiveVersions ? "consecOnly" : "nonConsec"), format);
