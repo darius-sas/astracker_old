@@ -35,5 +35,12 @@ pattern <- ifelse(consecOnly,"-consecOnly.csv", "-nonConsec.csv")
 sc.dataset = file.path(args[2], "dataset.csv")
 ps.dataset = file.path(args[2], "project-sizes.csv")
 
-write.csv(merge.dataset(args[1], paste("*smell-characteristics", pattern, sep="")), file = sc.dataset, row.names = F)
-write.csv(merge.dataset(args[1], paste("*project-sizes", pattern, sep="")), file = ps.dataset, row.names = F)
+df <- merge.dataset(args[1], paste("*smell-characteristics", pattern, sep=""))
+df.sizes <- merge.dataset(args[1], paste("*project-sizes", pattern, sep=""))
+df <- left_join(df, df.sizes, by = c("project", "version"))
+df <- df %>% mutate(pageRankWeighted = ifelse(affectedComponentType=="package", 
+                                              pageRankMax * nPackages, 
+                                              pageRankMax * nClasses))
+
+write.csv(df, file = sc.dataset, row.names = F)
+write.csv(df.sizes, file = ps.dataset, row.names = F)
