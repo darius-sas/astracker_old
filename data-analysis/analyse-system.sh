@@ -199,10 +199,10 @@ analyse_all_sizes(){
 
     for project in ${MASTERDIR}/*/
     do
-        project=${project%*/}
+        project=$(basename ${project%*/})
         project_dir=${MASTERDIR}/${project}
 
-        echo java -jar target/trackas/trackas-0.5.jar -p ${project} -i ${MASTERDIR} -o ${OUTDIR} -dRT -rS
+        java -jar target/trackas/trackas-0.5.jar -p ${project} -i ${MASTERDIR} -o ${OUTDIR} -dRT -rS
 
     done
 }
