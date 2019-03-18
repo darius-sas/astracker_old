@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.DoublePredicate;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -69,6 +70,26 @@ class SmellCharacteristicsSetTest {
             resultB = resultB || Double.parseDouble(numOfInher.visit(cd)) > 0;
         }
         assertTrue(resultB);
+    }
+
+    @Test
+    void testOverlapRatio(){
+        var overlapCD = new OverlapRatio(ArchitecturalSmell.Type.CD);
+        var overlapUD = new OverlapRatio(ArchitecturalSmell.Type.UD);
+        var overlapHL = new OverlapRatio(ArchitecturalSmell.Type.HL);
+        var overlapAll= new OverlapRatio(null);
+
+        var as = project.getArchitecturalSmellsIn("3.4");
+        for (ArchitecturalSmell a : as){
+            var olR = Double.parseDouble(a.accept(overlapAll));
+            var olC = Double.parseDouble(a.accept(overlapCD));
+            var olH = Double.parseDouble(a.accept(overlapHL));
+            var olU = Double.parseDouble(a.accept(overlapUD));
+            assertTrue(olR >= olC);
+            assertTrue(olR >= olH);
+            assertTrue(olR >= olU);
+            System.out.printf("Smell: %s\tOlR: %.2f\tOlC: %.2f\tOlH: %.2f\tOlU: %.2f\n", a, olR, olC, olH, olU);
+        }
     }
 
 }

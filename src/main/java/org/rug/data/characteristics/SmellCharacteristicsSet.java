@@ -1,6 +1,7 @@
 package org.rug.data.characteristics;
 
 import org.rug.data.characteristics.smells.*;
+import org.rug.data.smells.ArchitecturalSmell;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -44,6 +45,9 @@ public abstract class SmellCharacteristicsSet {
         characteristics.add(new Size());
         characteristics.add(new AverageNumNOfChanges());
         characteristics.add(new OverlapRatio());
+        characteristics.add(new OverlapRatio(ArchitecturalSmell.Type.CD));
+        characteristics.add(new OverlapRatio(ArchitecturalSmell.Type.HL));
+        characteristics.add(new OverlapRatio(ArchitecturalSmell.Type.UD));
         characteristics.add(new PageRank());
         characteristics.add(new PageRank("pageRankAvrg", x -> x.average().getAsDouble()));
         characteristics.add(new NumberOfEdges());
