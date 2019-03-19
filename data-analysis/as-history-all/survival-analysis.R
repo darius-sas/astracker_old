@@ -3,7 +3,7 @@ library(survminer)
 library(dplyr)
 
 
-computeSurvivalAnalysis<- function(df){
+computeSurvivalAnalysis<- function(df, strata = "smellType"){
   df.proj <- df %>% group_by(project) %>%
     summarise(firstVersion = version[which.min(versionPosition)], 
               lastVersion = version[which.max(versionPosition)],
@@ -15,10 +15,13 @@ computeSurvivalAnalysis<- function(df){
   df.smel <- left_join(df.smel, df.proj[,c("project","n.versions")], by="project")
   df.smel$presentInLastVersion <- df.smel$lastVersion == df.smel$n.versions
   
-  df.dup <- df[!duplicated(df[, c("project", "uniqueSmellID")]), c("project", "uniqueSmellID", "smellType", "age", "versionPosition")]
+  df.dup <- df[!duplicated(df[, c("project", "uniqueSmellID")]), c("project", "uniqueSmellID", strata, "age", "versionPosition")]
   df.surv <- left_join(df.smel, df.dup, by=c("project", "uniqueSmellID"))
   # We need to negate presentInLastVersion because event is whether the smell is 'dead' in the last version
-  fitmodel = survfit(Surv(time = age, event = !presentInLastVersion) ~ smellType + project, data = df.surv)
+  #surv <- Surv(time = age, event = !presentInLastVersion)
+  model.formula <- as.formula(paste("Surv(time = age, event = !presentInLastVersion) ~", strata, "+ project"))
+  fitmodel = survfit(model.formula, data = df.surv)
+  fitmodel$call$formula <- model.formula
   
   return(list(model=fitmodel, data = df.surv))
 }

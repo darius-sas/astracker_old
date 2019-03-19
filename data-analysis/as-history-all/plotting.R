@@ -168,10 +168,9 @@ plotCharacteristicCorrelationValidity <- function(df.corr){
 plotCharacteristicCorrelationEstimates <- function(df.corr){
   df.corr <- df.corr %>% filter(p.value <= 0.05)
   ggplot(df.corr, aes(project, estimate, group = var)) + 
-    geom_point(aes(size = age, fill=smellType, color=smellType)) + 
-    facet_wrap(~var) + 
-    theme(axis.text.x = element_text(angle = 90, size = 14)) +
-    theme_grey() +
+    geom_jitter(aes(fill=smellType, color=smellType), height = 0.1, width = 0.2) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), legend.position = "none") +
+    facet_grid(var~smellType, scales = "fixed") + 
     labs(x = "Project",
          y = "Correlation value",
          title = "Correlation among characteristics per project and smell type (only p < 0.05)",
@@ -208,8 +207,8 @@ plotCharacteristicDistribution <- function(df, characteristic){
 
 #' Plot survival probabilities using the Kaplan-Meier statistic.
 #' @param df the data frame containing the raw data
-plotSurvivalProbabilities <- function(df){
-  surv <- computeSurvivalAnalysis(df)
+plotSurvivalProbabilities <- function(df, strata = "smellType"){
+  surv <- computeSurvivalAnalysis(df, strata)
   ggsurvplot(surv$model, data = surv$data,
              facet.by = "project",
              short.panel.labs = T, ncol = 3, scales = "free",

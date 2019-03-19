@@ -2,7 +2,7 @@ library(dplyr)
 library(gtools)
 smellCharacteristics <- data.frame(rbind(c("size", "generic"), 
                                         c("overlapRatio", "generic"),
-                                        c("pageRankAvrg", "generic"),
+                                        c("pageRankWeighted", "generic"),
                                         c("pageRankMax", "generic"),
                                         c("strength", "unstableDep"),
                                         c("instabilityGap", "unstableDep"),
@@ -50,8 +50,6 @@ computeCharacteristicCorrelation <- function(df, smellCharcteristicTypes = c("ge
   df.corr.all <- inner_join(df.corr.all, df[!duplicated(df[,c("uniqueSmellID", "project")]), 
                                                    c("uniqueSmellID", "project", "smellType", "age")], 
                                    by = c("uniqueSmellID", "project"))
-  df.corr.all$var <- paste(df.corr.all$var1, "and", df.corr.all$var2)
+  df.corr.all$var <- paste(df.corr.all$var1, "~", df.corr.all$var2, sep = "")
   return(df.corr.all)
-  #df.corr.validity <- df.corr %>% mutate(isValid = p.value >= 0.05) %>% group_by(isValid) %>% tally()
-  #ggplot(df.corr.validity, aes(isValid, n)) + geom_bar(aes(color = isValid, fill=isValid), stat = "identity")
 }
