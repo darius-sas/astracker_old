@@ -15,11 +15,13 @@ plotSmellCountPerVersion <- function(df){
   df.tally <- df %>% group_by(project, versionPosition, smellType) %>% tally()
   ggplot(df.tally, aes(versionPosition, n, group = smellType, color = smellType)) + 
     geom_line() + 
-    theme(axis.text.x = element_text(angle=90, hjust = 1)) +
+    scale_y_sqrt() +
+    theme(axis.text.x = element_text(angle=90, hjust = 1, vjust = 0.5)) +
     facet_wrap(~project, scales = "free") +
     labs(x = "Version number",
          y = "Number of smells",
-         title = "Number of smells in the system by smell type")
+         title = "Number of smells in the system by smell type",
+         subtitle = "Square root scale")
 }
 
 
@@ -76,37 +78,40 @@ plotCycleShapesCountPerVersion <- function(df){
 
 #' Utility function to plot signal trends
 #' @param df.sig Data frame containing the signal classification as returned by classifySignal()
-ggplotsignaltrends <- function(df.sig, legend.position = "right", palette = "Paired"){
+ggplotsignaltrends <- function(df.sig, legend.position = "right", palette = "Paired", base.size = 12){
   df.sig <- df.sig %>% tally() %>% mutate(percentage = n/sum(n) * 100)
   ggplot(df.sig, aes(x=smellType, y = percentage, group=classification, fill=classification)) + 
     geom_bar(stat="identity") +
     scale_fill_brewer(palette = palette) +
-    theme(plot.title = element_text(size=16),
-          legend.position = legend.position)
+    scale_x_discrete(labels=c("CD", "HL", "UD")) +
+    theme_gray(base_size = base.size) +
+    theme(axis.text.x = element_text(hjust = 1, vjust = 0.5), legend.position = legend.position) +
+    guides(fill=guide_legend(ncol=3))
 }
 
 
 #' Barplot of the trend classification for all projects combined
 #' @param df.sig Data frame containing the signal classification as returned by classifySignal()
-plotSignalTrendCharacteristicAllProjects <- function(df.sig, characteristic = ""){
+plotSignalTrendCharacteristicAllProjects <- function(df.sig, characteristic = "", ...){
   df.grp <- df.sig %>% group_by(smellType, classification)
-  ggplotsignaltrends(df.grp) +
+  ggplotsignaltrends(df.grp, ...) +
+    theme(axis.text.x = element_text(hjust = 0.5))+
     labs(x = "Smell types", y = "Percentage", 
          title = "Trend classification all the projects", 
-         subtitle = characteristic)
+         subtitle = paste("Characteristic:", characteristic))
 }
 
 
 #' Barplot of the trend classification for each project
 #' @param df.sig Data frame containing the signal classification as returned by classifySignal()
-plotSignalTrendCharacteristic <- function(df.sig, characteristic = ""){
+plotSignalTrendCharacteristic <- function(df.sig, characteristic = "", legend.position = "right", ...){
   df.grp <- df.sig %>% group_by(project, smellType, classification)
-  ggplotsignaltrends(df.grp) + 
+  ggplotsignaltrends(df.grp, legend.position = legend.position, ...) + 
     theme(axis.text.x = element_text(angle = 90)) +
     facet_grid(~project) +
     labs(x = "Smell types", y = "Percentage",
          title = "Trend classification per project",
-         subtitle = characteristic) 
+         subtitle = paste("Characteristic:", characteristic))
 }
 
 
@@ -207,13 +212,14 @@ plotCharacteristicDistribution <- function(df, characteristic){
 
 #' Plot survival probabilities using the Kaplan-Meier statistic.
 #' @param df the data frame containing the raw data
-plotSurvivalProbabilities <- function(df, strata = "smellType"){
+plotSurvivalProbabilities <- function(df, strata = "smellType", legend.position = "right", base.size = 12){
   surv <- computeSurvivalAnalysis(df, strata)
   ggsurvplot(surv$model, data = surv$data,
              facet.by = "project",
-             short.panel.labs = T, ncol = 3, scales = "free",
+             short.panel.labs = T, ncol = 2,
              surv.median.line = "v") +
-    theme_grey() + 
+    theme_grey(base_size = base.size) +
+    theme(legend.position = legend.position) +
     labs(title = "Survival analysis by project and smell type")
 }
 
@@ -252,49 +258,74 @@ plotSmellLifetimeLines <- function(df){
 
 ## SAVING TO FILE
 
-saveAllPlotsToFiles <- function(dataset.file, dir = "plots", format = "png"){
+g_legend <- function(a.gplot){ 
+  tmp <- ggplot_gtable(ggplot_build(a.gplot)) 
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box") 
+  legend <- tmp$grobs[[leg]] 
+  return(legend)
+} 
+
+runAnalyses <- function(dataset.file){
   df <- read.csv(dataset.file)
   
+  corrSmellTypes = c("cyclicDep", "unstableDep")
+  df.corr.list <- list()
+  for (smellType in corrSmellTypes) {
+    df.corr.list[[smellType]] <- computeCharacteristicCorrelation(df, c("generic", smellType))
+  }
+  
+  df.sig.list <- list()
+  for(characteristic in unique(classifiableSignals$signal)){
+    df.sig.list[[characteristic]] <- classifySignal(df, characteristic)
+  }
+  
+  return(list(df = df, 
+              corr = df.corr.list, 
+              sig = df.sig.list))
+}
+
+
+saveAllPlotsToFiles <- function(datasets, dir = "plots", format = "png", scale = 0.5, ...){
   dest <- file.path(dir)
   dir.create(dest, showWarnings = FALSE)
 
+  df <- datasets$df
+  df.corr.list <- datasets$corr
+  df.sig.list <- datasets$sig
   
   # PRINT DESCRIPTIVE STATS
   plotSmellCountPerVersion(df)
-  ggsave(paste("descriptive-smell-count.", format, sep = ""), path = dest, width = 20, height = 16)
+  ggsave(paste("descriptive-smell-count.", format, sep = ""), path = dest, width = 20, height = 16, scale = scale)
   
   plotBoxplotsSmellGenericCharacteristics(df)
-  ggsave(paste("descriptive-generic-charact.", format, sep = ""), path = dest, width = 20, height = 16)
+  ggsave(paste("descriptive-generic-charact.", format, sep = ""), path = dest, width = 20, height = 16, scale = scale)
   
-  plotBoxplotsSmellSpecificCharacteristics(df)
+  plotBoxplotsSmellSpecificCharacteristics(df) + theme_gray(base_size = 9)
   ggsave(paste("descriptive-specific-charact.", format, sep = ""), path = dest, width = 20, height = 16)
   
   plotCycleShapesCountPerVersion(df)
-  ggsave(paste("descriptive-shape-count.", format, sep = ""), path = dest, width = 20, height = 16)
+  ggsave(paste("descriptive-shape-count.", format, sep = ""), path = dest, width = 20, height = 16, scale = scale)
   
   
   # PRINT RQ2
-  plotSurvivalProbabilities(df)
-  ggsave(paste("survival-probabilities.", format, sep = ""), path = dest, width = 20, height = 16)
+  plotSurvivalProbabilities(df, legend.position = "top", base.size = 16)
+  ggsave(paste("survival-probabilities.", format, sep = ""), path = dest, height = 12)
   
   plotAgeDensity(df)
   ggsave(paste("survival-age-density.", format, sep = ""), path = dest, width = 20, height = 16)
   
-  
   # PRINT RQ1 (LONGEST, LEAVE FOR LAST)
-  corrSmellTypes = c("cyclicDep", "unstableDep")
-  for (smellType in corrSmellTypes) {
-    df.corr <- computeCharacteristicCorrelation(df, c("generic", smellType))
+  for (smellType in names(df.corr.list)) {
+    df.corr <- df.corr.list[[smellType]]
     plotCharacteristicCorrelationBoth(df.corr)
     ggsave(paste("correl-generic-", smellType, ".", format, sep = ""), path = dest, width = 15, height = 12)
   }
   
-
-  for(characteristic in unique(classifiableSignals$signal)){
-    df.sig <- classifySignal(df, characteristic)
-    plotSignalTrendCharacteristic(df.sig, characteristic)
+  for(characteristic in names(df.sig.list)){
+    df.sig <- df.sig.list[[characteristic]]
+    plotSignalTrendCharacteristic(df.sig, characteristic, legend.position = "none", base.size=14)
     ggsave(paste("signal-trend-", characteristic, "-individual.", format, sep = ""), path = dest)
-    plotSignalTrendCharacteristicAllProjects(df.sig, characteristic)
+    plotSignalTrendCharacteristicAllProjects(df.sig, characteristic, legend.position = "none", base.size=22)
     ggsave(paste("signal-trend-", characteristic, "-all-projects.", format, sep = ""), path = dest)
     plotSignalTrendCorrelationWithAge(df.sig, characteristic)
     ggsave(paste("signal-corr-", characteristic, "-age.", format, sep = ""), path = dest)

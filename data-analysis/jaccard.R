@@ -1,6 +1,6 @@
 library(gplots)
 library(RColorBrewer)
-
+library(gtools)
 # Note: plot jaccard similarity between two versions
 
 jaccard <- function(x,y){return(length(intersect(x,y))/length(union(x,y)))}
@@ -14,10 +14,18 @@ jaccardMatr <- function(n, m){
   return(jmat)
 }
 
+jaccard.data.frame <- function(n){
+  df <- permutations(n, r = 2, v = 1:max(n), repeats.allowed = T)
+  scores <- apply(df, 1, function(row){jaccard(1:row[1], 1:row[2])})
+  df <- as.data.frame(df)
+  df$scores <- scores
+  return(df)
+}
+
 scores <- jaccardMatr(10,16)
 scores <- round(scores, digits=2)
 
-myPalette <- colorRampPalette(c("red", "yellow", "green"))(n = 299)
+myPalette <- colorRampPalette(c("white", "grey", "grey50"))(n = 299)
 
 heatmap.2(scores,
           cellnote = scores,       # same data set for cell labels
@@ -33,6 +41,6 @@ heatmap.2(scores,
           xlab = "next version cardinality",
           ylab = "current version cardinality",
           Colv="NA")               # turn off column clustering
-title("Jaccard scores matrix", line = -4, adj=0.62)
+title("Jaccard scores matrix", line = -3, adj=0.62)
 rect(3, 4, 5, 9, border="red", col = "blue")
  
