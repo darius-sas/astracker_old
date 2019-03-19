@@ -23,6 +23,7 @@ public class ASmellTracker {
     public static final String NAME = "name";
     public static final String SMELL = "smell";
     public static final String VERSION = "version";
+    public static final String VERSION_POSITION = "versionPosition";
     public static final String SMELL_OBJECT = "smellObject";
     public static final String LATEST_VERSION = "latestVersion";
     public static final String EVOLVED_FROM = "evolvedFrom";
@@ -72,7 +73,7 @@ public class ASmellTracker {
      * A JaccardSimilarityLinker is used to select the single successor of the given smell.
      */
     public ASmellTracker(){
-        this(new JaccardSimilarityLinker(), true);
+        this(new JaccardSimilarityLinker(), false);
     }
 
     /**
@@ -228,7 +229,7 @@ public class ASmellTracker {
 
                             age++;
                         } else if ((((Vertex) o).label().equals(END))) {
-                            smellVertex.property(AGE, age, "lastDetected", ((Vertex) o).value(VERSION));
+                            smellVertex.property(AGE, age).property("lastDetected", ((Vertex) o).value(VERSION));
                         }
                     }
                 }   
