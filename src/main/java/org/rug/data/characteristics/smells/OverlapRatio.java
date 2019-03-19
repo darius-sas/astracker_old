@@ -16,11 +16,23 @@ import java.util.*;
  * Namely, what percentage of the nodes affected by the given smell are also affected by at least another smell.
  */
 public class OverlapRatio extends AbstractSmellCharacteristic {
+
+    ArchitecturalSmell.Type type = null;
+
     /**
      * Sets up the name of this smell characteristic.
      */
     public OverlapRatio() {
         super("overlapRatio");
+    }
+
+    /**
+     * The type of smell to calculate the overlap with.
+     * @param type the type of smell that will be counted when overlapping. If null, all smells are counted
+     */
+    public OverlapRatio(ArchitecturalSmell.Type type){
+        super("overlapRatio" + (type == null ? "" : type.toString()));
+        this.type = type;
     }
 
     @Override
@@ -55,10 +67,20 @@ public class OverlapRatio extends AbstractSmellCharacteristic {
         double elementsAffectedByMoreThanOneSmell = 0d;
         GraphTraversalSource g = smell.getTraversalSource();
         for (Vertex c : vertices) {
-            if(g.V(c).in().hasLabel(VertexLabel.SMELL.toString())
-                    .is(P.not(P.within(smell.getSmellNodes())))
-                    .count().next() > 0)
-                elementsAffectedByMoreThanOneSmell++;
+            if (type != null) {
+                if (g.V(c).in().hasLabel(VertexLabel.SMELL.toString())
+                        .has("smellType", type.toString())
+                        .is(P.not(P.within(smell.getSmellNodes())))
+                        .count().next() > 0) {
+                    elementsAffectedByMoreThanOneSmell++;
+                }
+            } else {
+                if(g.V(c).in().hasLabel(VertexLabel.SMELL.toString())
+                        .is(P.not(P.within(smell.getSmellNodes())))
+                        .count().next() > 0){
+                    elementsAffectedByMoreThanOneSmell++;
+                }
+            }
         }
         return String.valueOf(elementsAffectedByMoreThanOneSmell / vertices.size());
     }
