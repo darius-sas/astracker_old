@@ -268,20 +268,30 @@ g_legend <- function(a.gplot){
 runAnalyses <- function(dataset.file){
   df <- read.csv(dataset.file)
   
+  print("Running correlation analysis")
   corrSmellTypes = c("cyclicDep", "unstableDep")
-  df.corr.list <- list()
+  df.corr <- data.frame()
   for (smellType in corrSmellTypes) {
-    df.corr.list[[smellType]] <- computeCharacteristicCorrelation(df, c("generic", smellType))
+    df.tmp <- computeCharacteristicCorrelation(df, c("generic", smellType))
+    df.tmp$smellType <- smellType
+    df.corr <- bind_rows(df.corr, df.tmp)
   }
   
+  write.csv(df.corr, "corr-analysis.csv")
+  
+  print("Running signal analysis")
   df.sig.list <- list()
+  df.sig <- data.frame()
   for(characteristic in unique(classifiableSignals$signal)){
-    df.sig.list[[characteristic]] <- classifySignal(df, characteristic)
+    df.tmp<- classifySignal(df, characteristic)
+    df.tmp$characteristic <- characteristic
+    df.sig <- bind_rows(df.sig, df.tmp)
   }
   
+  write.csv(df.sig, "signal-analysis.csv")
   return(list(df = df, 
-              corr = df.corr.list, 
-              sig = df.sig.list))
+              corr = df.corr, 
+              sig = df.sig))
 }
 
 
@@ -315,14 +325,14 @@ saveAllPlotsToFiles <- function(datasets, dir = "plots", format = "png", scale =
   ggsave(paste("survival-age-density.", format, sep = ""), path = dest, width = 20, height = 16)
   
   # PRINT RQ1 (LONGEST, LEAVE FOR LAST)
-  for (smellType in names(df.corr.list)) {
-    df.corr <- df.corr.list[[smellType]]
+  for (smellType in unique(df.corr.list$smellType)) {
+    df.corr <- df.corr %>% filter(smellType == smellType)
     plotCharacteristicCorrelationBoth(df.corr)
     ggsave(paste("correl-generic-", smellType, ".", format, sep = ""), path = dest, width = 15, height = 12)
   }
   
-  for(characteristic in names(df.sig.list)){
-    df.sig <- df.sig.list[[characteristic]]
+  for(characteristic in unique(df.sig.list$characteristic)){
+    df.sig <- df.sig %>% filter(characteristic == characteristic)
     plotSignalTrendCharacteristic(df.sig, characteristic, legend.position = "none", base.size=14)
     ggsave(paste("signal-trend-", characteristic, "-individual.", format, sep = ""), path = dest)
     plotSignalTrendCharacteristicAllProjects(df.sig, characteristic, legend.position = "none", base.size=22)
