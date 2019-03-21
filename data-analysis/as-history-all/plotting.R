@@ -80,31 +80,32 @@ plotCycleShapesCountPerVersion <- function(df){
 #' @param df.sig Data frame containing the signal classification as returned by classifySignal()
 ggplotsignaltrends <- function(df.sig, legend.position = "right", palette = "Paired", base.size = 12){
   df.sig <- df.sig %>% tally() %>% mutate(percentage = n/sum(n) * 100)
+  df.sig$smellType <- plyr::revalue(df.sig$smellType, c("cyclicDep"="CD", "hubLikeDep"="HL", "unstableDep"="UD"))
   ggplot(df.sig, aes(x=smellType, y = percentage, group=classification, fill=classification)) + 
     geom_bar(stat="identity") +
     scale_fill_brewer(palette = palette) +
-    scale_x_discrete(labels=c("CD", "HL", "UD")) +
     theme_gray(base_size = base.size) +
-    theme(axis.text.x = element_text(hjust = 1, vjust = 0.5), legend.position = legend.position) +
-    guides(fill=guide_legend(ncol=3))
+    theme(axis.text.x = element_text(hjust = 1, vjust = 0.5), legend.position = legend.position)
 }
 
 
 #' Barplot of the trend classification for all projects combined
 #' @param df.sig Data frame containing the signal classification as returned by classifySignal()
-plotSignalTrendCharacteristicAllProjects <- function(df.sig, characteristic = "", ...){
+plotSignalTrendCharacteristicAllProjects <- function(df.sig, ...){
+  characteristic <- unique(df.sig$characteristic)[1]
   df.grp <- df.sig %>% group_by(smellType, classification)
   ggplotsignaltrends(df.grp, ...) +
     theme(axis.text.x = element_text(hjust = 0.5), axis.title.y = element_text(angle = -90))+
     labs(x = "Smell types", y = "Percentage", 
-         title = "Trend classification all the projects", 
+         title = "Trend classification of all projects", 
          subtitle = paste("Characteristic:", characteristic)) + rotate()
 }
 
 
 #' Barplot of the trend classification for each project
 #' @param df.sig Data frame containing the signal classification as returned by classifySignal()
-plotSignalTrendCharacteristic <- function(df.sig, characteristic = "", legend.position = "right", ...){
+plotSignalTrendCharacteristic <- function(df.sig, legend.position = "right", ...){
+  characteristic <- unique(df.sig$characteristic)[1]
   df.grp <- df.sig %>% group_by(project, smellType, classification)
   ggplotsignaltrends(df.grp, legend.position = legend.position, ...) + 
     theme(axis.text.x = element_text(angle = 0, hjust = 0.5), axis.title.y = element_text(angle = -90)) +
@@ -118,8 +119,9 @@ plotSignalTrendCharacteristic <- function(df.sig, characteristic = "", legend.po
 
 #' Scatterplot of different correlation statistics
 #' @param df.sig Data frame containing the signal classification as returned by classifySignal()
-plotSignalTrendCorrelationWithAge <- function(df.sig, characteristic){
+plotSignalTrendCorrelationWithAge <- function(df.sig){
   df.icc <- data.frame()
+  characteristic <- unique(df.sig$characteristic)[1]
   for (smellType in unique(df.sig$smellType)) {
     df.smell <- df.sig[df.sig$smellType == smellType,]
     icc <- computeCorrelMatrix(df.smell)
@@ -222,7 +224,7 @@ plotSurvivalProbabilities <- function(df, strata = "smellType", legend.position 
     scale_x_continuous(breaks = seq(0, 120, 5)) +
     theme_grey(base_size = base.size) +
     theme(legend.position = legend.position, axis.text.x = element_text(angle=90, hjust = 1, vjust = 0.5)) +
-    labs(title = "Survival analysis by project and smell type")
+    labs(title = "Survival analysis by project")
 }
 
 
@@ -279,10 +281,7 @@ runAnalyses <- function(dataset.file){
     df.corr <- bind_rows(df.corr, df.tmp)
   }
   
-  write.csv(df.corr, "corr-analysis.csv")
-  
   print("Running signal analysis")
-  df.sig.list <- list()
   df.sig <- data.frame()
   for(characteristic in unique(classifiableSignals$signal)){
     df.tmp<- classifySignal(df, characteristic)
@@ -290,20 +289,30 @@ runAnalyses <- function(dataset.file){
     df.sig <- bind_rows(df.sig, df.tmp)
   }
   
-  write.csv(df.sig, "signal-analysis.csv")
   return(list(df = df, 
               corr = df.corr, 
               sig = df.sig))
 }
 
+saveResults <- function(datasets, dir = "."){
+  write.csv(datasets$corr, "corr-analysis.csv")
+  write.csv(datasets$sig,  "signal-analysis.csv")
+}
+
+loadResults <- function(dir = "."){
+  df <- read.csv(file.path(dir, "dataset.csv"))
+  df.sig <- read.csv(file.path(dir, "signal-analysis.csv"))
+  df.corr <- read.csv(file.path(dir, "corr-analysis.csv"))
+  return(list(df = df, corr = df.corr, sig = df.sig))
+}
 
 saveAllPlotsToFiles <- function(datasets, dir = "plots", format = "png", scale = 0.5, ...){
   dest <- file.path(dir)
   dir.create(dest, showWarnings = FALSE)
 
   df <- datasets$df
-  df.corr.list <- datasets$corr
-  df.sig.list <- datasets$sig
+  df.corr.all <- datasets$corr
+  df.sig.all <- datasets$sig
   
   # PRINT DESCRIPTIVE STATS
   plotSmellCountPerVersion(df)
@@ -320,38 +329,38 @@ saveAllPlotsToFiles <- function(datasets, dir = "plots", format = "png", scale =
   
   
   # PRINT RQ2
-  plotSurvivalProbabilities(df, legend.position = "top", base.size = 16)
+  plotSurvivalProbabilities(df, legend.position = "top", base.size = 14)
   ggsave(paste("survival-probabilities.", format, sep = ""), path = dest, height = 12)
-  plotSurvivalProbabilities(df %>% filter(affectedComponentType == "class"), legend.position = "top", base.size = 16) + labs (subtitle = "Class-smells only")
+  plotSurvivalProbabilities(df %>% filter(affectedComponentType == "class"), legend.position = "top", base.size = 14) + labs (subtitle = "Class-smells only")
   ggsave(paste("survival-probabilities-class.", format, sep = ""), path = dest, height = 12)
-  plotSurvivalProbabilities(df %>% filter(affectedComponentType == "package"), legend.position = "top", base.size = 16)  + labs (subtitle = "Package-smells only")
+  plotSurvivalProbabilities(df %>% filter(affectedComponentType == "package"), legend.position = "top", base.size = 14)  + labs (subtitle = "Package-smells only")
   ggsave(paste("survival-probabilities-packag.", format, sep = ""), path = dest, height = 12)
   
-  plotSurvivalProbabilities(df %>% filter(smellType == "cyclicDep" & affectedComponentType == "class"), strata = "shape", legend.position = "top", base.size = 16)  + labs (subtitle = "Class-smells only")
+  plotSurvivalProbabilities(df %>% filter(smellType == "cyclicDep" & affectedComponentType == "class"), strata = "shape", legend.position = "top", base.size = 14)  + labs (subtitle = "Class-smells only")
   ggsave(paste("survival-probabilities-cycle-class.", format, sep = ""), path = dest, height = 12)
-  plotSurvivalProbabilities(df %>% filter(smellType == "cyclicDep" & affectedComponentType == "package"), strata = "shape", legend.position = "top", base.size = 16)  + labs (subtitle = "Package-smells only")
+  plotSurvivalProbabilities(df %>% filter(smellType == "cyclicDep" & affectedComponentType == "package"), strata = "shape", legend.position = "top", base.size = 14)  + labs (subtitle = "Package-smells only")
   ggsave(paste("survival-probabilities-cycle-packag.", format, sep = ""), path = dest, height = 12)
   
   plotAgeDensity(df)
   ggsave(paste("survival-age-density.", format, sep = ""), path = dest, width = 20, height = 16)
   
   # PRINT RQ1 (LONGEST, LEAVE FOR LAST)
-  for (smellType in unique(df.corr.list$smellType)) {
-    df.corr <- df.corr %>% filter(smellType == smellType)
+  for (smellType in unique(df.corr.all$smellType)) {
+    df.corr <- df.corr.all %>% filter(smellType == smellType)
     plotCharacteristicCorrelationBoth(df.corr)
     ggsave(paste("correl-generic-", smellType, ".", format, sep = ""), path = dest, width = 15, height = 12)
   }
   
-  for(characteristic in unique(df.sig.list$characteristic)){
-    df.sig <- df.sig %>% filter(characteristic == characteristic)
-    plotSignalTrendCharacteristic(df.sig, characteristic, legend.position = "none", base.size=14)
-    ggsave(paste("signal-trend-", characteristic, "-individual.", format, sep = ""), path = dest, height = 10.1, width = 5.83)
-    plotSignalTrendCharacteristicAllProjects(df.sig, characteristic, legend.position = "none", base.size=22)
-    ggsave(paste("signal-trend-", characteristic, "-all-projects.", format, sep = ""), path = dest)
-    plotSignalTrendCorrelationWithAge(df.sig, characteristic)
-    ggsave(paste("signal-corr-", characteristic, "-age.", format, sep = ""), path = dest)
-    plotCharacteristicEvolutionTrend(df, characteristic)
-    ggsave(paste("signal-evol-", characteristic, ".", format, sep=""), path = dest)
+  for(charact in unique(df.sig.all$characteristic)){
+    df.sig <- df.sig.all %>% filter(characteristic == charact)
+    plotSignalTrendCharacteristic(df.sig, legend.position = "none", base.size=14)
+    ggsave(paste("signal-trend-", charact, "-individual.", format, sep = ""), path = dest, height = 10.1, width = 5.83)
+    plotSignalTrendCharacteristicAllProjects(df.sig, legend.position = "none", base.size=22)
+    ggsave(paste("signal-trend-", charact, "-all-projects.", format, sep = ""), path = dest)
+    plotSignalTrendCorrelationWithAge(df.sig)
+    ggsave(paste("signal-corr-", charact, "-age.", format, sep = ""), path = dest)
+    plotCharacteristicEvolutionTrend(df, charact)
+    ggsave(paste("signal-evol-", charact, ".", format, sep=""), path = dest)
   }
 }
 

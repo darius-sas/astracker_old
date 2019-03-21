@@ -5,6 +5,7 @@ library(dplyr)
 classifiableSignals <- data.frame(rbind(c("size", "generic"), 
                                      c("overlapRatio", "generic"),
                                      c("pageRankAvrg", "generic"),
+                                     c("pageRankWeight", "generic"),
                                      c("pageRankMax", "generic"),
                                      c("strength", "unstableDep"),
                                      c("instabilityGap", "unstableDep"),
@@ -61,10 +62,10 @@ classifySignal <- function(df, colName){
   df.sig$classification <- factor(templateLevels[df.sig$min - offset], levels = templateLevels)
   
   df.sig <- inner_join(df.sig, df, by = c("uniqueSmellID", "project"))
-  df.sig <- df.sig[!duplicated(df.sig[,c("uniqueSmellID", "project")]), c("uniqueSmellID", "version", "smellType", 
+  df.sig <- df.sig[!duplicated(df.sig[,c("uniqueSmellID", "project")]), c("uniqueSmellID", "smellType", 
                                                     "project", "classification", "age", 
                                                     "dtwA", "dtwB", "dtwC", "dtwD", "dtwE", "dtwF", "dtwG")]
-  
+  df.sig$characteristic <- colName
   return(df.sig)
 }
 
