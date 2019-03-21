@@ -173,16 +173,17 @@ plotCharacteristicCorrelationValidity <- function(df.corr){
 
 #' Plots the estimates of correlation of the given correlation analysis data frame.
 #' @param df.corr The data frame resulting from the correlation analysis between the considered characteristics.
-plotCharacteristicCorrelationEstimates <- function(df.corr){
+plotCharacteristicCorrelationEstimates <- function(df.corr, base.size = 12){
   df.corr <- df.corr %>% filter(p.value <= 0.05)
   ggplot(df.corr, aes(project, estimate, group = var)) + 
     geom_jitter(aes(fill=smellType, color=smellType), height = 0.1, width = 0.2) +
+    theme_gray(base_size = base.size) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), legend.position = "none") +
     facet_grid(var~smellType, scales = "fixed") + 
     labs(x = "Project",
          y = "Correlation value",
-         title = "Correlation among characteristics per project and smell type (only p < 0.05)",
-         subtitle = "Each smell is a point")
+         title = "Correlation among characteristics per project and smell type",
+         subtitle = "Each smell is a point  (only p < 0.05)")
 }
 
 
@@ -350,6 +351,8 @@ saveAllPlotsToFiles <- function(datasets, dir = "plots", format = "png", scale =
     plotCharacteristicCorrelationBoth(df.corr)
     ggsave(paste("correl-generic-", smellType, ".", format, sep = ""), path = dest, width = 15, height = 12)
   }
+  #plotCharacteristicCorrelationEstimates(df.corr %>% filter(var == "pageRankMax~size"), 22) + theme(title=element_text(size=18))
+  #ggsave(paste("correl-generic.", format, sep = ""), path = dest)
   
   for(charact in unique(df.sig.all$characteristic)){
     df.sig <- df.sig.all %>% filter(characteristic == charact)
