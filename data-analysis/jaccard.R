@@ -1,14 +1,14 @@
 library(gplots)
 library(RColorBrewer)
 library(gtools)
-# Note: plot jaccard similarity between two versions
+library(jaccard)
 
-jaccard <- function(x,y){return(length(intersect(x,y))/length(union(x,y)))}
+my.jaccard <- function(x,y){return(length(intersect(x,y))/length(union(x,y)))}
 jaccardMatr <- function(n, m){ 
   jmat = matrix(nrow = n, ncol = m)
   for (i in 1:n) {
     for (j in 1:m) {
-      jmat[i, j] = jaccard(1:i, 1:j)
+      jmat[i, j] = my.jaccard(1:i, 1:j)
     }
   }
   return(jmat)
@@ -16,10 +16,22 @@ jaccardMatr <- function(n, m){
 
 jaccard.data.frame <- function(n){
   df <- permutations(n, r = 2, v = 1:max(n), repeats.allowed = T)
-  scores <- apply(df, 1, function(row){jaccard(1:row[1], 1:row[2])})
+  scores <- apply(df, 1, function(row){my.jaccard(1:row[1], 1:row[2])})
   df <- as.data.frame(df)
   df$scores <- scores
   return(df)
+}
+
+jaccardMatr2 <- function(elements = 3){
+  inputs <- permutations(2, r = elements, v = 0:1, repeats.allowed = T)
+  scores <- matrix(nrow = nrow(inputs), ncol = nrow(inputs))
+  for (i in 1:nrow(inputs)) {
+    for(j in 1:nrow(inputs)){
+      scores[i,j] = jaccard(inputs[i,], inputs[j,])
+    }
+  }
+  scores <- round(scores, digits=2)
+  return(scores)
 }
 
 scores <- jaccardMatr(10,16)
@@ -43,4 +55,4 @@ heatmap.2(scores,
           Colv="NA")               # turn off column clustering
 title("Jaccard scores matrix", line = -3, adj=0.62)
 rect(3, 4, 5, 9, border="red", col = "blue")
- 
+

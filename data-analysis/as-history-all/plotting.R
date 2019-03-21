@@ -95,10 +95,10 @@ ggplotsignaltrends <- function(df.sig, legend.position = "right", palette = "Pai
 plotSignalTrendCharacteristicAllProjects <- function(df.sig, characteristic = "", ...){
   df.grp <- df.sig %>% group_by(smellType, classification)
   ggplotsignaltrends(df.grp, ...) +
-    theme(axis.text.x = element_text(hjust = 0.5))+
+    theme(axis.text.x = element_text(hjust = 0.5), axis.title.y = element_text(angle = -90))+
     labs(x = "Smell types", y = "Percentage", 
          title = "Trend classification all the projects", 
-         subtitle = paste("Characteristic:", characteristic))
+         subtitle = paste("Characteristic:", characteristic)) + rotate()
 }
 
 
@@ -107,8 +107,9 @@ plotSignalTrendCharacteristicAllProjects <- function(df.sig, characteristic = ""
 plotSignalTrendCharacteristic <- function(df.sig, characteristic = "", legend.position = "right", ...){
   df.grp <- df.sig %>% group_by(project, smellType, classification)
   ggplotsignaltrends(df.grp, legend.position = legend.position, ...) + 
-    theme(axis.text.x = element_text(angle = 90)) +
-    facet_grid(~project) +
+    theme(axis.text.x = element_text(angle = 0, hjust = 0.5), axis.title.y = element_text(angle = -90)) +
+    rotate() +
+    facet_grid(project~.) +
     labs(x = "Smell types", y = "Percentage",
          title = "Trend classification per project",
          subtitle = paste("Characteristic:", characteristic))
@@ -218,8 +219,9 @@ plotSurvivalProbabilities <- function(df, strata = "smellType", legend.position 
              facet.by = "project",
              short.panel.labs = T, ncol = 2,
              surv.median.line = "v") +
+    scale_x_continuous(breaks = seq(0, 120, 5)) +
     theme_grey(base_size = base.size) +
-    theme(legend.position = legend.position) +
+    theme(legend.position = legend.position, axis.text.x = element_text(angle=90, hjust = 1, vjust = 0.5)) +
     labs(title = "Survival analysis by project and smell type")
 }
 
@@ -310,6 +312,15 @@ saveAllPlotsToFiles <- function(datasets, dir = "plots", format = "png", scale =
   # PRINT RQ2
   plotSurvivalProbabilities(df, legend.position = "top", base.size = 16)
   ggsave(paste("survival-probabilities.", format, sep = ""), path = dest, height = 12)
+  plotSurvivalProbabilities(df %>% filter(affectedComponentType == "class"), legend.position = "top", base.size = 16) + labs (subtitle = "Class-smells only")
+  ggsave(paste("survival-probabilities-class.", format, sep = ""), path = dest, height = 12)
+  plotSurvivalProbabilities(df %>% filter(affectedComponentType == "package"), legend.position = "top", base.size = 16)  + labs (subtitle = "Package-smells only")
+  ggsave(paste("survival-probabilities-packag.", format, sep = ""), path = dest, height = 12)
+  
+  plotSurvivalProbabilities(df %>% filter(smellType == "cyclicDep" & affectedComponentType == "class"), strata = "shape", legend.position = "top", base.size = 16)  + labs (subtitle = "Class-smells only")
+  ggsave(paste("survival-probabilities-cycle-class.", format, sep = ""), path = dest, height = 12)
+  plotSurvivalProbabilities(df %>% filter(smellType == "cyclicDep" & affectedComponentType == "package"), strata = "shape", legend.position = "top", base.size = 16)  + labs (subtitle = "Package-smells only")
+  ggsave(paste("survival-probabilities-cycle-packag.", format, sep = ""), path = dest, height = 12)
   
   plotAgeDensity(df)
   ggsave(paste("survival-age-density.", format, sep = ""), path = dest, width = 20, height = 16)
@@ -324,7 +335,7 @@ saveAllPlotsToFiles <- function(datasets, dir = "plots", format = "png", scale =
   for(characteristic in names(df.sig.list)){
     df.sig <- df.sig.list[[characteristic]]
     plotSignalTrendCharacteristic(df.sig, characteristic, legend.position = "none", base.size=14)
-    ggsave(paste("signal-trend-", characteristic, "-individual.", format, sep = ""), path = dest)
+    ggsave(paste("signal-trend-", characteristic, "-individual.", format, sep = ""), path = dest, height = 10.1, width = 5.83)
     plotSignalTrendCharacteristicAllProjects(df.sig, characteristic, legend.position = "none", base.size=22)
     ggsave(paste("signal-trend-", characteristic, "-all-projects.", format, sep = ""), path = dest)
     plotSignalTrendCorrelationWithAge(df.sig, characteristic)
