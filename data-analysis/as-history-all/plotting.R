@@ -216,8 +216,8 @@ plotCharacteristicDistribution <- function(df, characteristic){
 
 #' Plot survival probabilities using the Kaplan-Meier statistic.
 #' @param df the data frame containing the raw data
-plotSurvivalProbabilities <- function(df, strata = "smellType", legend.position = "right", base.size = 12){
-  surv <- computeSurvivalAnalysis(df, strata)
+plotSurvivalProbabilities <- function(df, strata = "smellType", uniform.sampling = F, legend.position = "right", base.size = 12){
+  surv <- computeSurvivalAnalysis(df, strata, uniform.sampling = uniform.sampling)
   ggsurvplot(surv$model, data = surv$data,
              facet.by = "project",
              short.panel.labs = T, ncol = 2,
