@@ -11,17 +11,28 @@ library(reshape2)
 
 #' Plots the counting of smells for each version and each project in the given data frame
 #' @param df a data frame containing the data
-plotSmellCountPerVersion <- function(df){
-  df.tally <- df %>% group_by(project, versionPosition, smellType) %>% tally()
-  ggplot(df.tally, aes(versionPosition, n, group = smellType, color = smellType)) + 
-    geom_line() + 
-    scale_y_sqrt() +
-    theme(axis.text.x = element_text(angle=90, hjust = 1, vjust = 0.5)) +
-    facet_wrap(~project, scales = "free") +
+plotSmellDensityPerVersion <- function(df, legend.position = "top", base.size = 12, ncol = 3, my.stat = "count"){
+  df.tally <- df %>% group_by(project, versionPosition, smellType, affectedComponentType) %>% tally()
+  df.unique <- unique(df[, c("project", "versionPosition", "nClasses", "nPackages")])
+  df.tally <- left_join(df.tally, df.unique, by = c("project", "versionPosition")) %>%
+    mutate(smell.type = as.factor(paste(affectedComponentType, smellType)),
+           density = ifelse(affectedComponentType == "package", n / nPackages, n / nClasses))
+  my.stat <- ifelse(my.stat == "count", sym("n"), sym("density"))
+  ggplot(df.tally, aes(versionPosition, !!my.stat, group = smell.type, color = smellType)) + 
+    geom_line(size=1.5, aes(linetype = affectedComponentType)) + 
+    scale_y_continuous(breaks = pretty) +
+    scale_x_continuous(breaks = pretty) +
+    theme_gray(base_size = base.size) +
+    theme(axis.text.x = element_text(hjust = 0.5, vjust = 0.5),
+          axis.title.y = element_text(angle = -90),
+          legend.text = element_text(size=14) ,
+          legend.position = legend.position,
+          legend.direction = "vertical") +
+    facet_wrap(~project, scales = "free", ncol = ncol, strip.position = "right") +
     labs(x = "Version number",
          y = "Number of smells",
-         title = "Number of smells in the system by smell type",
-         subtitle = "Square root scale")
+         title = "Smell density in the systems") +
+    guides(color=guide_legend(ncol=2))
 }
 
 
@@ -42,13 +53,13 @@ plotBoxplotsSmellGenericCharacteristics <- function(df){
   ggboxplots(df.melt) + labs(title = "Boxplots of smell-generic characteristics by smell type")
 }
 
-plotBoxplotsCharacteristics <- function(df, characteristic, scales = "fixed"){
+plotBoxplotsCharacteristics <- function(df, characteristic, scales = "fixed", base.size = 14, legend.position = "top"){
   df.melt <- melt(df, c("project", "uniqueSmellID", "versionPosition", "smellType"), characteristic)
   ggplot(df.melt, aes("", value, group = smellType, fill = smellType)) + 
-    geom_boxplot() + 
-    theme(axis.text.x = element_text(angle=90, hjust = 1)) +
-    facet_wrap(~project, scales=scales) + 
-    labs(title = paste("Boxplots of", characteristic, "by project"))
+    geom_boxplot()+ rotate()+
+    theme_gray(base_size = base.size) +
+    theme(axis.title = element_blank(), legend.position = legend.position) +
+    facet_grid(project~variable, scales=scales)
 }
 
 #' Boxplots the values of each smell-specific characteristic
@@ -85,7 +96,7 @@ ggplotsignaltrends <- function(df.sig, legend.position = "right", palette = "Pai
     geom_bar(stat="identity") +
     scale_fill_brewer(palette = palette) +
     theme_gray(base_size = base.size) +
-    theme(axis.text.x = element_text(hjust = 1, vjust = 0.5), legend.position = legend.position)
+    theme(axis.text.x = element_text(hjust = 1, vjust = 0.5), legend.position = legend.position) 
 }
 
 
@@ -316,11 +327,11 @@ saveAllPlotsToFiles <- function(datasets, dir = "plots", format = "png", scale =
   df.sig.all <- datasets$sig
   
   # PRINT DESCRIPTIVE STATS
-  plotSmellCountPerVersion(df)
-  ggsave(paste("descriptive-smell-count.", format, sep = ""), path = dest, width = 20, height = 16, scale = scale)
+  p <- shift_legend(plotSmellDensityPerVersion(df, base.size = 14, ncol = 4, stat = "density"))
+  ggsave(paste("descriptive-smell-density.", format, sep = ""), path = dest, height = 8,  width = 15, plot = p)
   
   plotBoxplotsSmellGenericCharacteristics(df)
-  ggsave(paste("descriptive-generic-charact.", format, sep = ""), path = dest, width = 20, height = 16, scale = scale)
+  ggsave(paste("descriptive-generic-charact.", format, sep = ""), path = dest, width = 20, height = 16, scale = 0.9)
   
   plotBoxplotsSmellSpecificCharacteristics(df) + theme_gray(base_size = 9)
   ggsave(paste("descriptive-specific-charact.", format, sep = ""), path = dest, width = 20, height = 16)
@@ -367,4 +378,64 @@ saveAllPlotsToFiles <- function(datasets, dir = "plots", format = "png", scale =
   }
 }
 
+
+library(gtable)
+library(cowplot)
+
+shift_legend <- function(p){
+  
+  # check if p is a valid object
+  if(!"gtable" %in% class(p)){
+    if("ggplot" %in% class(p)){
+      gp <- ggplotGrob(p) # convert to grob
+    } else {
+      message("This is neither a ggplot object nor a grob generated from ggplotGrob. Returning original plot.")
+      return(p)
+    }
+  } else {
+    gp <- p
+  }
+  
+  # check for unfilled facet panels
+  facet.panels <- grep("^panel", gp[["layout"]][["name"]])
+  empty.facet.panels <- sapply(facet.panels, function(i) "zeroGrob" %in% class(gp[["grobs"]][[i]]))
+  empty.facet.panels <- facet.panels[empty.facet.panels]
+  if(length(empty.facet.panels) == 0){
+    message("There are no unfilled facet panels to shift legend into. Returning original plot.")
+    return(p)
+  }
+  
+  # establish extent of unfilled facet panels (including any axis cells in between)
+  empty.facet.panels <- gp[["layout"]][empty.facet.panels, ]
+  empty.facet.panels <- list(min(empty.facet.panels[["t"]]), min(empty.facet.panels[["l"]]),
+                             max(empty.facet.panels[["b"]]), max(empty.facet.panels[["r"]]))
+  names(empty.facet.panels) <- c("t", "l", "b", "r")
+  
+  # extract legend & copy over to location of unfilled facet panels
+  guide.grob <- which(gp[["layout"]][["name"]] == "guide-box")
+  if(length(guide.grob) == 0){
+    message("There is no legend present. Returning original plot.")
+    return(p)
+  }
+  gp <- gtable_add_grob(x = gp,
+                        grobs = gp[["grobs"]][[guide.grob]],
+                        t = empty.facet.panels[["t"]],
+                        l = empty.facet.panels[["l"]],
+                        b = empty.facet.panels[["b"]],
+                        r = empty.facet.panels[["r"]],
+                        name = "new-guide-box")
+  
+  # squash the original guide box's row / column (whichever applicable)
+  # & empty its cell
+  guide.grob <- gp[["layout"]][guide.grob, ]
+  if(guide.grob[["l"]] == guide.grob[["r"]]){
+    gp <- gtable_squash_cols(gp, cols = guide.grob[["l"]])
+  }
+  if(guide.grob[["t"]] == guide.grob[["b"]]){
+    gp <- gtable_squash_rows(gp, rows = guide.grob[["t"]])
+  }
+  gp <- gtable_remove_grobs(gp, "guide-box")
+  
+  return(gp)
+}
 
