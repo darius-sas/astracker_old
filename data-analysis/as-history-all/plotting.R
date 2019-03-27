@@ -84,6 +84,57 @@ plotCycleShapesCountPerVersion <- function(df){
     facet_wrap(~project, scales = "free")
 }
 
+plotAffectedDesignBarplot <- function(df){
+  df <- df %>% filter(smellType == "cyclicDep") %>%
+    group_by(project, affectedDesignLevel) %>%
+    tally()
+  ggplot(df, aes(x=affectedDesignLevel, y = n, fill = affectedDesignLevel)) + 
+    geom_bar(stat="identity") + 
+    scale_y_log10() +
+    theme_gray() +
+    theme(legend.position = "top", axis.text.x = element_blank()) +
+    facet_wrap(~project, scales="free") + 
+    ylab("count (log scale)")
+}
+
+plotAffectedDesignChangedCount <- function(df, showChange = T, palette = "Set1", base.size = 14){
+  fun <- ifelse(showChange, affectedDesignChange, function(x){length(unique(as.numeric(x))) != 1})
+  df.count <- df %>% filter(smellType == "cyclicDep") %>%
+    group_by(project, uniqueSmellID) %>%
+    summarise(hasChanged = fun(affectedDesignLevel)) %>% 
+    group_by(project, hasChanged) %>% 
+    tally() %>% mutate(perc = n / sum(n) * 100)
+  
+  ggplot(df.count, aes(x=project, y = perc, fill = hasChanged)) + 
+    geom_bar(stat="identity", position = position_stack()) +
+    theme_bw(base_size = base.size) +
+    scale_x_discrete(expand=c(0,0)) +
+    scale_y_continuous(expand=c(0,0)) +
+    scale_fill_brewer(palette = palette) +
+    theme(axis.text.x = element_text(angle = -90, hjust = 0, vjust = 0.5),axis.title.x = element_blank(), 
+          axis.ticks.x = element_blank(), axis.title.y = element_text(angle = -90),
+          legend.position = "top", legend.title = element_blank(),
+          legend.spacing.x = unit(.05, 'inch'),
+          panel.grid = element_blank(), panel.border = element_blank()) +
+    #facet_grid(~project, scales="free") + 
+    labs(title = "CD smells that have changed their affected design level",
+         subtitle = "In percentage", y = "Percentage") +
+    guides(fill=guide_legend(ncol=3))
+}
+
+affectedDesignChange <- function(affectedDesign){
+  if (length(unique(as.numeric(affectedDesign))) != 1) {
+    start <- affectedDesign[1]
+    end <- NULL;
+    for (a in affectedDesign) {
+      if(a != start){
+        end = a
+      }
+    }
+    return(paste(start, "->", end, sep=""))
+  }
+  return(paste(affectedDesign[1], "->", affectedDesign[length(affectedDesign)], sep=""))
+}
 
 ## TREND ANALYSIS -- RQ1
 
@@ -127,6 +178,18 @@ plotSignalTrendCharacteristic <- function(df.sig, legend.position = "right", ...
          subtitle = paste("Characteristic:", characteristic))
 }
 
+
+plotSignalTrendCharacteristicAllProjectsOnePlot <- function(df.sig, legend.position = "top", 
+                                                            filter = c("size", "numOfEdges", "pageRankMax", "pageRankWeighted"), ...){
+  df.grp <- df.sig %>% filter(characteristic %in% filter) %>% 
+    group_by(characteristic, smellType, classification)
+  ggplotsignaltrends(df.grp, legend.position = legend.position, ...) + 
+    theme(axis.text.x = element_text(angle = 0, hjust = 0.5), axis.title.y = element_text(angle = -90)) +
+    rotate() +
+    facet_grid(characteristic~.) +
+    labs(x = "Smell types", y = "Percentage",
+         title = "Trend classification all projects")
+}
 
 #' Scatterplot of different correlation statistics
 #' @param df.sig Data frame containing the signal classification as returned by classifySignal()
@@ -339,6 +402,8 @@ saveAllPlotsToFiles <- function(datasets, dir = "plots", format = "png", scale =
   plotCycleShapesCountPerVersion(df)
   ggsave(paste("descriptive-shape-count.", format, sep = ""), path = dest, width = 20, height = 16, scale = scale)
   
+  plotAffectedDesignChangedCount(df, showChange = T) 
+  ggsave(paste("descriptive-affected-design.", format, sep = ""), path = dest)
   
   # PRINT RQ2
   plotSurvivalProbabilities(df, legend.position = "top", base.size = 14)
@@ -376,6 +441,8 @@ saveAllPlotsToFiles <- function(datasets, dir = "plots", format = "png", scale =
     plotCharacteristicEvolutionTrend(df, charact)
     ggsave(paste("signal-evol-", charact, ".", format, sep=""), path = dest)
   }
+  plotSignalTrendCharacteristicAllProjectsOnePlot(df.sig, base.size = 14)
+  ggsave(paste("signal-trend-all-projects-oneplot.", format, sep = ""), path = dest, height = 10.1, width = 5.83)
 }
 
 
