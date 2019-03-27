@@ -1,6 +1,7 @@
 library(dplyr)
 library(gtools)
-smellCharacteristics <- data.frame(rbind(c("size", "generic"), 
+smellCharacteristics <- data.frame(rbind(c("size", "generic"),
+                                         c("sizeWeighted", "generic"),
                                         c("overlapRatio", "generic"),
                                         c("pageRankWeighted", "generic"),
                                         c("pageRankMax", "generic"),

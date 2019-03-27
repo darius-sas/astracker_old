@@ -251,13 +251,14 @@ plotCharacteristicCorrelationEstimates <- function(df.corr, base.size = 12){
   df.corr <- df.corr %>% filter(p.value <= 0.05)
   ggplot(df.corr, aes(project, estimate, group = var)) + 
     geom_jitter(aes(fill=smellType, color=smellType), height = 0.1, width = 0.2) +
-    theme_gray(base_size = base.size) +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), legend.position = "none") +
-    facet_grid(var~smellType, scales = "fixed") + 
+    theme_gray(base_size = base.size) + rotate() +
+    theme(axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 0.5), legend.position = "none",
+          axis.title.y = element_text(angle = -90)) +
+    facet_grid(smellType~var, scales = "fixed") + 
     labs(x = "Project",
          y = "Correlation value",
-         title = "Correlation among characteristics per project and smell type",
-         subtitle = "Each smell is a point  (only p < 0.05)")
+         title = "Correlation among characteristics",
+         subtitle = "Each smell is a point (only p < 0.05)")
 }
 
 
@@ -355,6 +356,9 @@ runAnalyses <- function(dataset.file){
     df.tmp$smellType <- smellType
     df.corr <- bind_rows(df.corr, df.tmp)
   }
+  df.tmp <- computeCharacteristicCorrelation(df, c("generic"))
+  df.tmp$smellType <- "all"
+  df.corr <- bind_rows(df.corr, df.tmp)
   
   print("Running signal analysis")
   df.sig <- data.frame()
@@ -424,7 +428,7 @@ saveAllPlotsToFiles <- function(datasets, dir = "plots", format = "png", scale =
   # PRINT RQ1 (LONGEST, LEAVE FOR LAST)
   for (smellType in unique(df.corr.all$smellType)) {
     df.corr <- df.corr.all %>% filter(smellType == smellType)
-    plotCharacteristicCorrelationBoth(df.corr)
+    plotCharacteristicCorrelationBoth(df.corr, base.size=14)
     ggsave(paste("correl-generic-", smellType, ".", format, sep = ""), path = dest, width = 15, height = 12)
   }
   #plotCharacteristicCorrelationEstimates(df.corr %>% filter(var == "pageRankMax~size"), 22) + theme(title=element_text(size=18))
