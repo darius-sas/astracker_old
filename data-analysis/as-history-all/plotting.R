@@ -291,7 +291,7 @@ plotCharacteristicDistribution <- function(df, characteristic){
 
 #' Plot survival probabilities using the Kaplan-Meier statistic.
 #' @param df the data frame containing the raw data
-plotSurvivalProbabilities <- function(df, strata = "smellType", legend.position = "right", base.size = 12){
+plotSurvivalProbabilitiesOld <- function(df, strata = "smellType", legend.position = "right", base.size = 12){
   surv <- computeSurvivalAnalysis(df, strata)
   ggsurvplot(surv$model, data = surv$data,
              facet.by = "project",
@@ -303,6 +303,37 @@ plotSurvivalProbabilities <- function(df, strata = "smellType", legend.position 
     labs(title = "Survival analysis by project")
 }
 
+plotSurvivalProbabilities <- function(df, strata = "smellType", base.size = 12, title = "Smell Types", 
+                                      arrange.layout = "h"){
+  i <- 1
+  plist <- list()
+  for (proj in unique(df$project)) {
+    df.tmp <- df %>% filter(project == proj)
+    surv <- computeSurvivalAnalysis(df.tmp, strata)
+    plist[[i]] <- ggsurvplot(surv$model, data = surv$data,
+                             surv.median.line = "v", short.panel.labs = T,
+                             ggtheme = theme_grey(base_size = base.size),
+                             title = "", facet.by = "project") +
+                 facet_wrap(~project, strip.position = "right") +
+                 theme(legend.position = "none",
+                       axis.title = element_blank(), panel.border = element_blank(),
+                       plot.margin=unit(c(-.75, 0,-.08, 0.2), "cm"))
+    if(i == 1) {
+      nCol = ifelse(arrange.layout == "h", 2, 3)
+      p <- plist[[i]] + theme(legend.position = "top") + guides(color=guide_legend(ncol = nCol, title = title))
+      legend <- get_legend(p)
+    }
+    i <- i + 1
+  }
+  plist[[i]] <- legend
+  if(arrange.layout == "h"){
+    arrange.layout <- rbind(1:4, 5:8, 9:12, c(13, 14, 15, 15))
+  }else{
+    arrange.layout <- rbind(c(15,15), 1:2, 3:4, 5:6, 7:8, 9:10, 11:12, 13:14)
+  }
+  grid.arrange(grobs = plist, layout_matrix = arrange.layout, bottom="Versions", 
+               heights=unit(append(0.7,replicate(nrow(arrange.layout)-1, 1.5)), "in"))
+}
 
 #' Plot the age density of smells
 #' @param df the data frame containing the raw data
@@ -337,13 +368,6 @@ plotSmellLifetimeLines <- function(df){
 }
 
 ## SAVING TO FILE
-
-g_legend <- function(a.gplot){ 
-  tmp <- ggplot_gtable(ggplot_build(a.gplot)) 
-  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box") 
-  legend <- tmp$grobs[[leg]] 
-  return(legend)
-} 
 
 runAnalyses <- function(dataset.file){
   df <- read.csv(dataset.file)
@@ -410,17 +434,12 @@ saveAllPlotsToFiles <- function(datasets, dir = "plots", format = "png", scale =
   ggsave(paste("descriptive-affected-design.", format, sep = ""), path = dest)
   
   # PRINT RQ2
-  plotSurvivalProbabilities(df, legend.position = "top", base.size = 14)
-  ggsave(paste("survival-probabilities.", format, sep = ""), path = dest, height = 12)
-  plotSurvivalProbabilities(df %>% filter(affectedComponentType == "class"), legend.position = "top", base.size = 14) + labs (subtitle = "Class-smells only")
-  ggsave(paste("survival-probabilities-class.", format, sep = ""), path = dest, height = 12)
-  plotSurvivalProbabilities(df %>% filter(affectedComponentType == "package"), legend.position = "top", base.size = 14)  + labs (subtitle = "Package-smells only")
-  ggsave(paste("survival-probabilities-packag.", format, sep = ""), path = dest, height = 12)
-  
-  plotSurvivalProbabilities(df %>% filter(smellType == "cyclicDep" & affectedComponentType == "class"), strata = "shape", legend.position = "top", base.size = 14)  + labs (subtitle = "Class-smells only")
-  ggsave(paste("survival-probabilities-cycle-class.", format, sep = ""), path = dest, height = 12)
-  plotSurvivalProbabilities(df %>% filter(smellType == "cyclicDep" & affectedComponentType == "package"), strata = "shape", legend.position = "top", base.size = 14)  + labs (subtitle = "Package-smells only")
-  ggsave(paste("survival-probabilities-cycle-packag.", format, sep = ""), path = dest, height = 12)
+  df <- df %>% mutate(smellTypeGeneral = paste(smellType, affectedComponentType))
+  p <- plotSurvivalProbabilities(df, strata = "smellTypeGeneral", base.size = 14, arrange.layout = "v")
+  ggsave(paste("survival-probabilities.", format, sep = ""), path = dest, height = 12, plot = p)
+  p2 <- plotSurvivalProbabilities(df %>% filter(smellType == "cyclicDep"), strata = "shape", 
+                                 base.size = 14, title = "Shapes", arrange.layout = "v")
+  ggsave(paste("survival-probabilities-shapes.", format, sep = ""), path = dest, height = 12, plot = p2)
   
   plotAgeDensity(df)
   ggsave(paste("survival-age-density.", format, sep = ""), path = dest, width = 20, height = 16)
@@ -509,4 +528,12 @@ shift_legend <- function(p){
   
   return(gp)
 }
+
+
+g_legend <- function(a.gplot){ 
+  tmp <- ggplot_gtable(ggplot_build(a.gplot)) 
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box") 
+  legend <- tmp$grobs[[leg]] 
+  return(legend)
+} 
 

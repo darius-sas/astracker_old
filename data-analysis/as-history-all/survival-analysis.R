@@ -19,7 +19,7 @@ computeSurvivalAnalysis<- function(df, strata = "smellType", uniform.sampling = 
   df.smel <- left_join(df.smel, df.proj[,c("project","n.versions")], by="project")
   df.smel$presentInLastVersion <- df.smel$lastVersion == df.smel$n.versions
   
-  df.dup <- df[!duplicated(df[, c("project", "uniqueSmellID")]), c("project", "uniqueSmellID", strata, "age", "versionPosition")]
+  df.dup <- df[!duplicated(df[, c("project", "uniqueSmellID")]), cbind(c("project", "uniqueSmellID", "age", "versionPosition"), strata)]
   df.surv <- left_join(df.smel, df.dup, by=c("project", "uniqueSmellID"))
   
   # We need to negate presentInLastVersion because event is whether the smell is 'dead' in the last version
