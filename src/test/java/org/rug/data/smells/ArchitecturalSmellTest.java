@@ -63,7 +63,7 @@ class ArchitecturalSmellTest {
                                     .in().hasLabel(VertexLabel.CYCLESHAPE.toString()).values("shapeType").next().toString())
                             .collect(Collectors.toList()),
                     smellsInTheSystem.stream()
-                            .filter(as -> as.getType().equals(ArchitecturalSmell.Type.CD) && !((CDSmell)as).getShape().equals(CDSmell.Shape.UNKNOWN))
+                            .filter(as -> as.getType().equals(ArchitecturalSmell.Type.CD) && !((CDSmell)as).getShape().equals(CDSmell.Shape.UNCLASSIFIED))
                             .sorted(Comparator.comparing(ArchitecturalSmell::getId))
                             .map(as -> ((CDSmell) as).getShape().toString())
                             .collect(Collectors.toList()),

@@ -57,7 +57,7 @@ public class CDSmell extends ArchitecturalSmell {
                 .not(__.has(VISITED_SMELL_NODE, "true"))
                 .tryNext().orElse(null);
         if (this.shapeVertex == null){
-            this.shape = Shape.UNKNOWN;
+            this.shape = Shape.UNCLASSIFIED;
         }else {
             this.shape = Shape.fromString(shapeVertex.value("shapeType"));
         }
@@ -108,7 +108,7 @@ public class CDSmell extends ArchitecturalSmell {
         CLIQUE("clique"),
         STAR("star"),
         CHAIN("chain"),
-        UNKNOWN("unknown");
+        UNCLASSIFIED("unclassified");
 
         /**
          * Returns the shapes that are represented by multiple smell vertices.
