@@ -234,10 +234,11 @@ plotCharacteristicEvolutionTrend <- function(df, characteristic){
 #' Plots the ratio between the number of smells that have a p.value higher than 0.05 for
 #' this correlation analysis.
 #' @param df.corr The data frame resulting from the correlation analysis between the considered characteristics.
-plotCharacteristicCorrelationValidity <- function(df.corr){
+plotCharacteristicCorrelationValidity <- function(df.corr, base.size){
   df.corr.validity <- df.corr %>% mutate(isValid = p.value >= 0.05) %>% group_by(isValid) %>% tally()
   ggplot(df.corr.validity, aes(isValid, n)) + 
     geom_bar(aes(color = isValid, fill=isValid), stat = "identity") +
+    theme_gray(base_size = base.size) +
     labs(x = "Validity",
          y = "Count",
          title = "Number of statistically significant tests",
@@ -263,9 +264,9 @@ plotCharacteristicCorrelationEstimates <- function(df.corr, base.size = 12){
 
 
 #' Plots both validity scores and correlation scores.
-plotCharacteristicCorrelationBoth <- function(df.corr){
-  gridExtra::grid.arrange(plotCharacteristicCorrelationValidity(df.corr),
-                          plotCharacteristicCorrelationEstimates(df.corr))
+plotCharacteristicCorrelationBoth <- function(df.corr, base.size = 12){
+  gridExtra::grid.arrange(plotCharacteristicCorrelationValidity(df.corr, base.size),
+                          plotCharacteristicCorrelationEstimates(df.corr, base.size))
 }
 
 
@@ -381,6 +382,7 @@ runAnalyses <- function(dataset.file){
     df.corr <- bind_rows(df.corr, df.tmp)
   }
   df.tmp <- computeCharacteristicCorrelation(df, c("generic"))
+  levels(df.tmp$smellType) <- c(levels(df.tmp$smellType), "all")
   df.tmp$smellType <- "all"
   df.corr <- bind_rows(df.corr, df.tmp)
   
@@ -398,8 +400,8 @@ runAnalyses <- function(dataset.file){
 }
 
 saveResults <- function(datasets, dir = "."){
-  write.csv(datasets$corr, "corr-analysis.csv")
-  write.csv(datasets$sig,  "signal-analysis.csv")
+  write.csv(datasets$corr, "corr-analysis.csv", row.names = F)
+  write.csv(datasets$sig,  "signal-analysis.csv", row.names = F)
 }
 
 loadResults <- function(dir = "."){
@@ -418,7 +420,7 @@ saveAllPlotsToFiles <- function(datasets, dir = "plots", format = "png", scale =
   df.sig.all <- datasets$sig
   
   # PRINT DESCRIPTIVE STATS
-  p <- shift_legend(plotSmellDensityPerVersion(df, base.size = 14, ncol = 4, stat = "density"))
+  p <- shift_legend(plotSmellDensityPerVersion(df, base.size = 14, ncol = 4, my.stat = "density"))
   ggsave(paste("descriptive-smell-density.", format, sep = ""), path = dest, height = 8,  width = 15, plot = p)
   
   plotBoxplotsSmellGenericCharacteristics(df)

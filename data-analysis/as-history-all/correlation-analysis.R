@@ -1,10 +1,10 @@
 library(dplyr)
 library(gtools)
 smellCharacteristics <- data.frame(rbind(c("size", "generic"),
-                                         c("sizeWeighted", "generic"),
                                         c("overlapRatio", "generic"),
                                         c("pageRankWeighted", "generic"),
                                         c("pageRankMax", "generic"),
+                                        c("pageRankAvrg", "generic"),
                                         c("strength", "unstableDep"),
                                         c("instabilityGap", "unstableDep"),
                                         c("avrgEdgeWeight", "cyclicDep"),
