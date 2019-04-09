@@ -8,7 +8,7 @@ smellCharacteristics <- data.frame(rbind(c("size", "generic"),
                                         c("strength", "unstableDep"),
                                         c("instabilityGap", "unstableDep"),
                                         c("avrgEdgeWeight", "cyclicDep"),
-                                        c("numOfEdges", "cyclicDep"),
+                                        c("numOfEdges", "generic"),
                                         c("numOfInheritanceEdges", "cyclicDep")))
 colnames(smellCharacteristics) <- c("name", "type")
 

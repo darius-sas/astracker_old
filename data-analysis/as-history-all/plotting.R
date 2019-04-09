@@ -31,10 +31,22 @@ plotSmellDensityPerVersion <- function(df, legend.position = "top", base.size = 
     facet_wrap(~project, scales = "free", ncol = ncol, strip.position = "right") +
     labs(x = "Version number",
          y = "Number of smells",
-         title = "Smell density in the systems") +
+         title = paste("Smell", ifelse(my.stat == "n", "count", "density"), "in the systems")) +
     guides(color=guide_legend(ncol=2))
 }
 
+plotClassesPerPackageRatio <- function(df, base.size = 12, legend.position = "none"){
+  df.sizes <- df.sizes <- df %>% group_by(project, versionPosition) %>%
+    select(project, versionPosition, nClasses, nPackages) %>%
+    distinct()
+  df.sizes$classesRatio <- df.sizes$nClasses / df.sizes$nPackages 
+  ggplot(df.sizes, aes(x=versionPosition,y=classesRatio)) +
+    geom_line() + facet_wrap(~project, scales = "free") +
+    theme_grey(base_size = base.size) +
+    labs(title="Classes per single package",
+         x = "Versions",
+         y = "Number of classes per package")
+}
 
 #' Utility function plotting boxplots for each characteristic
 ggboxplots<-function(df.melt){
@@ -269,6 +281,17 @@ plotCharacteristicCorrelationBoth <- function(df.corr, base.size = 12){
                           plotCharacteristicCorrelationEstimates(df.corr, base.size))
 }
 
+plotCharacteristCorrelationBoxplots <- function(df.corr, base.size = 12, legend.position = "none"){
+  df.corr.f <- df.corr %>% filter(p.value <= 0.05)
+  df.corr.f$smellType <- plyr::revalue(df.corr.f$smellType, c("cyclicDep"="CD", "hubLikeDep"="HL", "unstableDep"="UD"))
+  ggplot(df.corr.f, aes(smellType, estimate, fill = smellType)) + 
+    geom_boxplot() + rotate() +
+    theme_gray(base_size = base.size) +
+    theme(legend.position = legend.position, axis.title.y = element_blank()) +
+    facet_wrap(~var, scales = "free_x") +
+    labs(y = "Pearson's correlation")
+  
+}
 
 #' Scatterplot of the values assumed by the given characteristic in the each version of the projects
 #' @param df the data frame containing the values of the characteristic
@@ -423,6 +446,9 @@ saveAllPlotsToFiles <- function(datasets, dir = "plots", format = "png", scale =
   p <- shift_legend(plotSmellDensityPerVersion(df, base.size = 14, ncol = 4, my.stat = "density"))
   ggsave(paste("descriptive-smell-density.", format, sep = ""), path = dest, height = 8,  width = 15, plot = p)
   
+  plotSmellDensityPerVersion(df, base.size = 14, ncol = 4, my.stat = "count") + scale_y_sqrt() + labs(subtitle = "Square root scale")
+  ggsave(paste("descriptive-smell-count.", format, sep = ""), path = dest, height = 8,  width = 15)
+  
   plotBoxplotsSmellGenericCharacteristics(df)
   ggsave(paste("descriptive-generic-charact.", format, sep = ""), path = dest, width = 20, height = 16, scale = 0.9)
   
@@ -434,6 +460,9 @@ saveAllPlotsToFiles <- function(datasets, dir = "plots", format = "png", scale =
   
   plotAffectedDesignChangedCount(df, showChange = T) 
   ggsave(paste("descriptive-affected-design.", format, sep = ""), path = dest)
+  
+  plotClassesPerPackageRatio(df, base.size = 10)
+  ggsave(paste("descriptive-classes-per-package.", format, sep = ""), path = dest)
   
   # PRINT RQ2
   df <- df %>% mutate(smellTypeGeneral = paste(smellType, affectedComponentType))
