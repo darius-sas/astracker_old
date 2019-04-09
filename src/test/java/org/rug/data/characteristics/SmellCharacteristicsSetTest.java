@@ -38,10 +38,11 @@ class SmellCharacteristicsSetTest {
         assertTrue(uds.size() > 0);
 
         uds.forEach(ud -> {
-            var result = strength.visit(ud);
-            assertNotEquals(0, Double.parseDouble(result));
-            result = instaGap.visit(ud);
-            assertNotEquals(0, Double.parseDouble(result));
+            var result = Double.parseDouble(strength.visit(ud));
+            assertNotEquals(0, result);
+            assertTrue(result <= 1);
+            result = Double.parseDouble(instaGap.visit(ud));
+            assertNotEquals(0, result);
         });
 
     }
