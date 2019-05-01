@@ -5,6 +5,7 @@ import org.rug.data.Project;
 import org.rug.data.characteristics.smells.*;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.smells.CDSmell;
+import org.rug.data.smells.HLSmell;
 import org.rug.data.smells.UDSmell;
 
 import java.io.IOException;
@@ -93,4 +94,15 @@ class SmellCharacteristicsSetTest {
         }
     }
 
+    @Test
+    void testAvrgInternalPathLength(){
+        var avrgPathLength = new AverageInternalPathLength();
+
+        var as = project.getArchitecturalSmellsIn("3.4").stream().filter(a -> a.getType() == ArchitecturalSmell.Type.HL).map(a -> (HLSmell)a).collect(Collectors.toSet());
+        for (var a : as){
+            var l = Double.parseDouble(a.accept(avrgPathLength));
+            System.out.println(a);
+            System.out.println("Average path length: " + l);
+        }
+    }
 }
