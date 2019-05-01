@@ -31,7 +31,8 @@ jaccardMatr2 <- function(elements = 3){
     }
   }
   scores <- round(scores, digits=2)
-  return(scores)
+  rc.lab <- apply(inputs, 1, function(x)paste('(', paste(x, collapse = ", "), ')', sep = ""))
+  return(list(scores=scores,labs=rc.lab))
 }
 
 scores <- jaccardMatr(10,16)
@@ -39,19 +40,21 @@ scores <- round(scores, digits=2)
 
 myPalette <- colorRampPalette(c("white", "grey", "grey50"))(n = 299)
 
-heatmap.2(scores,
-          cellnote = scores,       # same data set for cell labels
+heatmap.2(jm$scores,
+          cellnote = jm$scores,       # same data set for cell labels
           notecol="black",         # change font color of cell labels to black
           density.info="none",     # turns off density plot inside color legend
           trace="none",            # turns off trace lines inside the heat map
-          margins=c(4,4),          # widens margins around plot
+          #margins=c(4,4),          # widens margins around plot
           col=myPalette,           # use on color palette defined earlier
           dendrogram="none",       # only draw a row dendrogram
           Rowv = FALSE,
-          srtCol = 0,
           key = FALSE,             # disable legend
-          xlab = "next version cardinality",
-          ylab = "current version cardinality",
+          labRow = jm$labs,
+          labCol = jm$labs,
+          srtCol =45,
+          #xlab = "next version cardinality",
+          #ylab = "current version cardinality",
           Colv="NA")               # turn off column clustering
 title("Jaccard scores matrix", line = -3, adj=0.62)
 rect(3, 4, 5, 9, border="red", col = "blue")
