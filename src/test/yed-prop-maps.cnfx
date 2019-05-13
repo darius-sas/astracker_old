@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<styles>
+  <style name="Arcan" scope="node" selectionOnly="false">
+    <mapping>
+      <source name="labelV" origin="customProperty" type="string"/>
+      <target name="fillColor" type="color">
+        <hints/>
+      </target>
+      <conversion type="discrete">
+        <discrete>
+          <value>class</value>
+          <result>#ffcc00</result>
+        </discrete>
+        <discrete>
+          <value>package</value>
+          <result>#339966</result>
+        </discrete>
+        <discrete>
+          <value>smell</value>
+          <result>#ff0000</result>
+        </discrete>
+      </conversion>
+    </mapping>
+    <mapping>
+      <source name="name" origin="customProperty" type="string"/>
+      <target name="labelText" type="string">
+        <hints>
+          <hint type="int">0</hint>
+        </hints>
+      </target>
+      <conversion type="asIs"/>
+    </mapping>
+  </style>
+  <style name="Arcan" scope="edge" selectionOnly="false">
+    <mapping>
+      <source name="labelE" origin="customProperty" type="string"/>
+      <target name="lineColor" type="color">
+        <hints/>
+      </target>
+      <conversion type="discrete">
+        <discrete>
+          <value>HLAffectedPackage</value>
+          <result>#800000</result>
+        </discrete>
+        <discrete>
+          <value>belongsTo</value>
+          <result>#ff6600</result>
+        </discrete>
+        <discrete>
+          <value>isAfferentOf</value>
+          <result>#808000</result>
+        </discrete>
+        <discrete>
+          <value>isEfferentOf</value>
+          <result>#008000</result>
+        </discrete>
+        <discrete>
+          <value>isHLin</value>
+          <result>#0000ff</result>
+        </discrete>
+        <discrete>
+          <value>isHLout</value>
+          <result>#808080</result>
+        </discrete>
+      </conversion>
+    </mapping>
+  </style>
+</styles>

@@ -38,9 +38,13 @@ public class AverageInternalPathLength extends AbstractSmellCharacteristic {
                 .with(ShortestPath.includeEdges, true)
                 .with(ShortestPath.edges, __.outE(EdgeLabel.DEPENDSON.toString()))
                 .toList();
-        var mean = g.inject(paths.toArray())
+
+        var mean = 0;
+
+        if (paths.size() > 0)
+            mean = g.inject(paths.toArray())
                 .map(__.unfold().values("Weight").sum())
-                .mean().next().toString();
-        return mean;
+                .mean().next().intValue();
+        return String.valueOf(mean);
     }
 }

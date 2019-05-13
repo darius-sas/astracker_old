@@ -130,14 +130,14 @@ class SmellCharacteristicsSetTest {
                 e2 = e2 == null && i == n - 2 ? v : e2;
             }else {
                 g.addE(EdgeLabel.BELONGSTO.toString()).from(v).to(affectedPackageV).next();
-                classesV.add(v);
             }
+            classesV.add(v);
         }
 
         var perms = generatePerm(classesV);
         var rng = new Random(0);
         Collections.shuffle(perms, rng);
-        var edgeProb = 0.001;
+        var edgeProb = 0.1;
         var nPaths = 0;
         var maxPaths = 3;
         // Randomly generate maxPaths paths between source and exit nodes
@@ -163,7 +163,7 @@ class SmellCharacteristicsSetTest {
         g.addE(EdgeLabel.HLIN.toString()).from(smell).to(efferentPackageV).next();
         g.addE(EdgeLabel.HLOUT.toString()).from(smell).to(afferentPackageV).next();
 
-        graph.io(IoCore.graphml()).writeGraph("test-data/hl-avrg.graphml");
+        graph.io(IoCore.graphml()).writeGraph("src/test/graphimages/hl-avrg.graphml");
 
         return new HLSmell(smell);
     }
