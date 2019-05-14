@@ -101,7 +101,11 @@ class SmellCharacteristicsSetTest {
     void testAvrgInternalPathLength() throws IOException{
         var avrgPathLength = new AverageInternalPathLength();
         HLSmell hl = createMockHL();
-        System.out.println(avrgPathLength.visit(hl));
+        assertEquals(2, Double.parseDouble(avrgPathLength.visit(hl)));
+        var as = project.getArchitecturalSmellsIn("3.1");
+        hl = (HLSmell)as.stream().filter(s -> s.getId() == 17174).findFirst().orElse(null);
+        assertNotNull(hl);
+        assertEquals(3.26, Double.parseDouble(avrgPathLength.visit(hl)));
     }
 
     HLSmell createMockHL() throws IOException{
@@ -110,8 +114,8 @@ class SmellCharacteristicsSetTest {
 
         var n = 8;
         var affectedPackageV = g.addV(VertexLabel.PACKAGE.toString()).property("name", "test.packageAffected").next();
-        var afferentPackageV = g.addV(VertexLabel.PACKAGE.toString()).property("name", "test.packageAfferent").next();
-        var efferentPackageV = g.addV(VertexLabel.PACKAGE.toString()).property("name", "test.packageEfferent").next();
+        var inPackageV = g.addV(VertexLabel.PACKAGE.toString()).property("name", "test.packageAfferent").next();
+        var outPackageV = g.addV(VertexLabel.PACKAGE.toString()).property("name", "test.packageEfferent").next();
 
         Vertex s1 = null, s2 = null, e1 = null, e2 = null;
 
@@ -119,12 +123,12 @@ class SmellCharacteristicsSetTest {
         for (int i = 0; i<= n; i++) {
             var v = g.addV(VertexLabel.CLASS.toString()).property("name", "class" + i).next();
             if (i == 0 || i == 1) {
-                g.addE(EdgeLabel.BELONGSTO.toString()).from(v).to(afferentPackageV).next();
+                g.addE(EdgeLabel.BELONGSTO.toString()).from(v).to(inPackageV).next();
                 g.addE(EdgeLabel.ISAFFERENTOF.toString()).from(v).to(affectedPackageV).next();
                 s1 = s1 == null && i == 0 ? v : s1;
                 s2 = s2 == null && i == 1 ? v : s2;
             }else if (i == n - 1 || i == n - 2){
-                g.addE(EdgeLabel.BELONGSTO.toString()).from(v).to(efferentPackageV).next();
+                g.addE(EdgeLabel.BELONGSTO.toString()).from(v).to(outPackageV).next();
                 g.addE(EdgeLabel.ISEFFERENTOF.toString()).from(v).to(affectedPackageV).next();
                 e1 = e1 == null && i == n - 1 ? v : e1;
                 e2 = e2 == null && i == n - 2 ? v : e2;
@@ -137,9 +141,9 @@ class SmellCharacteristicsSetTest {
         var perms = generatePerm(classesV);
         var rng = new Random(0);
         Collections.shuffle(perms, rng);
-        var edgeProb = 0.1;
+        var edgeProb = 0.5;
         var nPaths = 0;
-        var maxPaths = 3;
+        var maxPaths = 1;
         // Randomly generate maxPaths paths between source and exit nodes
         for (var path : perms){
             if (nPaths <=maxPaths &&
@@ -152,6 +156,7 @@ class SmellCharacteristicsSetTest {
                                 .next();
                     }else{
                         nPaths++;
+                        break;
                     }
                 }
             }
@@ -160,8 +165,8 @@ class SmellCharacteristicsSetTest {
         var smell = g.addV(VertexLabel.SMELL.toString()).property("smellType", ArchitecturalSmell.Type.HL.toString()).next();
         smell.property("vertexType", "package");
         g.addE(EdgeLabel.HLAFFECTEDPACK.toString()).from(smell).to(affectedPackageV).next();
-        g.addE(EdgeLabel.HLIN.toString()).from(smell).to(efferentPackageV).next();
-        g.addE(EdgeLabel.HLOUT.toString()).from(smell).to(afferentPackageV).next();
+        g.addE(EdgeLabel.HLIN.toString()).from(smell).to(inPackageV).next();
+        g.addE(EdgeLabel.HLOUT.toString()).from(smell).to(outPackageV).next();
 
         graph.io(IoCore.graphml()).writeGraph("src/test/graphimages/hl-avrg.graphml");
 
