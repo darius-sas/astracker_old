@@ -98,7 +98,7 @@ class SmellCharacteristicsSetTest {
     }
 
     @Test
-    void testAvrgInternalPathLength() throws IOException{
+    void testAvrgInternalPathLength(){
         var avrgPathLength = new AverageInternalPathLength();
         HLSmell hl = createMockHL();
         assertEquals(2, Double.parseDouble(avrgPathLength.visit(hl)));
@@ -108,7 +108,18 @@ class SmellCharacteristicsSetTest {
         assertEquals(3.26, Double.parseDouble(avrgPathLength.visit(hl)));
     }
 
-    HLSmell createMockHL() throws IOException{
+    @Test
+    void testAffectedRatio(){
+        var affectedClassesRatio = new AffectedClassesRatio();
+        HLSmell hl = createMockHL();
+        assertEquals(0.4, Double.parseDouble(affectedClassesRatio.visit(hl)));
+        var as = project.getArchitecturalSmellsIn("3.1");
+        hl = (HLSmell)as.stream().filter(s -> s.getId() == 17174).findFirst().orElse(null);
+        assertNotNull(hl);
+        assertEquals(0.92, affectedClassesRatio.visit(hl));
+    }
+
+    HLSmell createMockHL(){
         var graph = TinkerGraph.open();
         var g = graph.traversal();
 
@@ -168,7 +179,7 @@ class SmellCharacteristicsSetTest {
         g.addE(EdgeLabel.HLIN.toString()).from(smell).to(inPackageV).next();
         g.addE(EdgeLabel.HLOUT.toString()).from(smell).to(outPackageV).next();
 
-        graph.io(IoCore.graphml()).writeGraph("src/test/graphimages/hl-avrg.graphml");
+        //graph.io(IoCore.graphml()).writeGraph("src/test/graphimages/hl-avrg.graphml");
 
         return new HLSmell(smell);
     }
