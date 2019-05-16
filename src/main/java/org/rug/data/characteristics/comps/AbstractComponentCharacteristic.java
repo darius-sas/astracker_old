@@ -1,5 +1,6 @@
 package org.rug.data.characteristics.comps;
 
+import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -40,8 +41,8 @@ public abstract class AbstractComponentCharacteristic implements IComponentChara
      */
     @Override
     public void calculate(Graph graph) {
-        graph.traversal().V(vLabels).forEachRemaining(this::calculate);
-        graph.traversal().E(eLabels).forEachRemaining(this::calculate);
+        graph.traversal().V().hasLabel(P.within(vLabels)).forEachRemaining(this::calculate);
+        graph.traversal().E().hasLabel(P.within(eLabels)).forEachRemaining(this::calculate);
     }
 
     /**

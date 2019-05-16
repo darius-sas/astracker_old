@@ -3,6 +3,8 @@ package org.rug.runners;
 import org.rug.data.ArcanDependencyGraphParser;
 import org.rug.data.Project;
 import org.rug.data.characteristics.ComponentCharacteristicSet;
+import org.rug.data.characteristics.comps.ClassSourceCodeRetriever;
+import org.rug.data.characteristics.comps.JarClassSourceCodeRetrieval;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.persistence.*;
 import org.rug.tracker.ASmellTracker;
@@ -33,7 +35,9 @@ public class TrackASRunner extends ToolRunner {
     public int start() {
         var versionedSystem = project.getVersionedSystem();
         tracker = new ASmellTracker(new SimpleNameJaccardSimilarityLinker(), trackNonConsecutiveVersions);
-        var componentCharacteristics = new ComponentCharacteristicSet().getCharacteristicSet();
+
+        JarClassSourceCodeRetrieval retriever = project.hasJars() ? new JarClassSourceCodeRetrieval() : null;
+        var componentCharacteristics = new ComponentCharacteristicSet(retriever).getCharacteristicSet();
 
         var count = new Counter(1);
         var total = versionedSystem.size();
@@ -43,6 +47,10 @@ public class TrackASRunner extends ToolRunner {
             logger.info("Tracking version {} (n. {} of {})", version, count.postIncrement(), total);
             var graph = inputTriple.getC();
             List<ArchitecturalSmell> smells = ArcanDependencyGraphParser.getArchitecturalSmellsIn(graph);
+            if (retriever != null) {
+                retriever.clear();
+                retriever.setClassPath(inputTriple.getA()); //update sources to current version
+            }
             componentCharacteristics.forEach(c -> c.calculate(graph));
             smells.forEach(ArchitecturalSmell::calculateCharacteristics);
             tracker.track(smells, version);

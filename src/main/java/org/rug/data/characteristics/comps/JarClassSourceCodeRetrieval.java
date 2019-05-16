@@ -4,27 +4,23 @@ import org.benf.cfr.reader.api.CfrDriver;
 import org.benf.cfr.reader.api.OutputSinkFactory;
 import org.benf.cfr.reader.api.SinkReturns;
 
+import java.io.FilenameFilter;
+import java.nio.file.Path;
 import java.util.*;
 
 /**
  * Retrieves the source code of a class starting starting from a list of Jar files.
  * The Jars are decompiled using CFR decompiler. CFR errors are fully suppressed and
  * empty string is always returned in such case.
+ *
+ * NOTE: {@link #setClassPath(String[])} needs to be explicitly invoked as it
+ * specifies the paths where this object will look for classes.
  */
 public class JarClassSourceCodeRetrieval extends ClassSourceCodeRetriever {
 
     private String[] classPath;
     private SourceClassSink sourceClasses = new SourceClassSink();
     private boolean errorOccured = false;
-
-    /**
-     * Build the instance with the JAR files containing the classes of the project
-     * version to decompile.
-     * @param jarFiles the full paths to the Jar files.
-     */
-    public JarClassSourceCodeRetrieval(String... jarFiles){
-        this.classPath = jarFiles;
-    }
 
     /**
      * Retrieves the source code as a string from the given class name.
@@ -35,11 +31,47 @@ public class JarClassSourceCodeRetrieval extends ClassSourceCodeRetriever {
      */
     @Override
     public String getClassSource(String className) {
-        if (errorOccured)
+        if (errorOccured || classPath == null)
             return "";
         if (sourceClasses.isEmpty())
             decompile();
         return sourceClasses.getSource(className, "");
+    }
+
+    /**
+     * This method sets the jar files where the classes will be looked for.
+     * @param classPath an array of paths to JAR files.
+     */
+    public void setClassPath(String[] classPath) {
+        this.classPath = classPath;
+    }
+
+    /**
+     * @see #setClassPath(String[])
+     * @param classPath a list of paths to JAR files.
+     */
+    public void setClassPath(List<String> classPath){
+        setClassPath(classPath.toArray(new String[classPath.size()]));
+    }
+
+    /**
+     * @see #setClassPath(String[])
+     * @param directory The directory that contains the JAR files. If directory is a file, it is
+     *                  assumed it is a JAR file.
+     */
+    public void setClassPath(Path directory){
+        if (directory.toFile().isDirectory())
+            setClassPath(directory.toFile().list((file, s) -> s.endsWith(".jar")));
+        else
+            setClassPath(directory.toFile().getAbsolutePath());
+    }
+
+    /**
+     * @see #setClassPath(String[])
+     * @param file A JAR file that contains the classes.
+     */
+    public void setClassPath(String file){
+        setClassPath(new String[]{file});
     }
 
     /**
