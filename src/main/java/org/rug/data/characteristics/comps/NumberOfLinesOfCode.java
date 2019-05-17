@@ -70,14 +70,9 @@ public class NumberOfLinesOfCode extends AbstractComponentCharacteristic {
     }
 
     private long countLOC(Vertex clazz){
-        var g = clazz.graph().traversal();
-        var parentPackage = g.V(clazz).out(EdgeLabel.BELONGSTO.toString()).next();
-        var classFullName = String.join(".", parentPackage.value("name"), clazz.value("name"));
-
-        var sourceCode = sourceRetriever.getClassSource(classFullName);
+        var sourceCode = sourceRetriever.getClassSource(clazz.value("name"));
         var linesOfCode = sourceCode.split("[\n|\r]");
         return Arrays.stream(linesOfCode).filter(line -> line.length() > 0).count();
-
     }
 
 }

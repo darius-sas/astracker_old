@@ -26,10 +26,18 @@ class NumberOfLinesOfCodeTest {
         assertFalse(src.isEmpty());
         var linesOfCode = src.split("[\n|\r]");
         var nbloc = Arrays.stream(linesOfCode).filter(line -> line.length() > 0).count();
-        assertTrue(nbloc > 50);
+        assertTrue(nbloc >= 50);
 
-        project.addJars("");
+        project.addJars("qualitas-corpus/input/antlr");
+        project.addGraphMLs("qualitas-corpus/output/arcanOutput/antlr");
         var charLOC = new NumberOfLinesOfCode(retriever);
-        retriever.setClassPath(project.getVersionedSystem().get("3.2.1").getA());
+        var vSys = project.getVersionedSystem().get("3.2");
+        retriever.setClassPath(vSys.getA());
+
+        var vertex = vSys.getC().traversal().V().has("name", "antlr.DefineGrammarSymbols").next();
+        assertNotNull(vertex);
+        charLOC.calculate(vertex);
+        assertTrue((Long)(vertex.value(charLOC.getName())) > 0);
     }
+
 }

@@ -5,8 +5,11 @@ import org.benf.cfr.reader.api.OutputSinkFactory;
 import org.benf.cfr.reader.api.SinkReturns;
 
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Retrieves the source code of a class starting starting from a list of Jar files.
@@ -40,9 +43,11 @@ public class JarClassSourceCodeRetrieval extends ClassSourceCodeRetriever {
 
     /**
      * This method sets the jar files where the classes will be looked for.
+     * The method clears the currently cached decompiled classes automatically.
      * @param classPath an array of paths to JAR files.
      */
     public void setClassPath(String[] classPath) {
+        clear();
         this.classPath = classPath;
     }
 
@@ -60,9 +65,17 @@ public class JarClassSourceCodeRetrieval extends ClassSourceCodeRetriever {
      *                  assumed it is a JAR file.
      */
     public void setClassPath(Path directory){
-        if (directory.toFile().isDirectory())
-            setClassPath(directory.toFile().list((file, s) -> s.endsWith(".jar")));
-        else
+        if (directory.toFile().isDirectory()) {
+            try (var walk = Files.walk(directory)) {
+                var jars = walk.filter(Files::isRegularFile)
+                        .map(f -> f.toAbsolutePath().toString())
+                        .filter(f -> f.endsWith(".jar"))
+                        .collect(Collectors.toList());
+                setClassPath(jars);
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }else
             setClassPath(directory.toFile().getAbsolutePath());
     }
 

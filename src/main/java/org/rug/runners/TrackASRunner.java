@@ -48,7 +48,6 @@ public class TrackASRunner extends ToolRunner {
             var graph = inputTriple.getC();
             List<ArchitecturalSmell> smells = ArcanDependencyGraphParser.getArchitecturalSmellsIn(graph);
             if (retriever != null) {
-                retriever.clear();
                 retriever.setClassPath(inputTriple.getA()); //update sources to current version
             }
             componentCharacteristics.forEach(c -> c.calculate(graph));
