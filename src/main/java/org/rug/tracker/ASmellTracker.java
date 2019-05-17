@@ -195,7 +195,6 @@ public class ASmellTracker {
                     .until(__.hasLabel(END))
                     .path().toSet();
             dynasties.parallelStream().forEach(p -> {
-            //for (Path p : dynasties) {
                 Vertex smellVertex = gs.addV(SMELL).next();
                 int age = 0;
                 for (Object o : p) { // beware: the path unfolds the visited vertices backwards

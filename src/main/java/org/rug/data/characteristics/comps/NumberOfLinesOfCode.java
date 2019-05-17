@@ -70,7 +70,7 @@ public class NumberOfLinesOfCode extends AbstractComponentCharacteristic {
 
     }
 
-    private Pattern linePattern = Pattern.compile("[^\\s*][\\n\\r]+");
+    private Pattern linePattern = Pattern.compile("[^\\s*].*[\\n\\r]+");
     private long countLOC(Vertex clazz){
         var sourceCode = sourceRetriever.getClassSource(clazz.value("name"));
 
