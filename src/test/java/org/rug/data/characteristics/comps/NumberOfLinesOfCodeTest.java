@@ -1,10 +1,13 @@
 package org.rug.data.characteristics.comps;
 
+import org.apache.tinkerpop.gremlin.process.traversal.P;
+import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.junit.jupiter.api.Test;
 import org.rug.data.Project;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -38,6 +41,19 @@ class NumberOfLinesOfCodeTest {
         assertNotNull(vertex);
         charLOC.calculate(vertex);
         assertTrue((Long)(vertex.value(charLOC.getName())) > 0);
+
+        retriever.clear();
+
+        vertex = vSys.getC().traversal().V().hasLabel("package").has("name", "antlr").next();
+        assertNotNull(vertex);
+        charLOC.calculate(vertex);
+
+        var loc = (Long)vertex.value("linesOfCode");
+        assertTrue(loc > 0);
+
+        vertex.vertices(Direction.IN, "belongsTo").forEachRemaining(charLOC::calculate);
+        assertEquals(loc, vertex.value("linesOfCode"));
+
     }
 
 }

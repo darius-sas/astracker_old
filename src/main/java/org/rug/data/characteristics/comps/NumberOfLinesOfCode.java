@@ -1,12 +1,13 @@
 package org.rug.data.characteristics.comps;
 
+import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.labels.EdgeLabel;
 import org.rug.data.labels.VertexLabel;
 
-import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.regex.Pattern;
 
 /**
  * Counts the lines of code of a given vertex (package or class) and saves the results within
@@ -41,16 +42,16 @@ public class NumberOfLinesOfCode extends AbstractComponentCharacteristic {
         long loc;
         if (vertex.label().equals(VertexLabel.CLASS.toString())) {
             loc = countLOC(vertex);
-        }else if (vertex.label().equals(VertexLabel.PACKAGE.toString())){
-            vertex.graph().traversal().V(vertex)
-                    .in(EdgeLabel.BELONGSTO.toString())
-                    .hasNot(this.name)
-                    .forEachRemaining(this::calculate);
-            loc = vertex.graph().traversal().V(vertex)
-                    .in(EdgeLabel.BELONGSTO.toString())
-                    .has(this.name)
-                    .by(this.name)
-                    .sum().next().longValue();
+        }else if (vertex.label().equals(VertexLabel.PACKAGE.toString()) &&
+             vertex.edges(Direction.IN, EdgeLabel.BELONGSTO.toString()).hasNext()) {
+                vertex.graph().traversal().V(vertex)
+                        .in(EdgeLabel.BELONGSTO.toString())
+                        .hasNot(this.name)
+                        .forEachRemaining(this::calculate);
+                loc = vertex.graph().traversal().V(vertex)
+                        .in(EdgeLabel.BELONGSTO.toString())
+                        .values(this.name)
+                        .sum().next().longValue();
         }else {
             return;
         }
@@ -69,10 +70,17 @@ public class NumberOfLinesOfCode extends AbstractComponentCharacteristic {
 
     }
 
+    private Pattern linePattern = Pattern.compile("[^\\s*][\\n\\r]+");
     private long countLOC(Vertex clazz){
         var sourceCode = sourceRetriever.getClassSource(clazz.value("name"));
-        var linesOfCode = sourceCode.split("[\n|\r]");
-        return Arrays.stream(linesOfCode).filter(line -> line.length() > 0).count();
+
+        var matcher = linePattern.matcher(sourceCode);
+        var linesOfCode = 0;
+        while(matcher.find())
+            linesOfCode++;
+        return linesOfCode;
+        //var linesOfCode = sourceCode.split("[\n|\r]");
+        //return Arrays.stream(linesOfCode).filter(line -> line.length() > 0).count();
     }
 
 }
