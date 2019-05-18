@@ -1,6 +1,5 @@
 package org.rug.runners;
 
-import org.rug.data.project.ArcanDependencyGraphParser;
 import org.rug.data.project.Project;
 import org.rug.data.characteristics.ComponentCharacteristicSet;
 import org.rug.data.characteristics.comps.JarClassSourceCodeRetrieval;
@@ -52,6 +51,7 @@ public class TrackASRunner extends ToolRunner {
             tracker.track(smells, version);
             logger.info("Linked {} smells out of a total of {} in this version.", tracker.getScorer().bestMatch().size(), smells.size());
             PersistenceWriter.sendTo(SmellSimilarityDataGenerator.class, tracker);
+            PersistenceWriter.sendTo(ComponentMetricGenerator.class, version.getGraph());
         });
 
         logger.info("Tracking complete, processing data...");

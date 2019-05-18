@@ -68,6 +68,9 @@ public class Main {
                     PersistenceWriter.register(new ComponentAffectedByGenerator(args.getAffectedComponentsFile()));
                 }
 
+                if (project.hasJars() && args.componentCharacteristics)
+                    PersistenceWriter.register(new ComponentMetricGenerator(args.getComponentCharacteristicsFile()));
+
                 PersistenceWriter.register(new CondensedGraphGenerator(args.getCondensedGraphFile()));
                 PersistenceWriter.register(new TrackGraphGenerator(args.getTrackGraphFileName()));
             }
