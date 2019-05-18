@@ -1,4 +1,4 @@
-package org.rug.data;
+package org.rug.data.project;
 
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.io.IoCore;

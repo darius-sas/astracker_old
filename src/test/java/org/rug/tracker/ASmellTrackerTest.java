@@ -2,7 +2,7 @@ package org.rug.tracker;
 
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.junit.jupiter.api.Test;
-import org.rug.data.ArcanDependencyGraphParser;
+import org.rug.data.project.ArcanDependencyGraphParser;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.persistence.PersistenceWriter;
 import org.rug.persistence.SmellCharacteristicsGenerator;

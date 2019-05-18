@@ -67,4 +67,5 @@ class MainTest {
     void testExecute(){
         Main.main(new String[]{"-p", "antlr", "-i", "./qualitas-corpus/input/", "-o", "./qualitas-corpus/output", "-pC", "-sAO", "-pS", "-rA", "java -jar arcan/Arcan-1.4.0-SNAPSHOT.jar"});
     }
+
 }

@@ -87,7 +87,6 @@ public class ASmellTracker {
         GraphTraversalSource g1 = trackGraph.traversal();
 
         if (g1.V(tail).outE().hasNext()) {
-            // Create a map between a smell vertex in the current track graph and the contained smell
             List<ArchitecturalSmell> currentVersionSmells;
             if (trackNonConsecutiveVersions)
                 currentVersionSmells = g1.V(tail).out().values(SMELL_OBJECT)

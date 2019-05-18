@@ -1,13 +1,11 @@
 package org.rug.data.characteristics.comps;
 
-import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.junit.jupiter.api.Test;
-import org.rug.data.Project;
+import org.rug.data.project.Project;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 

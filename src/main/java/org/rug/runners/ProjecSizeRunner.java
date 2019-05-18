@@ -1,6 +1,6 @@
 package org.rug.runners;
 
-import org.rug.data.Project;
+import org.rug.data.project.Project;
 import org.rug.data.labels.VertexLabel;
 import org.rug.persistence.PersistenceWriter;
 import org.rug.persistence.ProjectSizeGenerator;

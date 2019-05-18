@@ -1,4 +1,4 @@
-package org.rug.data;
+package org.rug.data.project;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -9,7 +9,7 @@ import java.util.stream.IntStream;
  * The supported word descritors are, at the moment: "rc", "final" and every descriptor which lexicographical
  * order respects release order.
  */
-public class VersionComparator implements Comparator<String> {
+public class StringVersionComparator implements Comparator<String> {
 
     private final static Hashtable<String, String> orderStringVersions = new Hashtable<>();
     private final String sep = "\\.";

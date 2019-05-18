@@ -1,4 +1,4 @@
-package org.rug.data;
+package org.rug.data.project;
 
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.io.IoCore;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 /**
  * Represents a project with multiple versions.
  */
-public class Project {
+public class Project implements Iterable<Version> {
 
     private final static Logger logger = LoggerFactory.getLogger(Project.class);
 
@@ -29,10 +29,12 @@ public class Project {
     private boolean hasJars;
     private boolean hasGraphMLs;
     private SortedMap<String, Triple<Path, Path, Graph>> versionedSystem;
+    private SortedMap<String, Version> versionedSystemNew;
     private Map<String, Integer> versionsIndexes = new HashMap<>();
 
     public Project(String name){
-        this.versionedSystem = new TreeMap<>(new VersionComparator());
+        this.versionedSystem = new TreeMap<>(new StringVersionComparator());
+        this.versionedSystemNew = new TreeMap<>(new StringVersionComparator());
         this.name = name;
         this.isFolderOfFolderOfJars = false;
         this.hasJars = false;
@@ -56,17 +58,24 @@ public class Project {
             versionedSystem.putIfAbsent(version, t);
         };
 
+        Consumer<Path> addVersionObj = j ->{
+            var version = new Version(j);
+            version.setJarPath(j);
+            versionedSystemNew.putIfAbsent(version.getVersionString(), version);
+        };
+
         if (!isFolderOfFolderOfJars){
             Files.list(jarDirPath)
                     .filter(Files::isRegularFile)
                     .filter(f -> f.getFileName().toString().matches(".*\\.jar"))
-                    .forEach(addVersion);
+                    .forEach(f -> {addVersion.accept(f);addVersionObj.accept(f);});
         }else{
             Files.list(jarDirPath)
                     .filter(Files::isDirectory)
-                    .forEach(addVersion);
+                    .forEach(f -> {addVersion.accept(f);addVersionObj.accept(f);});
         }
         hasJars = true;
+        initVersionPositions();
     }
 
 
@@ -89,6 +98,12 @@ public class Project {
                 t.setB(f);
                 versionedSystem.putIfAbsent(version, t);
             });
+            graphMlFiles.forEach(f -> {
+                var versionString = Version.parseVersion(f);
+                var version = versionedSystemNew.getOrDefault(versionString, new Version(f));
+                version.setGraphMLPath(f);
+                versionedSystemNew.putIfAbsent(version.getVersionString(), version);
+            });
         } else {
             versionedSystem.forEach((version, inputTriple) -> {
                 var graphmlFile = Paths.get(graphMLDir, name + "-" + version + ".graphml");
@@ -96,6 +111,7 @@ public class Project {
             });
         }
         hasGraphMLs = true;
+        initVersionPositions();
     }
 
     /**
@@ -113,6 +129,16 @@ public class Project {
             }
         }
         return versionsIndexes.get(version);
+    }
+
+    /**
+     * Initializes the version positions.
+     */
+    private void initVersionPositions(){
+        long counter = 0;
+        for (var version : versionedSystemNew.values()){
+            version.setVersionPosition(counter++);
+        }
     }
 
     /**
@@ -166,8 +192,17 @@ public class Project {
      * @param version the version of the system to parse smells from
      * @return the smells as a list.
      */
+    public List<ArchitecturalSmell> getArchitecturalSmellsIn(Version version){
+        return ArcanDependencyGraphParser.getArchitecturalSmellsIn(version.getGraph());
+    }
+
+    /**
+     * Returns the architectural smells in the given version.
+     * @param version the version of the system to parse smells from
+     * @return the smells as a list.
+     */
     public List<ArchitecturalSmell> getArchitecturalSmellsIn(String version){
-        return ArcanDependencyGraphParser.getArchitecturalSmellsIn(versionedSystem.get(version).getC());
+        return getArchitecturalSmellsIn(versionedSystemNew.get(version));
     }
 
     private String parseVersion(Path f){
@@ -184,6 +219,21 @@ public class Project {
 
     private List<Path> getGraphMls(Path dir) throws IOException{
         return Files.list(dir).filter(f -> Files.isRegularFile(f) && f.getFileName().toString().matches(".*\\.graphml")).collect(Collectors.toList());
+    }
+
+    @Override
+    public Iterator<Version> iterator() {
+        return versionedSystemNew.values().iterator();
+    }
+
+    @Override
+    public void forEach(Consumer<? super Version> action) {
+        versionedSystemNew.values().forEach(action);
+    }
+
+    @Override
+    public Spliterator<Version> spliterator() {
+        return versionedSystemNew.values().spliterator();
     }
 
     /**

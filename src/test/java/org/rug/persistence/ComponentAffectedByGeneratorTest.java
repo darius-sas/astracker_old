@@ -1,12 +1,10 @@
 package org.rug.persistence;
 
 import org.junit.jupiter.api.Test;
-import org.rug.data.Project;
+import org.rug.data.project.Project;
 import org.rug.tracker.ASmellTracker;
 
 import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class ComponentAffectedByGeneratorTest {
 

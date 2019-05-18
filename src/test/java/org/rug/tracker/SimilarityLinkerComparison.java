@@ -1,12 +1,11 @@
 package org.rug.tracker;
 
 import org.junit.jupiter.api.Test;
-import org.rug.data.Project;
+import org.rug.data.project.Project;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.persistence.PersistenceWriter;
 import org.rug.persistence.SmellCharacteristicsGenerator;
 import org.rug.persistence.SmellSimilarityDataGenerator;
-import org.rug.persistence.TrackGraphGenerator;
 
 import java.io.File;
 import java.io.IOException;

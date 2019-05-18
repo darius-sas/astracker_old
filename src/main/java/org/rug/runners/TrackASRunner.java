@@ -1,9 +1,8 @@
 package org.rug.runners;
 
-import org.rug.data.ArcanDependencyGraphParser;
-import org.rug.data.Project;
+import org.rug.data.project.ArcanDependencyGraphParser;
+import org.rug.data.project.Project;
 import org.rug.data.characteristics.ComponentCharacteristicSet;
-import org.rug.data.characteristics.comps.ClassSourceCodeRetriever;
 import org.rug.data.characteristics.comps.JarClassSourceCodeRetrieval;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.persistence.*;
@@ -46,7 +45,7 @@ public class TrackASRunner extends ToolRunner {
         versionedSystem.forEach( (version, inputTriple) -> {
             logger.info("Tracking version {} (n. {} of {})", version, count.postIncrement(), total);
             var graph = inputTriple.getC();
-            List<ArchitecturalSmell> smells = ArcanDependencyGraphParser.getArchitecturalSmellsIn(graph);
+            List<ArchitecturalSmell> smells = project.getArchitecturalSmellsIn(version);
             if (retriever != null) {
                 retriever.setClassPath(inputTriple.getA()); //update sources to current version
             }

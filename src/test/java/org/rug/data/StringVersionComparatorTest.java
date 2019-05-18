@@ -1,8 +1,8 @@
 package org.rug.data;
 
 import org.junit.jupiter.api.Test;
+import org.rug.data.project.StringVersionComparator;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,11 +10,11 @@ import java.util.function.BiFunction;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class VersionComparatorTest {
+class StringVersionComparatorTest {
 
     @Test
     void testCompareVersions(){
-        var comparator = new VersionComparator();
+        var comparator = new StringVersionComparator();
 
         BiFunction<String, String, String> msgSupplier = (s1, s2) -> String.format("Comparing strings %s", comparator.standardize(s1, s2));
 

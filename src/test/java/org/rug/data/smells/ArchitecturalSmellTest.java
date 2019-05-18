@@ -4,7 +4,7 @@ import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.junit.jupiter.api.Test;
-import org.rug.data.ArcanDependencyGraphParser;
+import org.rug.data.project.ArcanDependencyGraphParser;
 import org.rug.data.labels.VertexLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,10 +1,9 @@
 package org.rug.data.characteristics;
 
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.junit.jupiter.api.Test;
-import org.rug.data.Project;
+import org.rug.data.project.Project;
 import org.rug.data.characteristics.smells.*;
 import org.rug.data.labels.EdgeLabel;
 import org.rug.data.labels.VertexLabel;
@@ -15,7 +14,6 @@ import org.rug.data.smells.UDSmell;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.function.DoublePredicate;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
