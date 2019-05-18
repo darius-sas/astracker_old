@@ -1,5 +1,5 @@
 # TrackAS
-TrackAS is a Java tool that parses Arcan's output and tracks the architectural smells detected in each version analysed by Arcan.
+TrackAS is a Java tool that parses Arcan's output and tracks the architectural smells detected in each versionString analysed by Arcan.
 
 # Installation
 The installation process is simple, but it requires `git` and `mvn` (Maven) to be installed on your system.
@@ -20,9 +20,9 @@ This command will provide further information on the available commands.
 
 ## Input formats
 TrackAS is able to parse the `.graphML` files produced by Arcan representing the system dependency graph and the detected smells.
-In order to be able to detect the version of the system analysed,these files must conform to the following naming pattern:
+In order to be able to detect the versionString of the system analysed,these files must conform to the following naming pattern:
 ```
-<project-name>-<version>.graphml
+<project-name>-<versionString>.graphml
 ```
 The files must all have the same root directory, hence it is not necessary to have them all under the same folder.
 TrackAS will recursively find all the `.graphml` files in the given folder.
