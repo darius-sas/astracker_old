@@ -34,7 +34,7 @@ public class SimilarityLinkerComparison {
         var normalTracker = new ASmellTracker(normalLinker, false);
         var simpleNameTracker = new ASmellTracker(simpleNamesLinker, false);
 
-        project.getVersionedSystem().forEach((version, inputTriple) ->{
+        project.forEach(version ->{
             var smells = project.getArchitecturalSmellsIn(version);
             smells.forEach(ArchitecturalSmell::calculateCharacteristics);
 

@@ -32,17 +32,17 @@ class NumberOfLinesOfCodeTest {
         project.addJars("qualitas-corpus/input/antlr");
         project.addGraphMLs("qualitas-corpus/output/arcanOutput/antlr");
         var charLOC = new NumberOfLinesOfCode(retriever);
-        var vSys = project.getVersionedSystem().get("3.2");
-        retriever.setClassPath(vSys.getA());
+        var vSys = project.getVersion("3.2");
+        retriever.setClassPath(vSys.getJarPath());
 
-        var vertex = vSys.getC().traversal().V().has("name", "antlr.DefineGrammarSymbols").next();
+        var vertex = vSys.getGraph().traversal().V().has("name", "antlr.DefineGrammarSymbols").next();
         assertNotNull(vertex);
         charLOC.calculate(vertex);
         assertTrue((Long)(vertex.value(charLOC.getName())) > 0);
 
         retriever.clear();
 
-        vertex = vSys.getC().traversal().V().hasLabel("package").has("name", "antlr").next();
+        vertex = vSys.getGraph().traversal().V().hasLabel("package").has("name", "antlr").next();
         assertNotNull(vertex);
         charLOC.calculate(vertex);
 

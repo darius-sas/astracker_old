@@ -6,6 +6,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
+import org.rug.data.project.Version;
 import org.rug.data.util.Triple;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.slf4j.Logger;
@@ -81,7 +82,7 @@ public class ASmellTracker {
      * @param smellsInVersion the architectural smells identified in version
      * @param version the version of the given system
      */
-    public void track(List<ArchitecturalSmell> smellsInVersion, String version){
+    public void track(List<ArchitecturalSmell> smellsInVersion, Version version){
         List<ArchitecturalSmell> nextVersionSmells = new ArrayList<>(smellsInVersion);
 
         GraphTraversalSource g1 = trackGraph.traversal();
@@ -101,7 +102,7 @@ public class ASmellTracker {
                 // If this fails it means that a successor has already been found, which should never happen!
                 Vertex predecessor = g1.V(tail).out().has(SMELL_OBJECT, t.getA()).next();
                 Vertex successor = g1.addV(SMELL)
-                        .property(VERSION, version)
+                        .property(VERSION, version.getVersionString())
                         .property(SMELL_OBJECT, t.getB()).next();
 
                 g1.V(tail).outE().where(__.otherV().is(predecessor)).drop().iterate();
@@ -114,8 +115,8 @@ public class ASmellTracker {
             if (!trackNonConsecutiveVersions)
                 currentVersionSmells.forEach(this::endDynasty);
         }
-        nextVersionSmells.forEach(s -> addNewDynasty(s, version));
-        tail.property(LATEST_VERSION, version);
+        nextVersionSmells.forEach(s -> addNewDynasty(s, version.getVersionString()));
+        tail.property(LATEST_VERSION, version.getVersionString());
     }
 
     /**

@@ -45,10 +45,10 @@ public class Main {
             if (args.runArcan()) {
                 project.addJars(args.getHomeProjectDirectory());
                 var outputDir = args.getArcanOutDir();
-                project.getVersionedSystem().forEach((version, t) -> {
-                    Path outputDirVers = Paths.get(outputDir, version);
+                project.forEach(version -> {
+                    Path outputDirVers = Paths.get(outputDir, version.getVersionString());
                     outputDirVers.toFile().mkdirs();
-                    var arcan = new ArcanRunner(args.getArcanJarFile(), project, version, outputDirVers.toString(), false);
+                    var arcan = new ArcanRunner(args.getArcanJarFile(), version, outputDirVers.toString(), project.isFolderOfFoldersOfJarsProject(), false);
                     arcan.setHomeDir(args.getHomeProjectDirectory());
                     arcan.inheritOutput(args.showArcanOutput);
                     runners.add(arcan);

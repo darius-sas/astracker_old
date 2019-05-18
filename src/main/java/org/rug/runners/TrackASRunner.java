@@ -32,22 +32,20 @@ public class TrackASRunner extends ToolRunner {
 
     @Override
     public int start() {
-        var versionedSystem = project.getVersionedSystem();
         tracker = new ASmellTracker(new SimpleNameJaccardSimilarityLinker(), trackNonConsecutiveVersions);
 
         JarClassSourceCodeRetrieval retriever = project.hasJars() ? new JarClassSourceCodeRetrieval() : null;
         var componentCharacteristics = new ComponentCharacteristicSet(retriever).getCharacteristicSet();
 
-        var count = new Counter(1);
-        var total = versionedSystem.size();
-        logger.info("Starting tracking architectural smells of {} for {} versions", project.getName(), total);
+        var numOfVersions = project.numberOfVersions();
+        logger.info("Starting tracking architectural smells of {} for {} versions", project.getName(), numOfVersions);
         logger.info("Tracking non consecutive versions: {}", trackNonConsecutiveVersions ? "yes" : "no");
-        versionedSystem.forEach( (version, inputTriple) -> {
-            logger.info("Tracking version {} (n. {} of {})", version, count.postIncrement(), total);
-            var graph = inputTriple.getC();
+        project.forEach(version -> {
+            logger.info("Tracking version {} (n. {} of {})", version.getVersionString(), version.getVersionPosition(), numOfVersions);
+            var graph = version.getGraph();
             List<ArchitecturalSmell> smells = project.getArchitecturalSmellsIn(version);
             if (retriever != null) {
-                retriever.setClassPath(inputTriple.getA()); //update sources to current version
+                retriever.setClassPath(version.getJarPath()); //update sources to current version
             }
             componentCharacteristics.forEach(c -> c.calculate(graph));
             smells.forEach(ArchitecturalSmell::calculateCharacteristics);
@@ -55,6 +53,7 @@ public class TrackASRunner extends ToolRunner {
             logger.info("Linked {} smells out of a total of {} in this version.", tracker.getScorer().bestMatch().size(), smells.size());
             PersistenceWriter.sendTo(SmellSimilarityDataGenerator.class, tracker);
         });
+
         logger.info("Tracking complete, processing data...");
         PersistenceWriter.sendTo(SmellCharacteristicsGenerator.class, tracker);
         PersistenceWriter.sendTo(ComponentAffectedByGenerator.class, tracker);
@@ -69,13 +68,4 @@ public class TrackASRunner extends ToolRunner {
     @Override
     protected void postProcess(Process p){}
 
-    private static class Counter{
-        int counter;
-        public Counter(int val){
-            counter = val;
-        }
-        public int postIncrement(){
-            return counter++;
-        }
-    }
 }

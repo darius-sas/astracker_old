@@ -15,7 +15,7 @@ class ComponentAffectedByGeneratorTest {
 
         var gen = new ComponentAffectedByGenerator("./qualitas-corpus/output/trackASOutput/antlr/affectedComponents.csv");
         var tracker = new ASmellTracker();
-        project.getVersionedSystem().forEach( (v, t) -> {
+        project.forEach(v -> {
             var smells = project.getArchitecturalSmellsIn(v);
             System.out.println("Smells " + smells.size());
             tracker.track(smells, v);

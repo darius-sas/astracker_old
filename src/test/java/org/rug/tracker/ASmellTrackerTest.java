@@ -3,6 +3,7 @@ package org.rug.tracker;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.junit.jupiter.api.Test;
 import org.rug.data.project.ArcanDependencyGraphParser;
+import org.rug.data.project.Version;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.persistence.PersistenceWriter;
 import org.rug.persistence.SmellCharacteristicsGenerator;
@@ -28,13 +29,17 @@ class ASmellTrackerTest {
         PersistenceWriter.register(new SmellSimilarityDataGenerator("data/jaccard-scores-antlr-consecutives-only.csv"));
         PersistenceWriter.register(new SmellCharacteristicsGenerator("data/smells-characteristics.csv", null)); // this test is out of date, added null to allow compilation
 
-        versionedSystem.forEach( (version, graph) -> {
+        int counter = 1;
+        for (var entry : versionedSystem.entrySet()){
+            var version = new Version();
+            version.setVersionPosition(counter++);
+            var graph = entry.getValue();
             List<ArchitecturalSmell> smells = ArcanDependencyGraphParser.getArchitecturalSmellsIn(graph);
             smells.forEach(ArchitecturalSmell::calculateCharacteristics);
             logger.info("Tracking version {}", version);
             tracker.track(smells, version);
             PersistenceWriter.sendTo(SmellSimilarityDataGenerator.class, tracker);
-        });
+        }
         PersistenceWriter.sendTo(SmellCharacteristicsGenerator.class, tracker);
         PersistenceWriter.writeAllCSV();
         //logger.info("Tracking completed. Generating simplified graph...");
