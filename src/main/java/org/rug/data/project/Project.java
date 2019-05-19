@@ -147,7 +147,10 @@ public class Project implements Iterable<Version> {
      * @return the smells as a list.
      */
     public List<ArchitecturalSmell> getArchitecturalSmellsIn(Version version){
-        return ArcanDependencyGraphParser.getArchitecturalSmellsIn(version.getGraph());
+        var smells = ArcanDependencyGraphParser.getArchitecturalSmellsIn(version.getGraph());
+        var versionString = version.getVersionString();
+        smells.forEach(as -> as.setAffectedVersion(versionString));
+        return smells;
     }
 
     /**

@@ -70,6 +70,8 @@ class MainTest {
 
     @Test
     void testExecuteNew(){
-        Main.main(new String[]{"-p", "antlr", "-i", "./qualitas-corpus/output/arcanOutput/", "-o", "./qualitas-corpus/outputNew", "-pC", "-sAO", "-pS"});
+        Main.main(new String[]{"-p", "antlr", "-i", "./qualitas-corpus/output/arcanOutput/",
+                "-o", "./qualitas-corpus/outputNew", "-pC", "-sAO", "-pS",
+                "-pCC", "./qualitas-corpus/input/"});
     }
 }

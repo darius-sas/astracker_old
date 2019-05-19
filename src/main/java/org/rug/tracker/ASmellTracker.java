@@ -165,15 +165,6 @@ public class ASmellTracker {
     }
 
     /**
-     * Returns the latest version of the given smell.
-     * @return the latest version tracked by this tracker of the very given smell instance (does not look for heirs).
-     * Should the smell not be found {@link #NA} will be returned.
-     */
-    public String getVersionOf(ArchitecturalSmell smell) {
-        return trackGraph.traversal().V().has(SMELL_OBJECT, smell).next().property(VERSION).orElse(NA).toString();
-    }
-
-    /**
      * Builds the condensed graph of the tracking graph and returns the result.
      * The simplified graph basically collapses all SMELL vertices by walking the EVOLVED_FROM edges.
      * This operation drops the tail and all of its outgoing edges from the graph. The tracking graph
@@ -214,16 +205,29 @@ public class ASmellTracker {
                                     .property(VERSION, v.value(VERSION))
                                     .property(SMELL_ID, as.getId()).next();
 
-                            as.getAffectedElements().stream().map(e -> e.value(NAME)).forEach(name -> {
-                                if (!gs.V().has(NAME, name).hasNext()) {
-                                    gs.addV(COMPONENT)
+                            as.getAffectedElements().forEach(affected -> {
+                                var name = affected.value(NAME);
+                                var component = gs.V().has(NAME, name).tryNext().orElse(null);
+                                if (component == null) {
+                                    component = gs.addV(COMPONENT)
                                             .property(NAME, name)
                                             .property(COMPONENT_TYPE, as.getLevel().toString()).next();
                                 }
                                 gs.addE(AFFECTS)
-                                        .from(smellVertex).to(gs.V().has(NAME, name).next())
+                                        .from(smellVertex).to(component)
                                         .property(VERSION, v.value(VERSION))
                                         .next();
+                                var cce = gs.V(component).outE(HAS_CHARACTERISTIC)
+                                        .has(VERSION, v.value(VERSION).toString())
+                                        .tryNext();
+                                if (!cce.isPresent()){
+                                    final var componentCharacteristics = gs.addV("componentCharacteristic").next();
+                                    affected.keys().stream().filter(k -> !k.equals("name")).forEach(k->
+                                        componentCharacteristics.property(k, affected.value(k))
+                                    );
+                                    gs.addE(HAS_CHARACTERISTIC).from(component).to(componentCharacteristics)
+                                            .property(VERSION, v.value(VERSION)).next();
+                                }
                             });
 
                             age++;

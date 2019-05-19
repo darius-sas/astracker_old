@@ -23,6 +23,8 @@ import java.util.stream.Collectors;
  */
 public class ArcanDependencyGraphParser {
 
+    public static int MAX_CACHED_GRAPH_COUNT = 1;
+
     private final static Logger logger = LoggerFactory.getLogger(ArcanDependencyGraphParser.class);
 
     private final static Map<Graph, List<ArchitecturalSmell>> cachedSmellLists = new HashMap<>();
@@ -69,7 +71,8 @@ public class ArcanDependencyGraphParser {
 
     /**
      * Given the graph of a system, this methods builds a list of Architectural Smells that affect this system.
-     * The list is cached internally for future retrievals.
+     * The list is cached internally for future retrievals. A maximum of {@link #MAX_CACHED_GRAPH_COUNT} graphs are
+     * cached to save memory.
      * @param graph the graph of the system.
      * @return an unmodifiable list containing the parsed smells.
      */
@@ -93,6 +96,8 @@ public class ArcanDependencyGraphParser {
                             logger.warn("No 'smellType' property found for smell vertex {}.", smellVertex);
                         }
                     });
+            if (cachedSmellLists.size() >= MAX_CACHED_GRAPH_COUNT)
+                cachedSmellLists.clear();
             cachedSmellLists.putIfAbsent(graph, Collections.unmodifiableList(architecturalSmells));
         }
         return cachedSmellLists.get(graph);

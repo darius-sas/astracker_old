@@ -52,8 +52,8 @@ public class SmellSimilarityDataGenerator extends CSVDataGenerator<ASmellTracker
             String shapeB = triple.getB() instanceof CDSmell ? ((CDSmell) triple.getB()).getShape().toString() : "NA";
 
             records.add(List.of(
-                    tracker.getVersionOf(triple.getA()),
-                    tracker.getVersionOf(triple.getB()),
+                    triple.getA().getAffectedVersion(),
+                    triple.getB().getAffectedVersion(),
                     String.valueOf(triple.getA().getId()), affectedA.toString(), triple.getA().getType().toString(), shapeA,
                     String.valueOf(triple.getB().getId()), affectedB.toString(), triple.getB().getType().toString(), shapeB,
                     String.valueOf(bestMatch.contains(triple)),

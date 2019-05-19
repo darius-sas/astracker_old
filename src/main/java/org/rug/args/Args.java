@@ -46,8 +46,8 @@ public class Args {
     @Parameter(names = {"-pCharacteristics", "-pC"}, description = "Print the characteristics of the tracked smells for every analyzed version.")
     public boolean smellCharacteristics = false;
 
-    @Parameter(names = {"-pCompCharacter", "-pCC"}, description = "Print the component characteristics/metrics for every analyzed version. Only works if Arcan is executed.")
-    public boolean componentCharacteristics = false;
+    @Parameter(names = {"-pCompoCharact", "-pCC"}, description = "Print the component characteristics/metrics for every analyzed version. As an argument, it expects the classpath of where to retrieve the classes (as JAR files) in the same way as provided to -inputDir. It is executed implicitly when -rA is set.", converter = InputDirManager.class)
+    private File componentCharacteristics;
 
     @Parameter(names = {"-enableNonConsec", "-eNC"}, description = "Whether to track smells across non consecutive versions. This allows to track re-appeared smells, denoted by a special edge in the output track graph.")
     public boolean trackNonConsecutiveVersions = false;
@@ -116,6 +116,12 @@ public class Args {
         Path p = Paths.get(outputDir.getAbsolutePath(), "trackASOutput", projectName);
         p.toFile().mkdirs();
         return p.toAbsolutePath().toString();
+    }
+
+    public String getClasspathComponentCharact(){
+        if (componentCharacteristics == null)
+            return "";
+        return Paths.get(componentCharacteristics.getAbsolutePath(), projectName).toAbsolutePath().toString();
     }
 
 }

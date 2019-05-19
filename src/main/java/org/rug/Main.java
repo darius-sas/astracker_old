@@ -58,6 +58,10 @@ public class Main {
             project.addGraphMLs(args.getHomeProjectDirectory());
 
             if (args.runTracker()) {
+                var ccclasshpath = args.getClasspathComponentCharact();
+                if (!project.hasJars() && !ccclasshpath.isEmpty())
+                    project.addJars(ccclasshpath);
+
                 runners.add(new TrackASRunner(project, args.trackNonConsecutiveVersions));
 
                 if (args.similarityScores)
@@ -68,7 +72,7 @@ public class Main {
                     PersistenceWriter.register(new ComponentAffectedByGenerator(args.getAffectedComponentsFile()));
                 }
 
-                if (project.hasJars() && args.componentCharacteristics)
+                if (!ccclasshpath.isEmpty())
                     PersistenceWriter.register(new ComponentMetricGenerator(args.getComponentCharacteristicsFile()));
 
                 PersistenceWriter.register(new CondensedGraphGenerator(args.getCondensedGraphFile()));

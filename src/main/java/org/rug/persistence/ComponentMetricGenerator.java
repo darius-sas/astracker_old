@@ -5,6 +5,9 @@ import org.rug.data.project.Version;
 
 import java.util.ArrayList;
 
+/**
+ * Writes component metrics on CSV files.
+ */
 public class ComponentMetricGenerator extends CSVDataGenerator<Version> {
     public ComponentMetricGenerator(String outputFile) {
         super(outputFile);
@@ -28,7 +31,7 @@ public class ComponentMetricGenerator extends CSVDataGenerator<Version> {
                     record.add(vertex.label());
                     record.add(versionString);
                     record.add(versionPosition);
-                    record.add(vertex.value("linesOfCode"));
+                    record.add(vertex.value("linesOfCode").toString());
                     records.add(record);
                 });
     }
