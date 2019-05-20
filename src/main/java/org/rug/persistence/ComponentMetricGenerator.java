@@ -15,7 +15,7 @@ public class ComponentMetricGenerator extends CSVDataGenerator<Version> {
 
     @Override
     public String[] getHeader() {
-        return new String[]{"name", "type", "version", "versionPosition", "linesOfCode"};
+        return new String[]{"name", "type", "version", "versionPosition", "linesOfCode", "componentType"};
     }
 
     @Override
@@ -32,6 +32,8 @@ public class ComponentMetricGenerator extends CSVDataGenerator<Version> {
                     record.add(versionString);
                     record.add(versionPosition);
                     record.add(vertex.value("linesOfCode").toString());
+                    var componentType = vertex.label().equals("class") ? "ClassType" : "PackageType";
+                    record.add(vertex.value(componentType).toString());
                     records.add(record);
                 });
     }
