@@ -15,7 +15,7 @@ class JarClassSourceCodeRetrievalTest {
     @Test
     void getClassSource() {
         var oracle = "public class JarClassSourceCodeRetrieval\nextends ClassSourceCodeRetriever {";
-        retriever.setClassPath("target/trackas/trackas-0.5.jar");
+        retriever.setClassPath("target/trackas/trackas-0.6.jar");
         var src = retriever.getClassSource("org.rug.data.characteristics.comps.JarClassSourceCodeRetrieval");
         assertFalse(src.isEmpty());
         assertTrue(src.contains(oracle));

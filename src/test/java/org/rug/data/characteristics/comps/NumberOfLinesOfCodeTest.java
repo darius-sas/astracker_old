@@ -21,7 +21,7 @@ class NumberOfLinesOfCodeTest {
     void calculate() throws IOException {
         JarClassSourceCodeRetrieval retriever = new JarClassSourceCodeRetrieval();
 
-        retriever.setClassPath("target/trackas/trackas-0.5.jar");
+        retriever.setClassPath("target/trackas/trackas-0.6.jar");
 
         var src = retriever.getClassSource(AbstractComponentCharacteristic.class.getCanonicalName());
         assertFalse(src.isEmpty());

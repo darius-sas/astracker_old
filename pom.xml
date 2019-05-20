@@ -6,7 +6,7 @@
 
     <groupId>org.rug</groupId>
     <artifactId>trackas</artifactId>
-    <version>0.5</version>
+    <version>0.6</version>
 
     <packaging>jar</packaging>
 
