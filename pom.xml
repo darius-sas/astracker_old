@@ -6,7 +6,7 @@
 
     <groupId>org.rug</groupId>
     <artifactId>trackas</artifactId>
-    <version>0.5</version>
+    <version>0.6</version>
 
     <packaging>jar</packaging>
 
@@ -49,6 +49,12 @@
             <groupId>com.beust</groupId>
             <artifactId>jcommander</artifactId>
             <version>1.72</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.benf</groupId>
+            <artifactId>cfr</artifactId>
+            <version>0.139</version>
         </dependency>
     </dependencies>
 

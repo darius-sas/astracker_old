@@ -4,7 +4,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.rug.data.Project;
+import org.rug.data.project.Project;
 import org.rug.tracker.ASmellTracker;
 
 import java.util.*;

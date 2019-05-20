@@ -4,6 +4,9 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 
 import java.util.List;
 
+/**
+ * Represents a characteristic/attribute/property of a component.
+ */
 public interface IComponentCharacteristic {
 
     /**

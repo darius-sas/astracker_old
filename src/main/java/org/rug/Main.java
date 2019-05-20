@@ -2,8 +2,7 @@ package org.rug;
 
 import com.beust.jcommander.JCommander;
 import org.rug.args.Args;
-import org.rug.args.InputDirManager;
-import org.rug.data.Project;
+import org.rug.data.project.Project;
 import org.rug.persistence.*;
 import org.rug.runners.ArcanRunner;
 import org.rug.runners.ProjecSizeRunner;
@@ -12,7 +11,6 @@ import org.rug.runners.TrackASRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -47,10 +45,10 @@ public class Main {
             if (args.runArcan()) {
                 project.addJars(args.getHomeProjectDirectory());
                 var outputDir = args.getArcanOutDir();
-                project.getVersionedSystem().forEach((version, t) -> {
-                    Path outputDirVers = Paths.get(outputDir, version);
+                project.forEach(version -> {
+                    Path outputDirVers = Paths.get(outputDir, version.getVersionString());
                     outputDirVers.toFile().mkdirs();
-                    var arcan = new ArcanRunner(args.getArcanJarFile(), project, version, outputDirVers.toString(), false);
+                    var arcan = new ArcanRunner(args.getArcanJarFile(), version, outputDirVers.toString(), project.isFolderOfFoldersOfJarsProject(), false);
                     arcan.setHomeDir(args.getHomeProjectDirectory());
                     arcan.inheritOutput(args.showArcanOutput);
                     runners.add(arcan);
@@ -60,6 +58,10 @@ public class Main {
             project.addGraphMLs(args.getHomeProjectDirectory());
 
             if (args.runTracker()) {
+                var ccclasshpath = args.getClasspathComponentCharact();
+                if (!project.hasJars() && !ccclasshpath.isEmpty())
+                    project.addJars(ccclasshpath);
+
                 runners.add(new TrackASRunner(project, args.trackNonConsecutiveVersions));
 
                 if (args.similarityScores)
@@ -69,6 +71,9 @@ public class Main {
                     PersistenceWriter.register(new SmellCharacteristicsGenerator(args.getSmellCharacteristicsFile(), project));
                     PersistenceWriter.register(new ComponentAffectedByGenerator(args.getAffectedComponentsFile()));
                 }
+
+                if (!ccclasshpath.isEmpty())
+                    PersistenceWriter.register(new ComponentMetricGenerator(args.getComponentCharacteristicsFile()));
 
                 PersistenceWriter.register(new CondensedGraphGenerator(args.getCondensedGraphFile()));
                 PersistenceWriter.register(new TrackGraphGenerator(args.getTrackGraphFileName()));

@@ -2,6 +2,7 @@ package org.rug.data;
 
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.junit.jupiter.api.Test;
+import org.rug.data.project.ArcanDependencyGraphParser;
 
 import java.util.*;
 

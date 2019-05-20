@@ -1,7 +1,7 @@
 package org.rug.tracker;
 
 import org.junit.jupiter.api.Test;
-import org.rug.data.ArcanDependencyGraphParser;
+import org.rug.data.project.ArcanDependencyGraphParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -7,6 +7,7 @@ import org.rug.data.SmellVisitor;
 import org.rug.data.characteristics.UDCharacteristicsSet;
 import org.rug.data.labels.VertexLabel;
 import org.rug.data.characteristics.*;
+import org.rug.data.project.Version;
 
 import java.util.*;
 import java.util.function.Function;
@@ -25,8 +26,10 @@ import java.util.stream.Collectors;
 public abstract class ArchitecturalSmell {
 
     private long id;
+    private String affectedVersion;
     protected Set<Vertex> smellNodes;
     protected Set<Vertex> affectedElements;
+    protected Set<String> affectedElementsNames;
     protected Graph affectedGraph;
 
     protected Map<String, String> characteristicsMap;
@@ -44,6 +47,7 @@ public abstract class ArchitecturalSmell {
         this.type = type;
         this.characteristicsMap = new HashMap<>();
         this.affectedGraph = smell.graph();
+        this.affectedVersion = null;
         setLevel(smell);
         setAffectedElements(smell);
         setSmellNodes(smell);
@@ -86,7 +90,11 @@ public abstract class ArchitecturalSmell {
      * @return the affected elements by the property "name".
      */
     public Set<String> getAffectedElementsNames(){
-        return getAffectedElements().stream().map(v -> v.value("name").toString()).collect(Collectors.toSet());
+        if (affectedElementsNames == null)
+            affectedElementsNames = getAffectedElements().stream()
+                    .map(v -> v.value("name").toString())
+                    .collect(Collectors.toSet());
+        return affectedElementsNames;
     }
 
     /**
@@ -176,6 +184,22 @@ public abstract class ArchitecturalSmell {
      */
     protected void setLevel(Vertex smell){
         setLevel(Level.fromString(smell.value("vertexType")));
+    }
+
+    /**
+     * Retrieve the version affected by the smell.
+     * @return the string version or null if this attribute was not set.
+     */
+    public String getAffectedVersion() {
+        return affectedVersion == null ? "" : affectedVersion;
+    }
+
+    /**
+     * Set the version of the system this smell affects.
+     * @param affectedVersion the string version.
+     */
+    public void setAffectedVersion(String affectedVersion) {
+        this.affectedVersion = affectedVersion;
     }
 
     /**

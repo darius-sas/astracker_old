@@ -1,8 +1,8 @@
 package org.rug.runners;
 
-import org.rug.data.ArcanDependencyGraphParser;
-import org.rug.data.Project;
+import org.rug.data.project.Project;
 import org.rug.data.characteristics.ComponentCharacteristicSet;
+import org.rug.data.characteristics.comps.JarClassSourceCodeRetrieval;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.persistence.*;
 import org.rug.tracker.ASmellTracker;
@@ -31,24 +31,29 @@ public class TrackASRunner extends ToolRunner {
 
     @Override
     public int start() {
-        var versionedSystem = project.getVersionedSystem();
         tracker = new ASmellTracker(new SimpleNameJaccardSimilarityLinker(), trackNonConsecutiveVersions);
-        var componentCharacteristics = new ComponentCharacteristicSet().getCharacteristicSet();
 
-        var count = new Counter(1);
-        var total = versionedSystem.size();
-        logger.info("Starting tracking architectural smells of {} for {} versions", project.getName(), total);
+        JarClassSourceCodeRetrieval retriever = project.hasJars() ? new JarClassSourceCodeRetrieval() : null;
+        var componentCharacteristics = new ComponentCharacteristicSet(retriever).getCharacteristicSet();
+
+        var numOfVersions = project.numberOfVersions();
+        logger.info("Starting tracking architectural smells of {} for {} versions", project.getName(), numOfVersions);
         logger.info("Tracking non consecutive versions: {}", trackNonConsecutiveVersions ? "yes" : "no");
-        versionedSystem.forEach( (version, inputTriple) -> {
-            logger.info("Tracking version {} (n. {} of {})", version, count.postIncrement(), total);
-            var graph = inputTriple.getC();
-            List<ArchitecturalSmell> smells = ArcanDependencyGraphParser.getArchitecturalSmellsIn(graph);
+        project.forEach(version -> {
+            logger.info("Tracking version {} (n. {} of {})", version.getVersionString(), version.getVersionPosition(), numOfVersions);
+            var graph = version.getGraph();
+            List<ArchitecturalSmell> smells = project.getArchitecturalSmellsIn(version);
+            if (retriever != null) {
+                retriever.setClassPath(version.getJarPath()); //update sources to current version
+            }
             componentCharacteristics.forEach(c -> c.calculate(graph));
             smells.forEach(ArchitecturalSmell::calculateCharacteristics);
             tracker.track(smells, version);
             logger.info("Linked {} smells out of a total of {} in this version.", tracker.getScorer().bestMatch().size(), smells.size());
             PersistenceWriter.sendTo(SmellSimilarityDataGenerator.class, tracker);
+            PersistenceWriter.sendTo(ComponentMetricGenerator.class, version);
         });
+
         logger.info("Tracking complete, processing data...");
         PersistenceWriter.sendTo(SmellCharacteristicsGenerator.class, tracker);
         PersistenceWriter.sendTo(ComponentAffectedByGenerator.class, tracker);
@@ -63,13 +68,4 @@ public class TrackASRunner extends ToolRunner {
     @Override
     protected void postProcess(Process p){}
 
-    private static class Counter{
-        int counter;
-        public Counter(int val){
-            counter = val;
-        }
-        public int postIncrement(){
-            return counter++;
-        }
-    }
 }
