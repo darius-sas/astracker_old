@@ -5,11 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.rug</groupId>
-    <artifactId>trackas</artifactId>
+    <artifactId>astracker</artifactId>
     <version>0.6</version>
-
     <packaging>war</packaging>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.tinkerpop</groupId>
@@ -69,10 +67,8 @@
         <maven.compiler.target>10</maven.compiler.target>
     </properties>
 
-<profiles>
-    <profile>
-    <id>jarBuild</id>
     <build>
+        <finalName>${artifactId}-${version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -91,24 +87,16 @@
                 </dependencies>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.1</version>
+                <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
-                    <!-- DO NOT include log4j.properties file in your Jar
-                    <excludes>
-                        <exclude>**/*.properties</exclude>
-                    </excludes>
-                    -->
                     <archive>
                         <manifest>
-                            <!-- Jar file entry point -->
                             <mainClass>org.rug.Main</mainClass>
-                            <addClasspath>true</addClasspath>
-                            <classpathPrefix>libs/</classpathPrefix>
                         </manifest>
                     </archive>
-                    <outputDirectory>${project.build.directory}/${project.name}/</outputDirectory>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
                 </configuration>
             </plugin>
             <plugin>
@@ -131,50 +119,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.1.1</version>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <!-- exclude junit, we need runtime dependency only -->
-                            <includeScope>runtime</includeScope>
-                            <outputDirectory>${project.build.directory}/${project.name}/libs/</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-    </profile>
-
-<!-- Docker builds -->
-    <profile>
-        <id>warBuild</id>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
-                <configuration>
-                    <source>10</source>
-                    <target>10</target>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.ow2.asm</groupId>
-                        <artifactId>asm</artifactId>
-                        <version>6.2</version>
-                    </dependency>
-                </dependencies>
             </plugin>
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
@@ -197,35 +141,6 @@
                     </webResources>
                 </configuration>
             </plugin>
-        </plugins>
-        <finalName>dockermavensample</finalName>
-    </build>
-    </profile>
-    <profile>
-    <id>dockerBuild</id>
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-resources</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/target</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>src/main/docker</directory>
-                                    <filtering>true</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -240,7 +155,7 @@
                                 <exec executable="docker">
                                     <arg value="build"/>
                                     <arg value="-t"/>
-                                    <arg value="dockermavensample:${project.version}"/>
+                                    <arg value="${project.artifactId}:${project.version}"/>
                                     <arg value="target"/>
                                 </exec>
                             </target>
@@ -253,42 +168,4 @@
             </plugin>
         </plugins>
     </build>
-    </profile>
-    <!-- docker Image push and release profile -->
-    <profile>
-        <id>dockerRelease</id>
-        <build>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>1.6</version>
-                    <executions>
-                        <execution>
-                            <phase>install</phase>
-                            <inherited>false</inherited>
-                            <configuration>
-                                <target>
-                                <exec executable="docker">
-                                    <arg value="tag"/>
-                                    <arg value="dockermavensample:${project.version}"/>
-                                    <arg value="dockermavensample:latest"/>
-                                </exec>
-                                <exec executable="docker">
-                                    <arg value="push"/>
-                                    <arg value="dockermavensample:latest"/>
-                                </exec>
-                                </target>
-                            </configuration>
-                            <goals>
-                                <goal>run</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-            </plugins>
-        </build>
-    </profile>
-
-        </profiles>
 </project>

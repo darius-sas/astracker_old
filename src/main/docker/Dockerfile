@@ -6,7 +6,7 @@ MAINTAINER "darius.sas@outlook.com"
 
 ENV JAVA_OPTS=-Denvironment=production
 
-COPY /dockermavensample.war /usr/local/tomcat/webapps
+COPY /astracker-0.6.war /usr/local/tomcat/webapps/astracker.web
 COPY tomcat-users.xml /usr/local/tomcat/conf/
 COPY context.xml /usr/local/tomcat/conf/
 
