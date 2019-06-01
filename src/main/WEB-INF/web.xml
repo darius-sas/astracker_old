@@ -6,4 +6,13 @@
 
     <display-name>ASTracker web service</display-name>
 
+    <servlet>
+        <servlet-name>MainServlet</servlet-name>
+        <servlet-class>org.rug.MainServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>MainServlet</servlet-name>
+        <url-pattern>/hello</url-pattern>
+    </servlet-mapping>
+
 </web-app>
