@@ -48,6 +48,19 @@ plotClassesPerPackageRatio <- function(df, base.size = 12, legend.position = "no
          y = "Number of classes per package")
 }
 
+plotClassAndPackageCountPerVersion <- function(df, base.size = 12, legend.position = "none"){
+  df.sizes <- df %>% group_by(project, versionPosition) %>%
+    select(project, versionPosition, nClasses, nPackages) %>%
+    distinct()
+  df.sizes.mlt <- melt(df.sizes, id.var=c("project", "versionPosition"), measure.vars = c("nClasses", "nPackages"))
+  ggplot(df.sizes.mlt, aes(x=versionPosition,y=value, group=variable, color=variable)) +
+    geom_line() + facet_wrap(~project, scales = "free") +
+    theme_grey(base_size = base.size) +
+    labs(title="Number of classes and packages",
+         x = "Versions",
+         y = "Count")
+}
+
 #' Utility function plotting boxplots for each characteristic
 ggboxplots<-function(df.melt){
   ggplot(df.melt, aes("", value, group = smellType, fill = smellType)) + 
@@ -463,6 +476,9 @@ saveAllPlotsToFiles <- function(datasets, dir = "plots", format = "png", scale =
   
   plotClassesPerPackageRatio(df, base.size = 10)
   ggsave(paste("descriptive-classes-per-package.", format, sep = ""), path = dest)
+  
+  plotClassAndPackageCountPerVersion(df)
+  ggsave(paste("descriptive-count-classes-packages.", format, sep = ""), path = dest)
   
   # PRINT RQ2
   df <- df %>% mutate(smellTypeGeneral = paste(smellType, affectedComponentType))
