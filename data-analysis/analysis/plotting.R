@@ -48,33 +48,36 @@ plotClassesPerPackageRatio <- function(df, base.size = 12, legend.position = "no
          y = "Number of classes per package")
 }
 
-plotClassAndPackageCountPerVersion <- function(df, base.size = 12, legend.position = "none"){
+plotComponentCountPerVersion <- function(df, base.size = 12, legend.position = "none", type="packages"){
   df.sizes <- df %>% group_by(project, versionPosition) %>%
     select(project, versionPosition, nClasses, nPackages) %>%
     distinct()
-  df.sizes.mlt <- melt(df.sizes, id.var=c("project", "versionPosition"), measure.vars = c("nClasses", "nPackages"))
-  ggplot(df.sizes.mlt, aes(x=versionPosition,y=value, group=variable, color=variable)) +
+  type.s <- sym(ifelse(type == "packages", "nPackages", "nClasses"))
+  ggplot(df.sizes, aes(x=versionPosition,y=!!type.s)) +
     geom_line() + facet_wrap(~project, scales = "free") +
     theme_grey(base_size = base.size) +
-    labs(title="Number of classes and packages",
+    labs(title=paste("Number of", type, "per version"),
          x = "Versions",
          y = "Count")
 }
 
 #' Utility function plotting boxplots for each characteristic
 ggboxplots<-function(df.melt){
-  ggplot(df.melt, aes("", value, group = smellType, fill = smellType)) + 
+  ggplot(df.melt, aes("", value, 
+                      group = interaction(smellType, affectedComponentType), 
+                      fill = interaction(smellType, affectedComponentType))) + 
     geom_boxplot() + 
     theme(axis.text.x = element_text(angle=90, hjust = 1)) +
-    facet_wrap(project~variable, scales = "free", ncol = length(levels(df.melt$variable)) * 2)
+    facet_wrap(project~variable, scales = "free", ncol = length(levels(df.melt$variable)) * 2) +
+    labs(fill = "Smells")
 }
 
 
 #' Boxplots the values of each smell-generic characteristic
 #' @param df a data frame containing the data
 plotBoxplotsSmellGenericCharacteristics <- function(df){
-  df.melt <- melt(df, c("project", "uniqueSmellID", "versionPosition", "smellType"), 
-                  c("size", "overlapRatio", "pageRankMax", "pageRankAvrg"))
+  df.melt <- melt(df, c("project", "uniqueSmellID", "versionPosition", "smellType", "affectedComponentType"), 
+                  c("size", "overlapRatio", "pageRankAvrg", "pageRankWeighted"))
   ggboxplots(df.melt) + labs(title = "Boxplots of smell-generic characteristics by smell type")
 }
 
@@ -96,6 +99,16 @@ plotBoxplotsSmellSpecificCharacteristics <- function(df){
   ggboxplots(df.melt) + labs(title = "Boxplots of smell-specific characteristics by smell type")
 }
 
+plotSmellCountPerVersion <- function(df, smellTypeName, componentType = "class"){
+  df.count <- df %>% filter(smellType == smellTypeName & affectedComponentType == componentType) %>%
+    group_by(project, versionPosition) %>%
+    tally()
+  ggplot(df.count, aes(versionPosition, n)) + 
+    geom_line() + 
+    theme(axis.text.x = element_text(angle=90, hjust = 1)) +
+    facet_wrap(~project, scales = "free") +
+    labs(x="Versions", y="Count", title = paste("Number of ", smellTypeName, "on", componentType))
+}
 
 #' Plots the counting of cycle shapes for each version and each project in the given data frame
 #' @param df a data frame containing the data
@@ -477,8 +490,21 @@ saveAllPlotsToFiles <- function(datasets, dir = "plots", format = "png", scale =
   plotClassesPerPackageRatio(df, base.size = 10)
   ggsave(paste("descriptive-classes-per-package.", format, sep = ""), path = dest)
   
-  plotClassAndPackageCountPerVersion(df)
-  ggsave(paste("descriptive-count-classes-packages.", format, sep = ""), path = dest)
+  plotComponentCountPerVersion(df, type="packages")
+  ggsave(paste("descriptive-count-packages.", format, sep = ""), path = dest)
+  plotComponentCountPerVersion(df, type="classes")
+  ggsave(paste("descriptive-count-classes.", format, sep = ""), path = dest)
+  
+  plotSmellCountPerVersion(df, "cyclicDep", "class")
+  ggsave(paste("descriptive-count-cd-class.", format, sep = ""), path = dest)
+  plotSmellCountPerVersion(df, "cyclicDep", "package")
+  ggsave(paste("descriptive-count-cd-package.", format, sep = ""), path = dest)
+  plotSmellCountPerVersion(df, "hubLikeDep", "package")
+  ggsave(paste("descriptive-count-hl-package.", format, sep = ""), path = dest)
+  plotSmellCountPerVersion(df, "hubLikeDep", "class")
+  ggsave(paste("descriptive-count-hl-class.", format, sep = ""), path = dest)
+  plotSmellCountPerVersion(df, "unstableDep", "package")
+  ggsave(paste("descriptive-count-ud-package.", format, sep = ""), path = dest)
   
   # PRINT RQ2
   df <- df %>% mutate(smellTypeGeneral = paste(smellType, affectedComponentType))
