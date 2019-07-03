@@ -66,7 +66,7 @@ ggboxplots<-function(df.melt){
   ggplot(df.melt, aes("", value, 
                       group = interaction(smellType, affectedComponentType), 
                       fill = interaction(smellType, affectedComponentType))) + 
-    geom_boxplot() + 
+    geom_boxplot(outlier.shape = NA) + 
     theme(axis.text.x = element_text(angle=90, hjust = 1)) +
     facet_wrap(project~variable, scales = "free", ncol = length(levels(df.melt$variable)) * 2) +
     labs(fill = "Smells")
