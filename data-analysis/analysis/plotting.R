@@ -36,7 +36,7 @@ plotSmellDensityPerVersion <- function(df, legend.position = "top", base.size = 
 }
 
 plotClassesPerPackageRatio <- function(df, base.size = 12, legend.position = "none"){
-  df.sizes <- df.sizes <- df %>% group_by(project, versionPosition) %>%
+  df.sizes <- df %>% group_by(project, versionPosition) %>%
     select(project, versionPosition, nClasses, nPackages) %>%
     distinct()
   df.sizes$classesRatio <- df.sizes$nClasses / df.sizes$nPackages 
@@ -59,6 +59,41 @@ plotComponentCountPerVersion <- function(df, base.size = 12, legend.position = "
     labs(title=paste("Number of", type, "per version"),
          x = "Versions",
          y = "Count")
+}
+
+plotSmellCountPerVersion <- function(df, smellTypeName, componentType = "class"){
+  df.count <- df %>% filter(smellType == smellTypeName & affectedComponentType == componentType) %>%
+    group_by(project, versionPosition) %>%
+    tally()
+  ggplot(df.count, aes(versionPosition, n)) + 
+    geom_line() + 
+    theme(axis.text.x = element_text(angle=90, hjust = 1)) +
+    facet_wrap(~project, scales = "free") +
+    labs(x="Versions", y="Count", title = paste("Number of ", smellTypeName, "on", componentType))
+}
+
+plotCorrAnalysisCount <- function(df, method = "pearson"){
+  df.tally <- df %>% group_by(project, versionPosition, smellType, affectedComponentType) %>%
+    tally() %>%
+    mutate(type = paste(smellType, affectedComponentType, sep = "."))
+  df.sizes <- df %>% group_by(project, versionPosition) %>%
+    select(project, versionPosition, nClasses, nPackages) %>%
+    distinct()
+  df.tally <- data.frame(df.tally)
+  df.tally$smellType<-NULL
+  df.tally$affectedComponentType<-NULL
+  df.tally <- tidyr::spread(df.tally, key = type, value = n, fill=0)
+  df.corr <- left_join(df.sizes, df.tally, by = c("project", "versionPosition")) %>%
+    arrange(project, versionPosition)
+  
+  plots<-list()
+  for (project in levels(df.corr$project)) {
+    p <- GGally::ggcorr(df.corr[df.corr$project == project,], 
+                         method = c("pairwise", method),
+                         label = T, angle=90, hjust=0.25) + labs(title = project)
+    plots[[project]] <- p
+  }
+  return(plots)
 }
 
 #' Utility function plotting boxplots for each characteristic
@@ -97,17 +132,6 @@ plotBoxplotsSmellSpecificCharacteristics <- function(df){
                   c("strength", "instabilityGap", "avrgEdgeWeight", "numOfEdges", 
                     "numOfInheritanceEdges"))
   ggboxplots(df.melt) + labs(title = "Boxplots of smell-specific characteristics by smell type")
-}
-
-plotSmellCountPerVersion <- function(df, smellTypeName, componentType = "class"){
-  df.count <- df %>% filter(smellType == smellTypeName & affectedComponentType == componentType) %>%
-    group_by(project, versionPosition) %>%
-    tally()
-  ggplot(df.count, aes(versionPosition, n)) + 
-    geom_line() + 
-    theme(axis.text.x = element_text(angle=90, hjust = 1)) +
-    facet_wrap(~project, scales = "free") +
-    labs(x="Versions", y="Count", title = paste("Number of ", smellTypeName, "on", componentType))
 }
 
 #' Plots the counting of cycle shapes for each version and each project in the given data frame
@@ -310,7 +334,7 @@ plotCharacteristicCorrelationBoth <- function(df.corr, base.size = 12){
 plotCharacteristCorrelationBoxplots <- function(df.corr, base.size = 12, legend.position = "none"){
   df.corr.f <- df.corr %>% filter(p.value <= 0.05)
   df.corr.f$smellType <- plyr::revalue(df.corr.f$smellType, c("cyclicDep"="CD", "hubLikeDep"="HL", "unstableDep"="UD"))
-  ggplot(df.corr.f, aes(smellType, estimate, fill = smellType)) + 
+  ggplot(df.corr.f, aes(interaction(smellType, affectedComponentType), estimate, fill = interaction(smellType, affectedComponentType))) + 
     geom_boxplot() + rotate() +
     theme_gray(base_size = base.size) +
     theme(legend.position = legend.position, axis.title.y = element_blank()) +
@@ -505,6 +529,11 @@ saveAllPlotsToFiles <- function(datasets, dir = "plots", format = "png", scale =
   ggsave(paste("descriptive-count-hl-class.", format, sep = ""), path = dest)
   plotSmellCountPerVersion(df, "unstableDep", "package")
   ggsave(paste("descriptive-count-ud-package.", format, sep = ""), path = dest)
+  
+  plots<- plotCorrAnalysisCount(df)
+  for (project in names(plots)) {
+    ggsave(paste("descriptive-count-corr-", project, ".", format, sep=""), plot = plots[[project]], path = dest)
+  }
   
   # PRINT RQ2
   df <- df %>% mutate(smellTypeGeneral = paste(smellType, affectedComponentType))
