@@ -391,7 +391,7 @@ plotSurvivalProbabilities <- function(df, strata = "smellType", base.size = 12, 
                  facet_wrap(~project, strip.position = "right") +
                  theme(legend.position = "none",
                        axis.title = element_blank(), panel.border = element_blank(),
-                       plot.margin=unit(c(-.75, 0,-.08, 0.2), "cm"))
+                       plot.margin=unit(c(-0.5, 0,-.08, 0.2), "cm"))
     if(i == 1) {
       nCol = ifelse(arrange.layout == "h", 2, 3)
       p <- plist[[i]] + theme(legend.position = "top") + guides(color=guide_legend(ncol = nCol, title = title))
@@ -403,10 +403,11 @@ plotSurvivalProbabilities <- function(df, strata = "smellType", base.size = 12, 
   if(arrange.layout == "h"){
     arrange.layout <- rbind(1:4, 5:8, 9:12, c(13, 14, 15, 15))
   }else{
-    arrange.layout <- rbind(c(15,15), 1:2, 3:4, 5:6, 7:8, 9:10, 11:12, 13:14)
+    #arrange.layout <- rbind(c(15,15), 1:2, 3:4, 5:6, 7:8, 9:10, 11:12, 13:14)
+    arrange.layout <- rbind(c(15,15), 1:2, 3:4)
   }
   grid.arrange(grobs = plist, layout_matrix = arrange.layout, bottom="Versions", 
-               heights=unit(append(0.7,replicate(nrow(arrange.layout)-1, 1.5)), "in"))
+               heights=unit(append(0.7,replicate(nrow(arrange.layout)-1, 2)), "in"))
 }
 
 #' Plot the age density of smells
