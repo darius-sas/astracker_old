@@ -205,7 +205,7 @@ affectedDesignChange <- function(affectedDesign){
 ggplotsignaltrends <- function(df.sig, legend.position = "right", palette = "Paired", base.size = 12){
   df.sig <- df.sig %>% tally() %>% mutate(percentage = n/sum(n) * 100)
   df.sig$smellType <- plyr::revalue(df.sig$smellType, c("cyclicDep"="CD", "hubLikeDep"="HL", "unstableDep"="UD"))
-  ggplot(df.sig, aes(x=smellType, y = percentage, group=classification, fill=classification)) + 
+  ggplot(df.sig, aes(x=interaction(smellType, affectedComponentType), y = percentage, group=classification, fill=classification)) + 
     geom_bar(stat="identity") +
     scale_fill_brewer(palette = palette) +
     theme_gray(base_size = base.size) +
@@ -244,7 +244,7 @@ plotSignalTrendCharacteristic <- function(df.sig, legend.position = "right", ...
 plotSignalTrendCharacteristicAllProjectsOnePlot <- function(df.sig, legend.position = "top", 
                                                             filter = c("size", "numOfEdges", "pageRankMax", "pageRankWeighted"), ...){
   df.grp <- df.sig %>% filter(characteristic %in% filter) %>% 
-    group_by(characteristic, smellType, classification)
+    group_by(characteristic, smellType, affectedComponentType, classification)
   ggplotsignaltrends(df.grp, legend.position = legend.position, ...) + 
     theme(axis.text.x = element_text(angle = 0, hjust = 0.5), axis.title.y = element_text(angle = -90)) +
     rotate() +
@@ -461,15 +461,16 @@ runAnalyses <- function(dataset.file){
   
   print("Running signal analysis")
   df.sig <- data.frame()
-  for(characteristic in unique(classifiableSignals$signal)){
+  library(foreach)
+  for(characteristic in classifiableSignals$signal){
     df.tmp<- classifySignal(df, characteristic)
     df.tmp$characteristic <- characteristic
     df.sig <- bind_rows(df.sig, df.tmp)
   }
   
   return(list(df = df, 
-              corr = df.corr, 
-              sig = df.sig))
+          corr = df.corr, 
+          sig = df.sig))
 }
 
 saveResults <- function(datasets, dir = "."){
