@@ -6,8 +6,13 @@ The installation process is simple, but it requires `git` and `mvn` (Maven) to b
 ```bash
 git clone https://github.com/darius-sas/trackas
 cd trackas
-mvn package -DskipTests=true
+mvn clean compile assembly:single -DskipTests=true
 ```
+or, to deploy to a docker container as a web service:
+```
+mvn clean package -DskipTests=true
+```
+
 This will compile the project and will create a `trackas` directory within the `./target` directory.
 The directory will contain a `.jar` and a `lib` folder, namely the executable and the necessary libraries.
 
