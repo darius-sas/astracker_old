@@ -47,11 +47,7 @@ public class PersistenceWriter {
     }
 
     public static void writeGraphs(IGraphGenerator graphGenerator){
-        try {
-            graphGenerator.getGraph().io(IoCore.graphml()).writeGraph(graphGenerator.getOutputFile().getAbsolutePath());
-        } catch (IOException e) {
-            logger.error("Could not print graph on file: {}", e.getMessage());
-        }
+        graphGenerator.getGraph().traversal().io(graphGenerator.getOutputFile().getAbsolutePath()).write();
     }
 
     /**

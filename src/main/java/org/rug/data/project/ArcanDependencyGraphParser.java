@@ -43,12 +43,11 @@ public class ArcanDependencyGraphParser {
                     f.getFileName().toString().lastIndexOf('-') + 1,
                     f.getFileName().toString().lastIndexOf('.'));
             Graph graph = TinkerGraph.open();
-            try {
-                graph.io(IoCore.graphml()).readGraph(f.toAbsolutePath().toString());
-                versionedSystem.put(version, graph);
-            } catch (IOException e) {
-                logger.error("Unable to read graph from file: ", e.getMessage());
-            }
+            graph.traversal().io(f.toAbsolutePath().toString()).read();
+            if (!graph.vertices().hasNext() && !graph.edges().hasNext())
+                logger.warn("Graph has no edges and no vertices.");
+
+            versionedSystem.put(version, graph);
         };
 
         Path f = Paths.get(path);
@@ -60,7 +59,7 @@ public class ArcanDependencyGraphParser {
                         .filter(ff -> ff.getFileName().toString().matches(".*\\.graphml"))
                         .forEach(addGraph);
             } catch (IOException e) {
-                logger.error("Unable to walk the given path: ", path);
+                logger.error("Unable to walk the given path: {}", path);
             }
         }else {
             addGraph.accept(f);
@@ -76,7 +75,6 @@ public class ArcanDependencyGraphParser {
      * @param graph the graph of the system.
      * @return an unmodifiable list containing the parsed smells.
      */
-    @SuppressWarnings("unchecked")
     public static List<ArchitecturalSmell> getArchitecturalSmellsIn(Graph graph){
         if (!cachedSmellLists.containsKey(graph)){
             List<ArchitecturalSmell> architecturalSmells = new ArrayList<>();

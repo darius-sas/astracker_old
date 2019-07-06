@@ -44,7 +44,7 @@ public class PageRank extends AbstractSmellCharacteristic {
      */
     public PageRank() {
         super("pageRankMax");
-        this.rankSelector = (x) -> x.max().getAsDouble();
+        this.rankSelector = (x) -> x.max().orElse(0);
     }
 
     /**

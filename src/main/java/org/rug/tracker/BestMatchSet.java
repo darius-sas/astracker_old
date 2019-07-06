@@ -270,7 +270,7 @@ public class BestMatchSet implements Set<LinkScoreTriple> {
      *                                       elements, or if the specified collection is null
      * @throws IllegalArgumentException      if some property of an element of the
      *                                       specified collection prevents it from being added to this set
-     * @see #add(Object)
+     * @see #add(LinkScoreTriple)
      */
     @Override
     public boolean addAll(Collection<? extends LinkScoreTriple> c) {

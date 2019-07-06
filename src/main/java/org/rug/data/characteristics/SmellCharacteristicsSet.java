@@ -49,7 +49,7 @@ public abstract class SmellCharacteristicsSet {
         characteristics.add(new OverlapRatio(ArchitecturalSmell.Type.HL));
         characteristics.add(new OverlapRatio(ArchitecturalSmell.Type.UD));
         characteristics.add(new PageRank());
-        characteristics.add(new PageRank("pageRankAvrg", x -> x.average().getAsDouble()));
+        characteristics.add(new PageRank("pageRankAvrg", x -> x.average().orElse(0)));
         characteristics.add(new NumberOfEdges());
         characteristics.add(new AffectedComponentsType());
     }
