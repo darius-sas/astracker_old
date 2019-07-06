@@ -1,14 +1,14 @@
 package org.rug.persistence;
 
 import org.rug.data.labels.VertexLabel;
-import org.rug.data.project.Version;
+import org.rug.data.project.IVersion;
 
 import java.util.ArrayList;
 
 /**
  * Writes component metrics on CSV files.
  */
-public class ComponentMetricGenerator extends CSVDataGenerator<Version> {
+public class ComponentMetricGenerator extends CSVDataGenerator<IVersion> {
     public ComponentMetricGenerator(String outputFile) {
         super(outputFile);
     }
@@ -19,7 +19,7 @@ public class ComponentMetricGenerator extends CSVDataGenerator<Version> {
     }
 
     @Override
-    public void accept(Version version) {
+    public void accept(IVersion version) {
         var g = version.getGraph().traversal();
         var versionString = version.getVersionString();
         var versionPosition = String.valueOf(version.getVersionPosition());

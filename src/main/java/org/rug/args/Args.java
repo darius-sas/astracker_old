@@ -23,10 +23,10 @@ public class Args {
     public String projectName;
 
     @Parameter(names = {"-outputDir", "-o"}, description = "This name will be used to generate an outputDir directory where the outputDir will be saved.", required = true, converter = OutputDirManager.class)
-    private File outputDir;
+    public File outputDir;
 
     @Parameter(names = {"-input", "-i"}, description = "The input directory containing a folder named as the given -projectName.", required = true, converter = InputDirManager.class)
-    private File inputDirectory;
+    public File inputDirectory;
 
     @Parameter(names = {"-runArcan", "-rA"}, description = "Analyse files with Arcan. This parameter shall point to the command to the JAR containing Arcan, without any parameters. Ex. ./path/to/Arcan.jar.")
     private String runArcan = null;

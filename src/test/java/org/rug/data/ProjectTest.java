@@ -1,6 +1,7 @@
 package org.rug.data;
 
 import org.junit.jupiter.api.Test;
+import org.rug.data.project.IVersion;
 import org.rug.data.project.Project;
 import org.rug.data.project.Version;
 
@@ -42,7 +43,7 @@ class ProjectTest {
             System.err.println("Error while reading data.");
         }
 
-        assertEquals(Arrays.asList(versions), new ArrayList<>(pr.versions().stream().map(Version::getVersionString).collect(Collectors.toList())));
+        assertEquals(Arrays.asList(versions), new ArrayList<>(pr.versions().stream().map(IVersion::getVersionString).collect(Collectors.toList())));
 
         pr.forEach(System.out::println);
 

@@ -6,14 +6,14 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
-import org.rug.data.project.Version;
-import org.rug.data.util.Triple;
+import org.rug.data.project.IVersion;
 import org.rug.data.smells.ArchitecturalSmell;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 /**
@@ -82,7 +82,7 @@ public class ASmellTracker {
      * @param smellsInVersion the architectural smells identified in version
      * @param version the version of the given system
      */
-    public void track(List<ArchitecturalSmell> smellsInVersion, Version version){
+    public void track(List<ArchitecturalSmell> smellsInVersion, IVersion version){
         List<ArchitecturalSmell> nextVersionSmells = new ArrayList<>(smellsInVersion);
 
         GraphTraversalSource g1 = trackGraph.traversal();

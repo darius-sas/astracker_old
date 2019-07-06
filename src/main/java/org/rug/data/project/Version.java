@@ -11,9 +11,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 /**
- * Represents a version of a system.
+ * Represents a version of a system of JARs and GraphML files.
  */
-public class Version implements Comparable<Version>{
+public class Version implements IVersion{
 
     private final static Logger logger = LoggerFactory.getLogger(Version.class);
 

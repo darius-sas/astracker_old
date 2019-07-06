@@ -3,6 +3,7 @@ package org.rug;
 import com.beust.jcommander.JCommander;
 import org.rug.args.Args;
 import org.rug.data.project.Project;
+import org.rug.data.project.Version;
 import org.rug.persistence.*;
 import org.rug.runners.ArcanRunner;
 import org.rug.runners.ProjecSizeRunner;
@@ -48,7 +49,7 @@ public class Main {
                 project.forEach(version -> {
                     Path outputDirVers = Paths.get(outputDir, version.getVersionString());
                     outputDirVers.toFile().mkdirs();
-                    var arcan = new ArcanRunner(args.getArcanJarFile(), version, outputDirVers.toString(), project.isFolderOfFoldersOfJarsProject(), false);
+                    var arcan = new ArcanRunner(args.getArcanJarFile(), (Version)version, outputDirVers.toString(), project.isFolderOfFoldersOfJarsProject(), false);
                     arcan.setHomeDir(args.getHomeProjectDirectory());
                     arcan.inheritOutput(args.showArcanOutput);
                     runners.add(arcan);

@@ -1,8 +1,10 @@
 package org.rug.runners;
 
+import org.rug.data.project.IProject;
 import org.rug.data.project.Project;
 import org.rug.data.characteristics.ComponentCharacteristicSet;
 import org.rug.data.characteristics.comps.JarClassSourceCodeRetrieval;
+import org.rug.data.project.Version;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.persistence.*;
 import org.rug.tracker.ASmellTracker;
@@ -20,10 +22,10 @@ public class TrackASRunner extends ToolRunner {
     private final static Logger logger = LoggerFactory.getLogger(TrackASRunner.class);
 
     private ASmellTracker tracker;
-    private Project project;
+    private IProject project;
     private boolean trackNonConsecutiveVersions;
 
-    public TrackASRunner(Project project, boolean trackNonConsecutiveVersions) {
+    public TrackASRunner(IProject project, boolean trackNonConsecutiveVersions) {
         super("trackas", "");
         this.project = project;
         this.trackNonConsecutiveVersions = trackNonConsecutiveVersions;
@@ -33,7 +35,7 @@ public class TrackASRunner extends ToolRunner {
     public int start() {
         tracker = new ASmellTracker(new SimpleNameJaccardSimilarityLinker(), trackNonConsecutiveVersions);
 
-        JarClassSourceCodeRetrieval retriever = project.hasJars() ? new JarClassSourceCodeRetrieval() : null;
+        JarClassSourceCodeRetrieval retriever = project instanceof Project && ((Project)project).hasJars() ? new JarClassSourceCodeRetrieval() : null;
         var componentCharacteristics = new ComponentCharacteristicSet(retriever).getCharacteristicSet();
 
         var numOfVersions = project.numberOfVersions();
@@ -43,8 +45,8 @@ public class TrackASRunner extends ToolRunner {
             logger.info("Tracking version {} (n. {} of {})", version.getVersionString(), version.getVersionPosition(), numOfVersions);
             var graph = version.getGraph();
             List<ArchitecturalSmell> smells = project.getArchitecturalSmellsIn(version);
-            if (retriever != null) {
-                retriever.setClassPath(version.getJarPath()); //update sources to current version
+            if (retriever != null && version instanceof Version) {
+                retriever.setClassPath(((Version)version).getJarPath()); //update sources to current version
             }
             componentCharacteristics.forEach(c -> c.calculate(graph));
             smells.forEach(ArchitecturalSmell::calculateCharacteristics);
