@@ -47,5 +47,11 @@ public interface IProject extends Iterable<IVersion> {
      */
     long numberOfVersions();
 
-
+    /**
+     * Returns the index in the order list of versions of this project.
+     * This collection is automatically updated when the system's versions change.
+     * @param version the version to return the position of.
+     * @return the position of the given version in the ordered list of versions of this system.
+     */
+    Long getVersionIndex(String version);
 }

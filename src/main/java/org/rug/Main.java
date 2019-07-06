@@ -41,52 +41,10 @@ public class Main {
                 System.exit(0);
             }
 
-            Project project = new Project(args.projectName);
-            List<ToolRunner> runners = new ArrayList<>();
-            if (args.runArcan()) {
-                project.addJars(args.getHomeProjectDirectory());
-                var outputDir = args.getArcanOutDir();
-                project.forEach(version -> {
-                    Path outputDirVers = Paths.get(outputDir, version.getVersionString());
-                    outputDirVers.toFile().mkdirs();
-                    var arcan = new ArcanRunner(args.getArcanJarFile(), (Version)version, outputDirVers.toString(), project.isFolderOfFoldersOfJarsProject(), false);
-                    arcan.setHomeDir(args.getHomeProjectDirectory());
-                    arcan.inheritOutput(args.showArcanOutput);
-                    runners.add(arcan);
-                });
-                args.adjustProjDirToArcanOutput();
-            }
-            project.addGraphMLs(args.getHomeProjectDirectory());
-
-            if (args.runTracker()) {
-                var ccclasshpath = args.getClasspathComponentCharact();
-                if (!project.hasJars() && !ccclasshpath.isEmpty())
-                    project.addJars(ccclasshpath);
-
-                runners.add(new TrackASRunner(project, args.trackNonConsecutiveVersions));
-
-                if (args.similarityScores)
-                    PersistenceWriter.register(new SmellSimilarityDataGenerator(args.getSimilarityScoreFile()));
-
-                if (args.smellCharacteristics) {
-                    PersistenceWriter.register(new SmellCharacteristicsGenerator(args.getSmellCharacteristicsFile(), project));
-                    PersistenceWriter.register(new ComponentAffectedByGenerator(args.getAffectedComponentsFile()));
-                }
-
-                if (!ccclasshpath.isEmpty())
-                    PersistenceWriter.register(new ComponentMetricGenerator(args.getComponentCharacteristicsFile()));
-
-                PersistenceWriter.register(new CondensedGraphGenerator(args.getCondensedGraphFile()));
-                PersistenceWriter.register(new TrackGraphGenerator(args.getTrackGraphFileName()));
-            }
-
-            if (args.runProjectSizes()) {
-                runners.add(new ProjecSizeRunner(project));
-                PersistenceWriter.register(new ProjectSizeGenerator(args.getProjectSizesFile()));
-            }
+            Analysis analysis = new Analysis(args);
 
             boolean errorsOccurred = false;
-            for (var r : runners) {
+            for (var r : analysis.getRunners()) {
                 int exitCode = r.start();
                 errorsOccurred = exitCode != 0;
                 if (errorsOccurred) {

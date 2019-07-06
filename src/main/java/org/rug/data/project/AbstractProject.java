@@ -96,6 +96,7 @@ public abstract class AbstractProject implements IProject {
      * @param version the version to return the position of.
      * @return the position of the given version in the ordered list of versions of this system.
      */
+    @Override
     public Long getVersionIndex(String version){
         return versionedSystem.get(version).getVersionPosition();
     }
