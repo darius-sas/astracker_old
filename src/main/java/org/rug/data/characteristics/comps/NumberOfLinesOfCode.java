@@ -5,6 +5,7 @@ import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.labels.EdgeLabel;
 import org.rug.data.labels.VertexLabel;
+import org.rug.data.project.IVersion;
 
 import java.util.EnumSet;
 import java.util.regex.Pattern;
@@ -19,11 +20,15 @@ public class NumberOfLinesOfCode extends AbstractComponentCharacteristic {
 
     /**
      * Instantiates the calculator of LOC.
-     * @param sourceRetriever the object that retrieves the source code of a class. If null, no computation is performed.
      */
-    public NumberOfLinesOfCode(ClassSourceCodeRetriever sourceRetriever){
+    public NumberOfLinesOfCode(){
         super("linesOfCode", EnumSet.of(VertexLabel.CLASS, VertexLabel.PACKAGE), EnumSet.noneOf(EdgeLabel.class));
-        this.sourceRetriever = sourceRetriever;
+    }
+
+    @Override
+    public void calculate(IVersion version) {
+        super.calculate(version);
+        this.sourceRetriever = version.getSourceCodeRetriever();
     }
 
     /**
@@ -70,6 +75,10 @@ public class NumberOfLinesOfCode extends AbstractComponentCharacteristic {
 
     }
 
+    public void setSourceRetriever(ClassSourceCodeRetriever sourceRetriever) {
+        this.sourceRetriever = sourceRetriever;
+    }
+
     private Pattern linePattern = Pattern.compile("[^\\s*].*[\\n\\r]+");
     private long countLOC(Vertex clazz){
         var sourceCode = sourceRetriever.getClassSource(clazz.value("name"));
@@ -79,8 +88,6 @@ public class NumberOfLinesOfCode extends AbstractComponentCharacteristic {
         while(matcher.find())
             linesOfCode++;
         return linesOfCode;
-        //var linesOfCode = sourceCode.split("[\n|\r]");
-        //return Arrays.stream(linesOfCode).filter(line -> line.length() > 0).count();
     }
 
 }

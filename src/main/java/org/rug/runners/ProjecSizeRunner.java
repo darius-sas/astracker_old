@@ -31,7 +31,7 @@ public class ProjecSizeRunner extends ToolRunner {
     }
 
     @Override
-    public int start() {
+    public int run() {
         int exitCode;
         if (project.versions().size() <= 0){
             logger.error("Cannot analyse a project of size 0.");

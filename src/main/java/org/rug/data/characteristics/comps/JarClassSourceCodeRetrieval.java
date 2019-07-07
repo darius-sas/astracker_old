@@ -18,6 +18,9 @@ import java.util.stream.Collectors;
  *
  * NOTE: {@link #setClassPath(String[])} needs to be explicitly invoked as it
  * specifies the paths where this object will look for classes.
+ *
+ * @author Jasper Mohlmann
+ * @author Darius Sas
  */
 public class JarClassSourceCodeRetrieval extends ClassSourceCodeRetriever {
 
@@ -25,6 +28,13 @@ public class JarClassSourceCodeRetrieval extends ClassSourceCodeRetriever {
     private SourceClassSink sourceClasses = new SourceClassSink();
     private boolean errorOccured = false;
 
+    /**
+     * Retrieves the source code as a string from the given class name.
+     *
+     * @param className the full name of the class without the .java suffix (e.g. org.package.Class).
+     * @return the source code of the class as string. If the class is not present, or an error has occurred,
+     * an empty string is returned.
+     */
     /**
      * Retrieves the source code as a string from the given class name.
      *

@@ -1,5 +1,6 @@
 package org.rug.data.project;
 
+import org.rug.data.characteristics.comps.ClassSourceCodeRetriever;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,7 @@ public class Project extends AbstractProject {
     public void addJars(String mainJarProjectDir) throws IOException {
         Path jarDirPath = Paths.get(mainJarProjectDir);
         this.isFolderOfFolderOfJars = !containsJars(jarDirPath);
+        hasJars = true;
 
         if (!isFolderOfFolderOfJars){
             Files.list(jarDirPath)
@@ -51,7 +53,7 @@ public class Project extends AbstractProject {
                     .filter(Files::isDirectory)
                     .forEach(j -> addVersion(j, version -> version.setJarPath(j)));
         }
-        hasJars = true;
+
         initVersionPositions();
     }
 

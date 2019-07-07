@@ -3,6 +3,8 @@ package org.rug.data.project;
 import org.apache.tinkerpop.gremlin.process.traversal.IO;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
+import org.rug.data.characteristics.comps.ClassSourceCodeRetriever;
+import org.rug.data.characteristics.comps.JarClassSourceCodeRetrieval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +24,7 @@ public class Version implements IVersion{
     private Path jarPath;
     private Path graphMLPath;
     private Graph graph;
+    private JarClassSourceCodeRetrieval sourceCodeRetrieval;
 
     public Version(){}
 
@@ -31,6 +34,8 @@ public class Version implements IVersion{
      */
     public Version(Path path){
         this.versionString = parseVersion(path);
+        this.sourceCodeRetrieval = new JarClassSourceCodeRetrieval();
+        this.sourceCodeRetrieval.setClassPath(path);
     }
 
     /**
@@ -104,6 +109,11 @@ public class Version implements IVersion{
             }
         }
         return graph;
+    }
+
+    @Override
+    public ClassSourceCodeRetriever getSourceCodeRetriever() {
+        return sourceCodeRetrieval;
     }
 
     @Override

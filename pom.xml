@@ -6,8 +6,7 @@
 
     <groupId>org.rug</groupId>
     <artifactId>astracker</artifactId>
-    <version>0.6</version>
-    <packaging>war</packaging>
+    <version>0.7</version>
     <dependencies>
         <dependency>
             <groupId>org.apache.tinkerpop</groupId>
@@ -120,52 +119,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>2.1.1</version>
-                <configuration>
-                    <webXml>src/main/WEB-INF/web.xml</webXml>
-                    <webResources>
-                        <resource>
-                            <filtering>true</filtering>
-                            <directory>src/main/java</directory>
-                        </resource>
-                        <resource>
-                            <directory>src/main/resources</directory>
-                            <targetPath>WEB-INF/classes</targetPath>
-                            <filtering>true</filtering>
-                            <includes>
-                                <include>**/*.properties</include>
-                            </includes>
-                        </resource>
-                    </webResources>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.6</version>
-                <executions>
-                    <execution>
-                        <id>prepare-package</id>
-                        <phase>package</phase>
-                        <inherited>false</inherited>
-                        <configuration>
-                            <target>
-                                <exec executable="docker">
-                                    <arg value="build"/>
-                                    <arg value="-t"/>
-                                    <arg value="${project.artifactId}:${project.version}"/>
-                                    <arg value="target"/>
-                                </exec>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+
         </plugins>
     </build>
 </project>

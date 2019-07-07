@@ -1,6 +1,7 @@
 package org.rug.data.project;
 
 import org.apache.tinkerpop.gremlin.structure.Graph;
+import org.rug.data.characteristics.comps.ClassSourceCodeRetriever;
 
 /**
  * Represents a version of the system under analysis. The version is a single analyzable unit.
@@ -31,4 +32,11 @@ public interface IVersion extends Comparable<Version> {
      * @return a dependency graph containing also the smells detected by the system.
      */
     Graph getGraph();
+
+    /**
+     * Get the source code retriever for this version.
+     * @return a source code retriever that returns the source code of this version.
+     */
+    ClassSourceCodeRetriever getSourceCodeRetriever();
+
 }

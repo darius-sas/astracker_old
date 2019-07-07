@@ -48,7 +48,7 @@ public class CDSmell extends ArchitecturalSmell {
 
     /**
      * Tries to retrieve the shape type by walking to the shape node starting from the given smell node.
-     * @param smell The smell node to start walking from
+     * @param smell The smell node to run walking from
      */
     private void setShape(Vertex smell){
         //TODO a smell node can be part of two cycles, need to find a way to distinguish between the two

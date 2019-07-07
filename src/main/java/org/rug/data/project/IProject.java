@@ -1,5 +1,6 @@
 package org.rug.data.project;
 
+import org.rug.data.characteristics.comps.ClassSourceCodeRetriever;
 import org.rug.data.smells.ArchitecturalSmell;
 
 import java.util.List;

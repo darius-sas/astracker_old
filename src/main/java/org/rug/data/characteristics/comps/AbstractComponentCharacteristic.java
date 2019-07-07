@@ -7,6 +7,7 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.characteristics.IComponentCharacteristic;
 import org.rug.data.labels.EdgeLabel;
 import org.rug.data.labels.VertexLabel;
+import org.rug.data.project.IVersion;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -35,12 +36,12 @@ public abstract class AbstractComponentCharacteristic implements IComponentChara
     }
 
     /**
-     * The graph to calculate this characteristic and store it as a vertex, edge, or graph property.
-     *
-     * @param graph the graph to use
+     * Calculate the characteristic on the graph of this version and save it as a node, vertex or graph property.
+     * @param version the version from which to retrieve the components
      */
     @Override
-    public void calculate(Graph graph) {
+    public void calculate(IVersion version) {
+        var graph = version.getGraph();
         graph.traversal().V().hasLabel(P.within(vLabels)).forEachRemaining(this::calculate);
         graph.traversal().E().hasLabel(P.within(eLabels)).forEachRemaining(this::calculate);
     }
