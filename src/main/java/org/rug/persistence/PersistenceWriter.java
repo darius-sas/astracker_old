@@ -47,7 +47,7 @@ public class PersistenceWriter {
     }
 
     public static void writeGraphs(IGraphGenerator graphGenerator){
-        graphGenerator.getGraph().traversal().io(graphGenerator.getOutputFile().getAbsolutePath()).write();
+        graphGenerator.getGraph().traversal().io(graphGenerator.getOutputFile().getAbsolutePath()).write().iterate();
     }
 
     /**

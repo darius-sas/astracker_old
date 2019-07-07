@@ -1,6 +1,5 @@
 package org.rug.data.project;
 
-import org.rug.data.characteristics.comps.ClassSourceCodeRetriever;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,23 +90,6 @@ public class Project extends AbstractProject {
     public boolean isFolderOfFoldersOfJarsProject() {
         return isFolderOfFolderOfJars;
     }
-
-    /**
-     * Indicates whether any graphML file has been added to this project.
-     * @return true if there are graphML files in the project, false otherwise
-     */
-    public boolean hasGraphMLs() {
-        return hasGraphMLs;
-    }
-
-    /**
-     * Indicates whether any JAR file has been added to this project.
-     * @return true if there are JAR files in the project, false otherwise
-     */
-    public boolean hasJars(){
-        return hasJars;
-    }
-
 
     private boolean containsJars(Path dir) throws IOException{
         return Files.list(dir).anyMatch(f -> Files.isRegularFile(f) && f.getFileName().toString().matches(".*\\.jar"));

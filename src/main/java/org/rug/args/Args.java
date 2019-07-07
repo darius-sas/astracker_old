@@ -80,11 +80,11 @@ public class Args {
     }
 
     public String getCondensedGraphFile(){
-        return getOutputFileName("condensed-graph", "graphml");
+        return getOutputFileName("condensed-graph", "xml");
     }
 
     public String getTrackGraphFileName(){
-        return getOutputFileName("track-graph", "graphml");
+        return getOutputFileName("track-graph", "xml");
     }
 
     public String getProjectSizesFile(){return getOutputFileName("project-sizes", "csv");}
