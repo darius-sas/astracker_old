@@ -4,7 +4,10 @@ public enum VertexLabel {
     PACKAGE("package"),
     SMELL("smell"),
     CYCLESHAPE("cycleShape"),
-    CLASS("class");
+    CLASS("class"),    
+    COMPONENT("component"),
+	CFILE("CFile"),
+	HFILE("HFile");
 
 
     private final String value;

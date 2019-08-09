@@ -11,6 +11,7 @@ public enum EdgeLabel {
     ISAFFERENTOF("isAfferentOf"),
     ISEFFERENTOF("isEfferentOf"),
     PACKAGEISAFFERENTOF("packageIsAfferentOf"),
+    AFFERENT("afferent"),
     PARTOFSTAR("partOfStar"),
     ISCENTREOFSTAR("isCentreOfStar"),
     ISTINYSHAPED("isTinyShaped"),
