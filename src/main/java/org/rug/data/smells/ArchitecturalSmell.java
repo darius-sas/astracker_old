@@ -277,8 +277,11 @@ public abstract class ArchitecturalSmell {
      */
     public enum Type {
         CD("cyclicDep", CDSmell::new, new CDCharacteristicsSet()),
+        CDCPP("cyclicDep", CDSmellCPP::new, new CDCharacteristicsSet()),
         UD("unstableDep", UDSmell::new, new UDCharacteristicsSet()),
+        UDCPP("unstableDep", UDSmellCPP::new, new UDCharacteristicsSet()),
         HL("hubLikeDep", HLSmell::new, new HLCharacteristicsSet()),
+        HLCPP("hubLikeDep", HLSmellCPP::new, new HLCharacteristicsSet()),
         ICPD("ixpDep", vertex -> null, null),
         MAS("multipleAS", vertex -> null, null),
         ;
@@ -345,6 +348,7 @@ public abstract class ArchitecturalSmell {
         }
 
         public static Level fromString(String name){
+        	name = name.equals("component") ? "package":"class";
             return lookup.get(name);
         }
 

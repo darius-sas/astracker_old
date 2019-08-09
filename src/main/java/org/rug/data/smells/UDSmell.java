@@ -24,6 +24,11 @@ public class UDSmell extends SingleElementSmell {
         super(smell, Type.UD);
         this.badDep = smell.graph().traversal().V(smell).out(EdgeLabel.UDBADDEP.toString()).toSet();
     }
+    
+    public UDSmell(Vertex smell, Type type) {
+        super(smell, type);
+        this.badDep = smell.graph().traversal().V(smell).out(EdgeLabel.UDBADDEP.toString()).toSet();
+    }
 
     @Override
     public void setAffectedElements(Vertex smell) {

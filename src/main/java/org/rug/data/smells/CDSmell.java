@@ -29,6 +29,12 @@ public class CDSmell extends ArchitecturalSmell {
         super(smell, Type.CD);
         setShape(smell);
     }
+    
+
+    public CDSmell(Vertex smell, Type type) {
+    	super(smell, type);
+    	setShape(smell);
+    }
 
     /**
      * Returns the Vertex describing the shape of this smell. Some types of CD smell may not have a shape, null is returned in such cases.
