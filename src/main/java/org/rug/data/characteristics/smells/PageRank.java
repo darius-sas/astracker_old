@@ -65,7 +65,7 @@ public class PageRank extends AbstractSmellCharacteristic {
      */
     @Override
     public String visit(CDSmell smell) {
-        return visitInternal(smell);
+        return "0";
     }
 
     /**
@@ -157,7 +157,7 @@ public class PageRank extends AbstractSmellCharacteristic {
                     .edges(__.outE(EdgeLabel.DEPENDSON.toString()).asAdmin()).create(explodedGraph);
             var programPackage = PageRankVertexProgram
                     .build().property("centrality")
-                    .edges(__.outE(EdgeLabel.PACKAGEISAFFERENTOF.toString()).asAdmin()).create(explodedGraph);
+                    .edges(__.outE(EdgeLabel.AFFERENT.toString()).asAdmin()).create(explodedGraph);
 
             try {
                 Future<ComputerResult> futureClasses = explodedGraph
@@ -193,8 +193,8 @@ public class PageRank extends AbstractSmellCharacteristic {
      * @return a new graph containing the exploded edges.
      */
     private static Graph explodeGraph(Graph src){
-        Graph dst = clone(src, List.of(VertexLabel.CLASS.toString(), VertexLabel.PACKAGE.toString()),
-                List.of(EdgeLabel.DEPENDSON.toString(), EdgeLabel.PACKAGEISAFFERENTOF.toString()));
+        Graph dst = clone(src, List.of(VertexLabel.CFILE.toString(), VertexLabel.COMPONENT.toString(), VertexLabel.HFILE.toString()),
+                List.of(EdgeLabel.DEPENDSON.toString(), EdgeLabel.AFFERENT.toString()));
 
         dst.traversal().E().has("Weight").toSet().forEach(edge -> {
             int weight = edge.value("Weight");
