@@ -3,6 +3,7 @@ package org.rug.data;
 import org.junit.jupiter.api.Test;
 import org.rug.data.project.IVersion;
 import org.rug.data.project.Project;
+import org.rug.data.project.ProjectCPP;
 import org.rug.data.project.Version;
 
 import java.io.File;
@@ -86,5 +87,23 @@ class ProjectTest {
         project.addJars("./qualitas-corpus/input/" + project.getName());
 
         assertEquals(wekaversions, new ArrayList<>(project.getVersionedSystem().keySet()));
+    }
+    
+    @Test
+    void parseTestCpp(){
+    	var name = "pure";
+    	var versions = new String[] {"1.0.0.0", "1.0.0.1", "1.0.0.2", "1.0.0.3", "1.0.0.4"};
+    	var graphMls = "./arcanCppOutput/" + name;
+        ProjectCPP pr = new ProjectCPP(name);
+
+        try {
+            pr.addGraphMLs(graphMls);
+        } catch (IOException e) {
+            System.err.println("Error while reading data.");
+        }
+
+        assertEquals(Arrays.asList(versions), new ArrayList<>(pr.versions().stream().map(IVersion::getVersionString).collect(Collectors.toList())));
+
+        pr.forEach(System.out::println);
     }
 }
