@@ -43,7 +43,7 @@ public class ArcanDependencyGraphParser {
                     f.getFileName().toString().lastIndexOf('-') + 1,
                     f.getFileName().toString().lastIndexOf('.'));
             Graph graph = TinkerGraph.open();
-            graph.traversal().io(f.toAbsolutePath().toString()).read();
+            graph.traversal().io(f.toAbsolutePath().toString()).read().iterate();
             if (!graph.vertices().hasNext() && !graph.edges().hasNext())
                 logger.warn("Graph has no edges and no vertices.");
 
@@ -56,7 +56,7 @@ public class ArcanDependencyGraphParser {
             try {
                 Files.walk(Paths.get(path))
                         .filter(Files::isRegularFile)
-                        .filter(ff -> ff.getFileName().toString().matches(".*\\.graphml"))
+                        .filter(ff -> ff.getFileName().toString().matches(".*\\.xml"))
                         .forEach(addGraph);
             } catch (IOException e) {
                 logger.error("Unable to walk the given path: {}", path);
