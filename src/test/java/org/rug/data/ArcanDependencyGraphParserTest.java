@@ -1,5 +1,6 @@
 package org.rug.data;
 
+import org.apache.tinkerpop.gremlin.process.traversal.IO;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.junit.jupiter.api.Test;
@@ -33,11 +34,12 @@ class ArcanDependencyGraphParserTest {
 	@Test
 	void parseGraphMLCpp() {
 		Graph gr = TinkerGraph.open();
-		gr.traversal().io(".\\arcanCppOutput\\pure\\pure-1.0.0.0.xml").read().iterate();
+		gr.traversal().io(".\\arcanCppOutput\\pure\\pure-1.0.0.0.graphml").read().with(IO.reader, IO.graphml).iterate();
 
 		List<ArchitecturalSmell> smells = ArcanDependencyGraphParser.getArchitecturalSmellsIn(gr);
 		ArchitecturalSmell smell = smells.stream().filter(as -> as.getId() == 13363).findFirst().get();
 		Graph smellGraph = smell.getAffectedGraph();
+		
 		PageRank pr = new PageRank();
 		String pRank = pr.visit((CDSmell) smell);
 		System.out.println(pRank);

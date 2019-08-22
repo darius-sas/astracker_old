@@ -1,9 +1,9 @@
 package org.rug.data.smells;
 
+import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.labels.VertexLabel;
-import org.rug.data.smells.ArchitecturalSmell.Level;
 
 public class CDSmellCPP extends CDSmell {
 
@@ -13,12 +13,11 @@ public class CDSmellCPP extends CDSmell {
 
 	@Override
 	protected void setAffectedElements(Vertex smell) {
-		setAffectedElements(
-				smell.graph().traversal().V(smell)
-						.choose(__.in().hasLabel(VertexLabel.CYCLESHAPE.toString()),
-								__.in().hasLabel(VertexLabel.CYCLESHAPE.toString()).out()
-										.hasLabel(VertexLabel.CFILE.toString(), VertexLabel.COMPONENT.toString()))
-						.toSet());
+		setAffectedElements(smell.graph().traversal().V(smell)
+                .choose(__.in().hasLabel(VertexLabel.CYCLESHAPE.toString()),
+                        __.in().hasLabel(VertexLabel.CYCLESHAPE.toString())
+                               .out().hasLabel(VertexLabel.SMELL.toString()))
+                .out().hasLabel(P.within(VertexLabel.CFILE.toString(), VertexLabel.COMPONENT.toString())).toSet());
 	}
 	
 	@Override

@@ -1,5 +1,6 @@
 package org.rug.data.project;
 
+import org.apache.tinkerpop.gremlin.process.traversal.IO;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
@@ -43,7 +44,8 @@ public class ArcanDependencyGraphParser {
                     f.getFileName().toString().lastIndexOf('-') + 1,
                     f.getFileName().toString().lastIndexOf('.'));
             Graph graph = TinkerGraph.open();
-            graph.traversal().io(f.toAbsolutePath().toString()).read().iterate();
+            graph.traversal().io(f.toAbsolutePath().toString()).read().with(IO.reader, IO.graphml).iterate();
+           // graph.traversal().io(f.toAbsolutePath().toString()).read().iterate();
             if (!graph.vertices().hasNext() && !graph.edges().hasNext())
                 logger.warn("Graph has no edges and no vertices.");
 
@@ -56,7 +58,7 @@ public class ArcanDependencyGraphParser {
             try {
                 Files.walk(Paths.get(path))
                         .filter(Files::isRegularFile)
-                        .filter(ff -> ff.getFileName().toString().matches(".*\\.xml"))
+                        .filter(ff -> ff.getFileName().toString().matches(".*\\.graphml"))
                         .forEach(addGraph);
             } catch (IOException e) {
                 logger.error("Unable to walk the given path: {}", path);

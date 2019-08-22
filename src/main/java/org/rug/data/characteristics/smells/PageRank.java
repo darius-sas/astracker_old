@@ -65,7 +65,7 @@ public class PageRank extends AbstractSmellCharacteristic {
      */
     @Override
     public String visit(CDSmell smell) {
-        return "0";
+        return visitInternal(smell);
     }
 
     /**

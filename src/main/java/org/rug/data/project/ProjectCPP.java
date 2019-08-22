@@ -38,7 +38,9 @@ public class ProjectCPP extends AbstractProject {
 
         var graphMlFiles = getGraphMls(dir.toPath());
         if (!graphMlFiles.isEmpty())
-            graphMlFiles.forEach(f -> addVersion(f, version -> version.setGraphMLPath(f)));
+            graphMlFiles.forEach(f -> 
+            		addVersion(f, version -> 
+            					version.setGraphMLPath(f)));
         else
             versionedSystem.values().forEach(version -> {
                 var graphmlFile = Paths.get(graphMLDir, name + "-" + version.getVersionString() + ".graphml");

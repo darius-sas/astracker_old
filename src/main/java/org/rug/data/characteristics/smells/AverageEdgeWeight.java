@@ -22,7 +22,7 @@ public class AverageEdgeWeight extends AbstractSmellCharacteristic {
                 .bothE(EdgeLabel.DEPENDSON.toString(), EdgeLabel.PACKAGEISAFFERENTOF.toString())
                 .where(__.otherV().is(P.within(smell.getAffectedElements())))
                 .toStream()
-                .mapToInt(edge -> Integer.parseInt(edge.value("Weight").toString()))
+                .mapToInt(edge -> Integer.parseInt(edge.value("weight").toString()))
                 .average().orElse(0));
     }
 }
