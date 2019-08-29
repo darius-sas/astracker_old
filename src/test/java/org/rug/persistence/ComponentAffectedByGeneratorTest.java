@@ -11,9 +11,9 @@ class ComponentAffectedByGeneratorTest {
     @Test
     void testAffectedElements() throws IOException {
         var project = new Project("antlr");
-        project.addGraphMLs("./qualitas-corpus/output/arcanOutput/antlr/");
+        project.addGraphMLs("./test-data/output/arcanOutput/antlr/");
 
-        var gen = new ComponentAffectedByGenerator("./qualitas-corpus/output/trackASOutput/antlr/affectedComponents.csv");
+        var gen = new ComponentAffectedByGenerator("./test-data/output/trackASOutput/antlr/affectedComponents.csv");
         var tracker = new ASmellTracker();
         project.forEach(v -> {
             var smells = project.getArchitecturalSmellsIn(v);

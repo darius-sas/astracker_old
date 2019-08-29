@@ -32,8 +32,8 @@ class ProjectTest {
     }
 
     Project parseTestInternal(String name, String... versions){
-        var jarDirs = "./qualitas-corpus/input/" + name;
-        var graphMls = "./qualitas-corpus/output/arcanOutput/" + name;
+        var jarDirs = "./test-data/input/" + name;
+        var graphMls = "./test-data/output/arcanOutput/" + name;
         Project pr = new Project(name);
 
         try {
@@ -63,7 +63,7 @@ class ProjectTest {
     @Test
     void qualitasParseTest() throws IOException {
         var project = new Project("ant");
-        var jarDirs = "./qualitas-corpus/input/" + project.getName();
+        var jarDirs = "./test-data/input/" + project.getName();
 
         var antversions = Arrays.asList("1.1", "1.2", "1.3", "1.4", "1.4.1", "1.5", "1.5.1", "1.5.2", "1.5.3.1",
                 "1.5.4", "1.6.0", "1.6.1", "1.6.2", "1.6.3", "1.6.4", "1.6.5", "1.7.0", "1.7.1", "1.8.0",
@@ -83,7 +83,7 @@ class ProjectTest {
 
         project = new Project("weka");
 
-        project.addJars("./qualitas-corpus/input/" + project.getName());
+        project.addJars("./test-data/input/" + project.getName());
 
         assertEquals(wekaversions, new ArrayList<>(project.getVersionedSystem().keySet()));
     }

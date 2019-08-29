@@ -12,7 +12,7 @@ class ArcanDependencyGraphParserTest {
 
     @Test
     void parseGraphML() {
-        SortedMap<String, Graph> versionedSystem = ArcanDependencyGraphParser.parseGraphML("./arcanrunner/outputs/antlr");
+        SortedMap<String, Graph> versionedSystem = ArcanDependencyGraphParser.parseGraphML("./test-data/output/arcanOutput/antlr");
 
         List<String> versions = Arrays.asList("2.7.1", "2.7.2", "2.7.5", "2.7.6", "2.7.7", "3.0",
                 "3.0.1", "3.1", "3.1.1", "3.1.2", "3.1.3", "3.2", "3.3", "3.4", "3.5");

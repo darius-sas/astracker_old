@@ -22,7 +22,7 @@ class ArchitecturalSmellTest {
 
     @Test
     void testASDataStructure(){
-        SortedMap<String, Graph> versionedSystem = ArcanDependencyGraphParser.parseGraphML("./arcanrunner/outputs/antlr/");
+        SortedMap<String, Graph> versionedSystem = ArcanDependencyGraphParser.parseGraphML("./test-data/output/arcanOutput/antlr/");
 
         for (Map.Entry<String, Graph> entry : versionedSystem.entrySet()){
             List<ArchitecturalSmell> smellsInTheSystem = ArcanDependencyGraphParser.getArchitecturalSmellsIn(entry.getValue());

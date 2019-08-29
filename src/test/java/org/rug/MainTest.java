@@ -11,14 +11,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MainTest {
 
-    final String inputDir = "./qualitas-corpus/input/";
-    final String outputDir = "./qualitas-corpus/output/";
-    final String arcanCommand = "java -jar ./arcan/Arcan-1.4.0-SNAPSHOT.jar";
+    private final String inputDir = "./test-data/input/";
+    private final String outputDir = "./test-data/output/";
+    private final String arcanCommand = "java -jar ./arcan/Arcan-1.4.0-SNAPSHOT.jar";
 
-    @Test
+
     void executeMainArcan(){
         executeMainProjectArcan("antlr");
-        //executeMainProjectArcan("argouml");
+        executeMainProjectArcan("argouml");
     }
 
     void executeMainProjectArcan(String projectName){
@@ -39,10 +39,10 @@ class MainTest {
                 error(projectName, "checking existence score similarity file"));
     }
 
-    @Test
+
     void executeMain(){
         executeMainProject("antlr");
-       // executeMainProject("argouml");
+        executeMainProject("argouml");
     }
 
     void executeMainProject(String projectName){
@@ -63,12 +63,12 @@ class MainTest {
         return ()-> String.format("Error %s for project %s.", cause, projectName);
     }
     
-    @Test
+
     void testExecute(){
         Main.main(new String[]{"-p", "antlr", "-i", "./qualitas-corpus/input/", "-o", "./qualitas-corpus/output", "-pC", "-sAO", "-pS", "-rA", "java -jar arcan/Arcan-1.4.0-SNAPSHOT.jar"});
     }
 
-    @Test
+
     void testExecuteNew(){
         Main.main(new String[]{"-p", "antlr", "-i", "./qualitas-corpus/output/arcanOutput/",
                 "-o", "./qualitas-corpus/outputNew", "-pC", "-sAO", "-pS",

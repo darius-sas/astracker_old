@@ -13,12 +13,12 @@ import java.io.IOException;
 public class SimilarityLinkerComparison {
 
     @Test
-    void compareJaccardLinkers() throws IOException, InterruptedException {
+    void compareJaccardLinkers() throws IOException {
        compareJaccardLinkers("argouml");
-       //compareJaccardLinkers("antlr");
+       compareJaccardLinkers("antlr");
     }
 
-    void compareJaccardLinkers(String projectName) throws IOException, InterruptedException {
+    void compareJaccardLinkers(String projectName) throws IOException {
         var project = new Project(projectName);
         var outputDir = "./test-data/output/trackASOutput/" + project.getName() + "/linker-tests/";
         var outputDirF = new File(outputDir);
@@ -55,37 +55,5 @@ public class SimilarityLinkerComparison {
         var simpleCharactGen = new SmellCharacteristicsGenerator(outputDir + "test-simple-characteristics.csv", project);
         simpleCharactGen.accept(simpleNameTracker);
         PersistenceWriter.writeCSV(simpleCharactGen);
-
-        var linkingTabScript = new ProcessBuilder("Rscript", "./data-analysis/jaccard-linking.r",
-                normalGenerator.getOutputFile().toString(),
-                outputDir + "test-normal-link-scores.pdf");
-        linkingTabScript.start();
-
-        linkingTabScript = new ProcessBuilder("Rscript", "./data-analysis/jaccard-linking.r",
-                normalGenerator.getOutputFile().toString(),
-                outputDir + "test-simple-link-scores.pdf");
-        linkingTabScript.start();
-
-
-        var notebookScript = new ProcessBuilder("R", "-e",
-                "e<-new.env();e[['project']]<-'"+project.getName()+
-                        "';e[['type']]<-'normal';e[['similarity_scores_file']]<-'"+normalGenerator.getOutputFile().getAbsolutePath()+
-                        "';e[['characteristics_file']]<-'"+normalCharactGen.getOutputFile().getAbsolutePath()+
-                        "';rmarkdown::render('./data-analysis/as-history-in-system.Rmd', output_file='"+outputDirF.getAbsolutePath()+
-                        "/as-history-in-system-normal.nb.html',envir=e)");
-        notebookScript.inheritIO();
-        var p = notebookScript.start().waitFor();
-
-        System.out.println("Normal notebook exit code " + p);
-
-        notebookScript = new ProcessBuilder("R", "-e",
-                "e<-new.env();e[['project']]<-'"+project.getName()+
-                        "';e[['type']]<-'simple';e[['similarity_scores_file']]<-'"+simpleNameGenerator.getOutputFile().getAbsolutePath()+
-                        "';e[['characteristics_file']]<-'"+simpleCharactGen.getOutputFile().getAbsolutePath()+
-                        "';rmarkdown::render('./data-analysis/as-history-in-system.Rmd', output_file='"+outputDirF.getAbsolutePath()+
-                        "/as-history-in-system-simple.nb.html',envir=e)");
-        notebookScript.inheritIO();
-        p = notebookScript.start().waitFor();
-        System.out.println("Simple notebook exit code " + p);
     }
 }

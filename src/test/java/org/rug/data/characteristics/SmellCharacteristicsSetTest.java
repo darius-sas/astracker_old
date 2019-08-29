@@ -24,7 +24,7 @@ class SmellCharacteristicsSetTest {
 
     public SmellCharacteristicsSetTest() throws IOException{
         project = new Project("antlr");
-        project.addGraphMLs("./qualitas-corpus/output/arcanOutput/antlr");
+        project.addGraphMLs("./test-data/output/arcanOutput/antlr");
     }
 
     @Test

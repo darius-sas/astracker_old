@@ -21,13 +21,13 @@ class ASmellTrackerTest {
 
     @Test
     void trackTest(){
-        SortedMap<String, Graph> versionedSystem = ArcanDependencyGraphParser.parseGraphML("./arcanrunner/outputs/antlr");
+        SortedMap<String, Graph> versionedSystem = ArcanDependencyGraphParser.parseGraphML("./test-data/output/arcanOutput/antlr");
 
         ISimilarityLinker scorer = new JaccardSimilarityLinker();
         ASmellTracker tracker = new ASmellTracker(scorer, false);
 
-        PersistenceWriter.register(new SmellSimilarityDataGenerator("data/jaccard-scores-antlr-consecutives-only.csv"));
-        PersistenceWriter.register(new SmellCharacteristicsGenerator("data/smells-characteristics.csv", null)); // this test is out of date, added null to allow compilation
+        PersistenceWriter.register(new SmellSimilarityDataGenerator("test-data/output/trackASOutput/antlr/jaccard-scores-consecutives-only.csv"));
+        PersistenceWriter.register(new SmellCharacteristicsGenerator("test-data/output/trackASOutput/antlr/smells-characteristics.csv", null)); // this test is out of date, added null to allow compilation
 
         int counter = 1;
         for (var entry : versionedSystem.entrySet()){

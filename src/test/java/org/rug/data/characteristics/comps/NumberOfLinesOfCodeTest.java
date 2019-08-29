@@ -12,16 +12,19 @@ import static org.junit.jupiter.api.Assertions.*;
 class NumberOfLinesOfCodeTest {
 
     Project project;
+    String classPath;
 
     public NumberOfLinesOfCodeTest() {
         project = new Project("antlr");
+        classPath = "test-data/jars/astracker-0.7.jar";
+
     }
 
     @Test
     void calculate() throws IOException {
         JarClassSourceCodeRetrieval retriever = new JarClassSourceCodeRetrieval();
 
-        retriever.setClassPath("target/trackas/trackas-0.6.jar");
+        retriever.setClassPath(classPath);
 
         var src = retriever.getClassSource(AbstractComponentCharacteristic.class.getCanonicalName());
         assertFalse(src.isEmpty());
@@ -29,8 +32,8 @@ class NumberOfLinesOfCodeTest {
         var nbloc = Arrays.stream(linesOfCode).filter(line -> line.length() > 0).count();
         assertTrue(nbloc >= 50);
 
-        project.addJars("qualitas-corpus/input/antlr");
-        project.addGraphMLs("qualitas-corpus/output/arcanOutput/antlr");
+        project.addJars("test-data/input/antlr");
+        project.addGraphMLs("test-data/output/arcanOutput/antlr");
         var charLOC = new NumberOfLinesOfCode();
         var vSys = project.getVersion("3.2");
         charLOC.setSourceRetriever(vSys.getSourceCodeRetriever());
