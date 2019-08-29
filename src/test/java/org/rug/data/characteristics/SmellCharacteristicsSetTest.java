@@ -114,7 +114,7 @@ class SmellCharacteristicsSetTest {
         var as = project.getArchitecturalSmellsIn("3.1");
         hl = (HLSmell)as.stream().filter(s -> s.getId() == 17174).findFirst().orElse(null);
         assertNotNull(hl);
-        assertEquals(0.92, affectedClassesRatio.visit(hl));
+        assertEquals(0.92, Double.parseDouble(affectedClassesRatio.visit(hl)));
     }
 
     HLSmell createMockHL(){

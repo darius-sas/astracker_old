@@ -2,10 +2,13 @@ package org.rug;
 
 import com.beust.jcommander.JCommander;
 import org.rug.args.Args;
-import org.rug.persistence.*;
+import org.rug.persistence.PersistenceWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Main entry point of the system.
+ */
 public class Main {
 
     private final static Logger logger = LoggerFactory.getLogger(Main.class);
@@ -40,13 +43,13 @@ public class Main {
                     break;
                 }
             }
-            if (!errorsOccurred) {
-                logger.info("Writing to output directory...");
-                PersistenceWriter.writeAllCSV();
-                PersistenceWriter.writeAllGraphs();
-            } else {
+            if (errorsOccurred) {
                 System.exit(-1);
             }
+            logger.info("Writing to output directory...");
+            PersistenceWriter.writeAllCSV();
+            PersistenceWriter.writeAllGraphs();
+
         }catch (Exception e){
             logger.error("Unhandled error: {}", e.getMessage());
             e.printStackTrace();

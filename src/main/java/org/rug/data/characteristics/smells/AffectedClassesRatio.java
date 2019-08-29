@@ -6,7 +6,7 @@ import org.rug.data.labels.VertexLabel;
 import org.rug.data.smells.HLSmell;
 
 /**
- * Calculates the ratio of classes that are dependend or dependend upon
+ * Calculates the ratio of classes that are depended or depended upon
  * by classes from afferent and efferent packages over the total
  * number of classes in the affected package.
  */
@@ -26,27 +26,13 @@ public class AffectedClassesRatio extends AbstractSmellCharacteristic {
      */
     @Override
     public String visit(HLSmell smell) {
-        var g = smell.getAffectedGraph().traversal();
-        var affectedPackage = smell.getAffectedElements().iterator().next();
-        if (!affectedPackage.label().equals(VertexLabel.PACKAGE.toString()))
+        var affectedPackage = smell.getCentre();
+        if (!affectedPackage.label().equals(VertexLabel.PACKAGE.toString())) {
             return "-1";
-        var inDep = g.V(smell.getInDep())
-                .in(EdgeLabel.BELONGSTO.toString())
-                .where(__.out(EdgeLabel.ISAFFERENTOF.toString())
-                        .is(affectedPackage))
-                .out(EdgeLabel.DEPENDSON.toString())
-                .where(__.out(EdgeLabel.BELONGSTO.toString())
-                        .is(affectedPackage))
-                .toSet();
-        var outDep = g.V(smell.getOutDep())
-                .in(EdgeLabel.BELONGSTO.toString())
-                .where(__.out(EdgeLabel.ISEFFERENTOF.toString())
-                        .is(affectedPackage))
-                .in(EdgeLabel.DEPENDSON.toString())
-                .where(__.out(EdgeLabel.BELONGSTO.toString())
-                        .is(affectedPackage))
-                .toSet();
-        var affectedComponents = g.V(affectedPackage).in(EdgeLabel.BELONGSTO.toString()).count().next();
+        }
+        var inDep = smell.getClassesDependedUponByAfferentPackages();
+        var outDep = smell.getClassesDependingOnEfferentPackages();
+        var affectedComponents = smell.getTraversalSource().V(affectedPackage).in(EdgeLabel.BELONGSTO.toString()).count().next();
         var ratio = (inDep.size() + outDep.size()) / affectedComponents.doubleValue();
         return String.format("%.2f", ratio);
     }
