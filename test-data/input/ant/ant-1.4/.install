@@ -1,0 +1,103 @@
+#!/usr/bin/perl -w
+
+use strict; 
+
+#------------------- Main ---------------------------------
+
+if ($ARGV[0] eq "-list") {
+	#Return list of file names that are to be copied.
+	my @list = list_names($ARGV[1]); #ARGV[1] contains path to a version of application.
+	printf("@list"); #extract list using `./.install -list /path/to/version/of/application`;
+}
+elsif ($ARGV[0] eq "-reduced") {
+	my $destination = $ARGV[1]; #path to a version of application.
+	install_reduced($destination);
+
+}
+else {
+	my $destination = $ARGV[0]; #path to a version of application.
+	install($destination);
+}
+
+#----------------- Main End -------------------------------
+
+
+sub install {
+  my ($corpusdir) = @_;
+  
+      opendir(COMPRESSED, "$corpusdir/compressed") || die "can't open $corpusdir/compressed: $!";
+      my @archives =grep {! /^\.$/ and ! /^\.\.$/} readdir(COMPRESSED);
+      close(COMPRESSED);
+       	
+      my @src = grep {/(s|S)(r|R)(c|C)/ or /(s|S)(o|O)(u|U)(r|R)(c|C)(e|E)/} @archives;
+      my @bin = grep {! /@src/} @archives;
+      
+      if (@src != 1 || @bin != 1) {
+      	die "ATTENTION - Problem idenfitying archives for $corpusdir\n";
+      }
+      	      	
+      # Unpack Source
+      printf("\t\t unpacking @src\n");
+      if (grep(/.zip$/,@src) == 1 ) {
+      	system("unzip -qo $corpusdir/compressed/@src -d $corpusdir/src\n") == 0 or die "Failed to extract @src\n";		
+      } 
+      elsif (grep(/.tar.gz$/,@src) == 1 ) {
+      	system("tar zxf $corpusdir/compressed/@src -C $corpusdir/src\n") == 0 or die "Failed to extract @src\n";					
+      } 
+      else {
+      	die "@src is of UNKNOWN type, cannot extract.\n";
+      }
+      	  	
+      # Unpack Binary
+      printf("\t\t unpacking @bin\n");
+      if (grep(/.zip$/,@bin) == 1 ) {
+      	system("unzip -qo $corpusdir/compressed/@bin -d $corpusdir/bin\n") == 0 or die "Failed to extract @bin\n";				
+      } 
+      elsif (grep(/.tar.gz$/,@bin) == 1 ) {
+      	system("tar zxf $corpusdir/compressed/@bin -C $corpusdir/bin\n") == 0 or die "Failed to extract @bin\n";  		
+      } 
+      else {
+      	die "@bin is of UNKNOWN type, cannot extract.\n";
+      }      	  		   	          
+}
+
+sub list_names {
+	my ($appverdir) = @_;
+	opendir(COMPRESSED, "$appverdir/compressed") || die "can't open $appverdir/compressed: $!";
+      	my @archives = grep {/.gz$/ or /.zip$/ or /.tar$/} readdir(COMPRESSED);
+      	close(COMPRESSED);
+	return @archives;
+}
+
+sub install_reduced {
+  my ($corpusdir) = @_;
+  
+      opendir(COMPRESSED, "$corpusdir/compressed") || die "can't open $corpusdir/compressed: $!";
+      my @archives =grep {! /^\.$/ and ! /^\.\.$/} readdir(COMPRESSED);
+      close(COMPRESSED);
+       	
+      my @src = grep {/(s|S)(r|R)(c|C)/ or /(s|S)(o|O)(u|U)(r|R)(c|C)(e|E)/} @archives;
+      my @bin = grep {! /@src/} @archives;
+      
+      if (@src != 1 || @bin != 1) {
+      	die "ATTENTION - Problem idenfitying archives for $corpusdir\n";
+      }
+      	      	
+      # Unpack Source
+      printf("\t\t unpacking @src\n");
+      if (grep(/.zip$/,@src) == 1 ) {
+      	system("unzip -qo $corpusdir/compressed/@src -d $corpusdir/src\n") == 0 or die "Failed to extract @src\n";		
+      } 
+      else {
+      	die "@src is of UNKNOWN type, cannot extract.\n";
+      }
+      	  	
+      # Unpack Binary
+      printf("\t\t unpacking @bin\n");
+      if (grep(/.zip$/,@bin) == 1 ) {
+      	system("unzip -qo $corpusdir/compressed/@bin jakarta-ant-1.4/lib/ant.jar -d $corpusdir/bin\n") == 0 or die "Failed to extract @bin\n";				
+      } 
+      else {
+      	die "@bin is of UNKNOWN type, cannot extract.\n";
+      }      	  		   	          
+}

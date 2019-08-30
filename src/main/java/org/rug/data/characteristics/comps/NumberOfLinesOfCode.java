@@ -40,7 +40,7 @@ public class NumberOfLinesOfCode extends AbstractComponentCharacteristic {
      *              as property key.
      */
     @Override
-    protected void calculate(Vertex vertex) {
+    public void calculate(Vertex vertex) {
         if (vertex.property(this.name).isPresent() || sourceRetriever == null)
             return;
 

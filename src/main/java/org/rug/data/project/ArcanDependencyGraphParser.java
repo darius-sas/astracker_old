@@ -1,5 +1,6 @@
 package org.rug.data.project;
 
+import org.apache.tinkerpop.gremlin.process.traversal.IO;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
@@ -35,6 +36,7 @@ public class ArcanDependencyGraphParser {
      * @param path the path to a directory of graphml files with names in the format '[projectname]-[version].graphml'.
      * @return A sorted map as described above.
      */
+    @Deprecated
     public static SortedMap<String, Graph> parseGraphML(String path){
         SortedMap<String, Graph> versionedSystem = new TreeMap<>();
 
@@ -43,7 +45,8 @@ public class ArcanDependencyGraphParser {
                     f.getFileName().toString().lastIndexOf('-') + 1,
                     f.getFileName().toString().lastIndexOf('.'));
             Graph graph = TinkerGraph.open();
-            graph.traversal().io(f.toAbsolutePath().toString()).read();
+            graph.traversal().io(f.toAbsolutePath().toString())
+                    .read().with(IO.reader, IO.graphml).iterate();
             if (!graph.vertices().hasNext() && !graph.edges().hasNext())
                 logger.warn("Graph has no edges and no vertices.");
 

@@ -1,0 +1,33 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+if ($ARGV[0] eq "-list") {
+	my @list = list_names($ARGV[1]);
+	printf("@list");
+} elsif ($ARGV[0] eq "-reduced") {
+	my $destination = $ARGV[1];
+	install_reduced($destination);
+} else {
+	my $destination = $ARGV[0];
+	install_reduced($destination);
+}
+
+sub install_reduced {
+	my ($corpusdir) = @_;
+	my $src = "antlr-3.2.tar.gz";
+	my $bin = "antlr-3.2.jar";
+	my @files = ("");
+	printf("\t\t unpacking $src\n");
+	system("tar zxf $corpusdir/compressed/$src -C $corpusdir/src\n") == 0 or die "Failed to extract the src $src\n";
+	printf("\t\t unpacking $bin\n");
+	system("cp -fp $corpusdir/compressed/$bin $corpusdir/bin\n") == 0 or die "Failed to extract the bin $bin\n";
+}
+
+sub list_names {
+	my ($appverdir) = @_;
+	opendir(COMPRESSED, "$appverdir/compressed") || die "can't open $appverdir/compressed: $!";
+	my @archives = grep {! /^\.$/ and ! /^\.\.$/ } readdir(COMPRESSED);
+	close(COMPRESSED);
+	return @archives;
+}
