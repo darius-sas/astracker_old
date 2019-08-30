@@ -74,4 +74,8 @@ public class PersistenceWriter {
         }
     }
 
+    public static void clearAll(){
+        generatorInstances.clear();
+    }
+
 }

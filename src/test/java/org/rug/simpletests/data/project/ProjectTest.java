@@ -3,7 +3,6 @@ package org.rug.simpletests.data.project;
 import org.junit.jupiter.api.Test;
 import org.rug.data.project.IVersion;
 import org.rug.data.project.Project;
-import org.rug.data.project.Version;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,9 +23,9 @@ public class ProjectTest {
 
         assertTrue(project.isFolderOfFoldersOfJarsProject());
 
-        project = parseTestInternal("argouml",  "0.16.1", "0.18.1", "0.20", "0.22", "0.24", "0.26",
-                "0.26.2","0.28", "0.28.1","0.30", "0.30.1","0.30.2", "0.32","0.32.1", "0.32.2", "0.34");
-
+        project = parseTestInternal("ant",   "1.1", "1.2", "1.3", "1.4", "1.4.1", "1.5",
+                "1.5.1", "1.5.2", "1.5.3.1", "1.5.4", "1.6.0", "1.6.1", "1.6.2", "1.6.3",
+                "1.6.4", "1.6.5", "1.7.0", "1.7.1", "1.8.0", "1.8.1", "1.8.2", "1.8.3", "1.8.4");
         assertTrue(project.isFolderOfFoldersOfJarsProject());
 
     }

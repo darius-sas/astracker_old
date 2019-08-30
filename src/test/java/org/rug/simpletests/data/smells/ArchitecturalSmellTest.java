@@ -21,16 +21,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.rug.simpletests.TestData.*;
 
 public class ArchitecturalSmellTest {
-
-    Project antlr;
-
-    @BeforeAll
-    void init() throws IOException {
-        antlr = new Project("antlr");
-        antlr.addGraphMLs("./test-data/output/arcanOutput/antlr/");
-    }
 
     @Test
     void testASDataStructure(){

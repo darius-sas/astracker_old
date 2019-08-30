@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.rug.data.characteristics.comps.AbstractComponentCharacteristic;
 import org.rug.data.characteristics.comps.JarClassSourceCodeRetrieval;
 import org.rug.data.characteristics.comps.NumberOfLinesOfCode;
-import org.rug.data.project.Project;
+import static org.rug.simpletests.TestData.*;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -14,13 +14,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class NumberOfLinesOfCodeTest {
 
-    Project project;
     String classPath;
 
     public NumberOfLinesOfCodeTest() {
-        project = new Project("antlr");
         classPath = "test-data/jars/astracker-0.7.jar";
-
     }
 
     @Test
@@ -35,10 +32,8 @@ public class NumberOfLinesOfCodeTest {
         var nbloc = Arrays.stream(linesOfCode).filter(line -> line.length() > 0).count();
         assertTrue(nbloc >= 50);
 
-        project.addJars("test-data/input/antlr");
-        project.addGraphMLs("test-data/output/arcanOutput/antlr");
         var charLOC = new NumberOfLinesOfCode();
-        var vSys = project.getVersion("3.2");
+        var vSys = antlr.getVersion("3.2");
         charLOC.setSourceRetriever(vSys.getSourceCodeRetriever());
 
         var vertex = vSys.getGraph().traversal().V().has("name", "antlr.DefineGrammarSymbols").next();

@@ -3,7 +3,6 @@ package org.rug.simpletests.tracker;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.rug.data.project.Project;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.tracker.BestMatchSet;
 import org.rug.tracker.JaccardSimilarityLinker;
@@ -15,13 +14,14 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 
+import static org.rug.simpletests.TestData.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class JaccardTripleSetTest {
 
     private final static Logger logger = LoggerFactory.getLogger(JaccardTripleSetTest.class);
-    Project antlr;
     List<ArchitecturalSmell> smellsV1;
     List<ArchitecturalSmell> smellsV2;
 
@@ -32,9 +32,6 @@ public class JaccardTripleSetTest {
 
     @BeforeAll
     void init() throws IOException{
-        antlr = new Project("antlr");
-        antlr.addGraphMLs("./test-data/output/arcanOutput/antlr");
-
         smellsV1 = antlr.getArchitecturalSmellsIn("2.7.2");
         smellsV2 = antlr.getArchitecturalSmellsIn("2.7.3");
 
@@ -50,10 +47,6 @@ public class JaccardTripleSetTest {
         smell2 = smell2Opt.get();
         smell3 = smell3Opt.get();
         smell4 = smell4Opt.get();
-        logger.info("Smell 1:\n{}", smell1);
-        logger.info("Smell 2:\n{}", smell2);
-        logger.info("Smell 3:\n{}", smell3);
-        logger.info("Smell 3:\n{}", smell4);
         assertNotEquals(smell1, smell2);
         assertNotEquals(smell1, smell3);
     }

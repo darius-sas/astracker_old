@@ -3,7 +3,6 @@ package org.rug.simpletests.data.smells;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.junit.jupiter.api.Test;
-import org.rug.data.project.Project;
 import org.rug.data.characteristics.smells.*;
 import org.rug.data.labels.EdgeLabel;
 import org.rug.data.labels.VertexLabel;
@@ -12,27 +11,20 @@ import org.rug.data.smells.CDSmell;
 import org.rug.data.smells.HLSmell;
 import org.rug.data.smells.UDSmell;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.rug.simpletests.TestData.*;
 
 public class SmellCharacteristicsSetTest {
-
-    Project project;
-
-    public SmellCharacteristicsSetTest() throws IOException{
-        project = new Project("antlr");
-        project.addGraphMLs("./test-data/output/arcanOutput/antlr");
-    }
 
     @Test
     void testUDCharacteristics() {
         var strength = new Strength();
         var instaGap = new InstabilityGap();
 
-        var uds = project.getArchitecturalSmellsIn("3.3").stream()
+        var uds = antlr.getArchitecturalSmellsIn("3.3").stream()
                 .filter(a -> a.getType() == ArchitecturalSmell.Type.UD)
                 .map(a -> (UDSmell)a)
                 .collect(Collectors.toList());
@@ -55,7 +47,7 @@ public class SmellCharacteristicsSetTest {
         var numOfEdges = new NumberOfEdges();
         var numOfInher = new NumberOfInheritanceEdges();
 
-        var cds = project.getArchitecturalSmellsIn("3.3").stream()
+        var cds = antlr.getArchitecturalSmellsIn("3.3").stream()
                 .filter(a -> a.getType() == ArchitecturalSmell.Type.CD)
                 .map(a -> (CDSmell)a)
                 .collect(Collectors.toList());
@@ -82,7 +74,7 @@ public class SmellCharacteristicsSetTest {
         var overlapHL = new OverlapRatio(ArchitecturalSmell.Type.HL);
         var overlapAll= new OverlapRatio(null);
 
-        var as = project.getArchitecturalSmellsIn("3.4");
+        var as = antlr.getArchitecturalSmellsIn("3.4");
         for (ArchitecturalSmell a : as){
             var olR = Double.parseDouble(a.accept(overlapAll));
             var olC = Double.parseDouble(a.accept(overlapCD));
@@ -100,7 +92,7 @@ public class SmellCharacteristicsSetTest {
         var avrgPathLength = new AverageInternalPathLength();
         HLSmell hl = createMockHL();
         assertEquals(2, Double.parseDouble(avrgPathLength.visit(hl)));
-        var as = project.getArchitecturalSmellsIn("3.1");
+        var as = antlr.getArchitecturalSmellsIn("3.1");
         hl = (HLSmell)as.stream().filter(s -> s.getId() == 17174).findFirst().orElse(null);
         assertNotNull(hl);
         assertEquals(3.26, Double.parseDouble(avrgPathLength.visit(hl)));
@@ -111,7 +103,7 @@ public class SmellCharacteristicsSetTest {
         var affectedClassesRatio = new AffectedClassesRatio();
         HLSmell hl = createMockHL();
         assertEquals(0.4, Double.parseDouble(affectedClassesRatio.visit(hl)));
-        var as = project.getArchitecturalSmellsIn("3.1");
+        var as = antlr.getArchitecturalSmellsIn("3.1");
         hl = (HLSmell)as.stream().filter(s -> s.getId() == 17174).findFirst().orElse(null);
         assertNotNull(hl);
         assertEquals(0.92, Double.parseDouble(affectedClassesRatio.visit(hl)));

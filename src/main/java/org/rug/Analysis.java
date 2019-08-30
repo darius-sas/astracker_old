@@ -57,8 +57,6 @@ public class Analysis {
                         arcan.setHomeDir(args.getHomeProjectDirectory());
                         arcan.inheritOutput(args.showArcanOutput);
                         runners.add(arcan);
-                    }else{
-                        logger.error("Could not create output directories for Arcan analysis for version {}", version.getVersionString());
                     }
                 });
                 args.adjustProjDirToArcanOutput();

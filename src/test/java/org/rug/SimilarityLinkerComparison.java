@@ -17,7 +17,7 @@ public class SimilarityLinkerComparison {
 
     @Test
     void compareJaccardLinkers() throws IOException {
-       compareJaccardLinkers("argouml");
+       compareJaccardLinkers("ant");
        compareJaccardLinkers("antlr");
     }
 
