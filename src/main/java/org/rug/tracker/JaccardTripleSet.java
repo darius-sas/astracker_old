@@ -15,6 +15,8 @@ import java.util.Set;
  */
 public class JaccardTripleSet extends LinkedHashSet<LinkScoreTriple> {
 
+    static final long serialVersionUID = 6703014914L;
+
     private Set<ArchitecturalSmell> current;
     private Set<ArchitecturalSmell> next;
 

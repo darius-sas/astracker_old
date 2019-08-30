@@ -99,13 +99,14 @@ public class Version implements IVersion{
             graph = TinkerGraph.open();
             try {
                 var graphMLfile = graphMLPath.toFile();
-                if (graphMLfile.isFile() && graphMLfile.canRead())
+                if (graphMLfile.isFile() && graphMLfile.canRead()) {
                     this.graph.traversal().io(graphMLPath.toAbsolutePath().toString())
                             .read().with(IO.reader, IO.graphml).iterate();
-                else
+                }else {
                     throw new IOException("");
+                }
             } catch (IOException e) {
-                logger.error("Could not read file {}", graphMLPath.toAbsolutePath().toString());
+                logger.error("Could not read graph file {}", graphMLPath.toAbsolutePath().toString());
             }
         }
         return graph;

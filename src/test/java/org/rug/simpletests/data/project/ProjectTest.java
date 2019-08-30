@@ -3,6 +3,7 @@ package org.rug.simpletests.data.project;
 import org.junit.jupiter.api.Test;
 import org.rug.data.project.IVersion;
 import org.rug.data.project.Project;
+import org.rug.data.project.Version;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +44,17 @@ public class ProjectTest {
         }
 
         assertEquals(Arrays.asList(versions), new ArrayList<>(pr.versions().stream().map(IVersion::getVersionString).collect(Collectors.toList())));
-
+        pr.forEach(v -> {
+            if(v instanceof Version){
+                Version version = (Version)v;
+                assertNotNull(version.getGraph());
+                assertNotEquals(0, version.getGraph().traversal().V().count().next());
+                assertNotEquals(0, version.getGraph().traversal().E().count().next());
+                assertNotNull(version.getJarPath());
+            } else {
+                fail("This test is only supposed to test for Java projects");
+            }
+        });
 
         var pr2 = new Project(name);
         var dir = new File(graphMls);

@@ -10,7 +10,7 @@ import java.util.function.Consumer;
  */
 public abstract class AbstractProject implements IProject {
 
-    protected SortedMap<String, Version> versionedSystem;
+    protected SortedMap<String, IVersion> versionedSystem;
     protected String name;
 
     /**
@@ -52,7 +52,7 @@ public abstract class AbstractProject implements IProject {
 
     @Override
     public Iterator<IVersion> iterator() {
-        return (Iterator<IVersion>)(Iterator<?>)versionedSystem.values().iterator();
+        return versionedSystem.values().iterator();
     }
 
     @Override
@@ -62,7 +62,7 @@ public abstract class AbstractProject implements IProject {
 
     @Override
     public Spliterator<IVersion> spliterator() {
-        return (Spliterator<IVersion>)(Spliterator<?>) versionedSystem.values().spliterator();
+        return versionedSystem.values().spliterator();
     }
 
     /**
@@ -70,7 +70,7 @@ public abstract class AbstractProject implements IProject {
      * @param version the string denoting the version to retrieve.
      * @return the version object mapped to the given version string.
      */
-    public Version getVersion(String version){
+    public IVersion getVersion(String version){
         return versionedSystem.get(version);
     }
 
@@ -107,7 +107,7 @@ public abstract class AbstractProject implements IProject {
      * element, and also to corresponding system graph, saved as third element.
      * @return a sorted map as described above.
      */
-    public SortedMap<String, Version> getVersionedSystem() {
+    public SortedMap<String, IVersion> getVersionedSystem() {
         return versionedSystem;
     }
 }

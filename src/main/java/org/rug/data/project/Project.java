@@ -9,15 +9,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
  * Represents a project with multiple versions of JAR Files.
  */
 public class Project extends AbstractProject {
-
-    private final static Logger logger = LoggerFactory.getLogger(Project.class);
 
     private boolean isFolderOfFolderOfJars;
     private boolean hasJars;
@@ -46,11 +43,11 @@ public class Project extends AbstractProject {
             Files.list(jarDirPath)
                     .filter(Files::isRegularFile)
                     .filter(f -> f.getFileName().toString().matches(".*\\.jar"))
-                    .forEach(j -> addVersion(j, version -> version.setJarPath(j)));
+                    .forEach(j -> addVersion(j, true));
         }else{
             Files.list(jarDirPath)
                     .filter(Files::isDirectory)
-                    .forEach(j -> addVersion(j, version -> version.setJarPath(j)));
+                    .forEach(j -> addVersion(j, true));
         }
 
         initVersionPositions();
@@ -68,13 +65,7 @@ public class Project extends AbstractProject {
         File dir = new File(graphMLDir);
 
         var graphMlFiles = getGraphMls(dir.toPath());
-        if (!graphMlFiles.isEmpty() && !hasJars)
-            graphMlFiles.forEach(f -> addVersion(f, version -> version.setGraphMLPath(f)));
-        else
-            versionedSystem.values().forEach(version -> {
-                var graphmlFile = Paths.get(graphMLDir, name + "-" + version.getVersionString() + ".graphml");
-                version.setGraphMLPath(graphmlFile);
-            });
+        graphMlFiles.forEach(f -> addVersion(f, false));
         hasGraphMLs = true;
         initVersionPositions();
     }
@@ -112,13 +103,17 @@ public class Project extends AbstractProject {
     /**
      * Helper method that adds a file to the versions of the system.
      * @param f the file to add.
-     * @param versionPathSetter a function that given a Version object, sets the path parameter(s) based
-     *                          on their file format.
+     * @param isJar whether f is to be added as a Jar(true) or as a graphML (false).
      */
-    private void addVersion(Path f, Consumer<Version> versionPathSetter){
-        var versionString = Version.parseVersion(f);
-        var version = versionedSystem.getOrDefault(versionString, new Version(f));
-        versionPathSetter.accept(version);
+    private void addVersion(Path f, boolean isJar){
+        IVersion version = versionedSystem.getOrDefault(Version.parseVersion(f), new Version(f));
+        if (version instanceof Version) {
+            if(isJar) {
+                ((Version) version).setJarPath(f);
+            } else {
+                ((Version) version).setGraphMLPath(f);
+            }
+        }
         versionedSystem.putIfAbsent(version.getVersionString(), version);
     }
 }
