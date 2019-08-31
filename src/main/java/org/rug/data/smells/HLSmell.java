@@ -1,8 +1,10 @@
 package org.rug.data.smells;
 
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.SmellVisitor;
 import org.rug.data.labels.EdgeLabel;
+import org.rug.data.labels.VertexLabel;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -67,6 +69,42 @@ public class HLSmell extends SingleElementSmell {
      * @return a set of strings.
      */
     public Set<String> getOutDepNames(){return getOutDep().stream().map(v -> v.property("name").toString()).collect(Collectors.toSet());}
+
+    /**
+     * Computes the classes that have an incoming edge to one of the elements within the affected package.
+     * @return a set of vertices
+     */
+    public Set<Vertex> getClassesDependedUponByAfferentPackages(){
+        if (this.getLevel() != Level.PACKAGE)
+            return Collections.emptySet();
+        var affectedPackage = this.getCentre();
+        return getTraversalSource().V(this.getInDep())
+                .in(EdgeLabel.BELONGSTO.toString())
+                .where(__.out(EdgeLabel.ISAFFERENTOF.toString())
+                        .is(affectedPackage))
+                .out(EdgeLabel.DEPENDSON.toString())
+                .where(__.out(EdgeLabel.BELONGSTO.toString())
+                        .is(affectedPackage))
+                .toSet();
+    }
+
+    /**
+     * Computes the classes that have an outgoing edge to one of the elements outside the affected package.
+     * @return a set of vertices
+     */
+    public Set<Vertex> getClassesDependingOnEfferentPackages(){
+        if (this.getLevel() != Level.PACKAGE)
+            return Collections.emptySet();
+        var affectedPackage = this.getCentre();
+        return getTraversalSource().V(this.getOutDep())
+                .in(EdgeLabel.BELONGSTO.toString())
+                .where(__.out(EdgeLabel.ISEFFERENTOF.toString())
+                        .is(affectedPackage))
+                .in(EdgeLabel.DEPENDSON.toString())
+                .where(__.out(EdgeLabel.BELONGSTO.toString())
+                        .is(affectedPackage))
+                .toSet();
+    }
 
     @Override
     public <R> R accept(SmellVisitor<R> visitor) {

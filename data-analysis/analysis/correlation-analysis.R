@@ -33,7 +33,7 @@ computeCharacteristicCorrelation <- function(df, smellCharcteristicTypes = c("ge
   characteristics <- combinations(n=length(characteristics), r=2, v=as.character(characteristics))
   df.corr.all <- data.frame()
   df.corr <- df %>% filter(age >= minAge) %>% 
-    group_by(project, uniqueSmellID) %>%
+    group_by(project, uniqueSmellID, affectedComponentType) %>%
     arrange(project, uniqueSmellID, versionPosition)
   for(i in 1:nrow(characteristics)){
     v1 = characteristics[i, 1]

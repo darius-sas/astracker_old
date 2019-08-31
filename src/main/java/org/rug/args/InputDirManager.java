@@ -15,7 +15,7 @@ public class InputDirManager implements IStringConverter<File> {
         File f = new File(s);
         if (!f.exists() || !f.canRead()) {
             logger.error("Unable to access input directory: {}", s);
-            System.exit(-1);
+            throw new IllegalArgumentException();
         }
         return f;
     }

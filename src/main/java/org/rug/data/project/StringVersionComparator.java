@@ -12,8 +12,8 @@ import java.util.stream.IntStream;
 public class StringVersionComparator implements Comparator<String> {
 
     private final static Hashtable<String, String> orderStringVersions = new Hashtable<>();
-    private final String sep = "\\.";
-    private final String dot = ".";
+    private final static String sep = "\\.";
+    private final static String dot = ".";
 
     @Override
     public int compare(String o1, String o2) {

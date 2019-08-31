@@ -1,0 +1,33 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+if ($ARGV[0] eq "-list") {
+	my @list = list_names($ARGV[1]);
+	printf("@list");
+} elsif ($ARGV[0] eq "-reduced") {
+	my $destination = $ARGV[1];
+	install_reduced($destination);
+} else {
+	my $destination = $ARGV[0];
+	install_reduced($destination);
+}
+
+sub install_reduced {
+	my ($corpusdir) = @_;
+	my $src = "apache-ant-1.8.3-src.tar.gz";
+	my $bin = "apache-ant-1.8.3-bin.tar.gz";
+	my @files = ("apache-ant-1.8.3/lib/ant-jai.jar","apache-ant-1.8.3/lib/ant-junit4.jar","apache-ant-1.8.3/lib/ant-commons-net.jar","apache-ant-1.8.3/lib/ant-apache-log4j.jar","apache-ant-1.8.3/lib/ant-jdepend.jar","apache-ant-1.8.3/lib/ant-netrexx.jar","apache-ant-1.8.3/lib/ant-commons-logging.jar","apache-ant-1.8.3/lib/ant-apache-oro.jar","apache-ant-1.8.3/lib/ant-junit.jar","apache-ant-1.8.3/lib/ant-testutil.jar","apache-ant-1.8.3/etc/ant-bootstrap.jar","apache-ant-1.8.3/lib/ant-apache-resolver.jar","apache-ant-1.8.3/lib/ant-apache-xalan2.jar","apache-ant-1.8.3/lib/ant-jmf.jar","apache-ant-1.8.3/lib/ant-swing.jar","apache-ant-1.8.3/lib/ant-jsch.jar","apache-ant-1.8.3/lib/ant-apache-bcel.jar","apache-ant-1.8.3/lib/ant-javamail.jar","apache-ant-1.8.3/lib/ant-apache-regexp.jar","apache-ant-1.8.3/lib/ant.jar","apache-ant-1.8.3/lib/ant-apache-bsf.jar","apache-ant-1.8.3/lib/ant-launcher.jar","apache-ant-1.8.3/lib/ant-antlr.jar");
+	printf("\t\t unpacking $src\n");
+	system("tar zxf $corpusdir/compressed/$src -C $corpusdir/src\n") == 0 or die "Failed to extract $src\n";
+	printf("\t\t unpacking $bin\n");
+	system("tar zxf $corpusdir/compressed/$bin -C $corpusdir/bin @files\n") == 0 or die "Failed to extract $bin\n";
+}
+
+sub list_names {
+	my ($appverdir) = @_;
+	opendir(COMPRESSED, "$appverdir/compressed") || die "can't open $appverdir/compressed: $!";
+	my @archives = grep {! /^\.$/ and ! /^\.\.$/ } readdir(COMPRESSED);
+	close(COMPRESSED);
+	return @archives;
+}

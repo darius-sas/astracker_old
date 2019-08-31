@@ -13,7 +13,9 @@ import java.util.Set;
  * A JaccardTripleSet is a set where every smell appears only once in the triples stored.
  * More precisely for every triple <A, B, C> and <A', B', C'>, A!=A' and B!=B'.
  */
-class JaccardTripleSet extends LinkedHashSet<LinkScoreTriple> {
+public class JaccardTripleSet extends LinkedHashSet<LinkScoreTriple> {
+
+    static final long serialVersionUID = 6703014914L;
 
     private Set<ArchitecturalSmell> current;
     private Set<ArchitecturalSmell> next;

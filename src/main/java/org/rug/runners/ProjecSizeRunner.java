@@ -1,5 +1,6 @@
 package org.rug.runners;
 
+import org.rug.data.project.IProject;
 import org.rug.data.project.Project;
 import org.rug.data.labels.VertexLabel;
 import org.rug.persistence.PersistenceWriter;
@@ -17,9 +18,9 @@ public class ProjecSizeRunner extends ToolRunner {
 
     private final static Logger logger = LoggerFactory.getLogger(ProjecSizeRunner.class);
 
-    public Project project;
+    public IProject project;
 
-    public ProjecSizeRunner(Project project) {
+    public ProjecSizeRunner(IProject project) {
         super(null, null);
         this.project = project;
     }
@@ -30,10 +31,10 @@ public class ProjecSizeRunner extends ToolRunner {
     }
 
     @Override
-    public int start() {
+    public int run() {
         int exitCode;
-        if (!project.hasGraphMLs()){
-            logger.error("No graphML files in this project.");
+        if (project.versions().size() <= 0){
+            logger.error("Cannot analyse a project of size 0.");
             exitCode = -1;
         }else {
             project.forEach(version -> {

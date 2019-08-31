@@ -28,8 +28,9 @@ public class AverageInternalPathLength extends AbstractSmellCharacteristic {
     public String visit(HLSmell smell) {
         var g = smell.getAffectedGraph().traversal();
         var affectedPackage = smell.getAffectedElements().iterator().next();
-        if (!affectedPackage.label().equals(VertexLabel.PACKAGE.toString()))
+        if (!affectedPackage.label().equals(VertexLabel.PACKAGE.toString())) {
             return "-1";
+        }
 
         var pathLabels = Stream.of(EdgeLabel.DEPENDSON,
                                    EdgeLabel.ISCHILDOF,
@@ -37,22 +38,8 @@ public class AverageInternalPathLength extends AbstractSmellCharacteristic {
                 .map(EdgeLabel::toString)
                 .toArray(String[]::new);
 
-        var inDep = g.V(smell.getInDep())
-                .in(EdgeLabel.BELONGSTO.toString())
-                .where(__.out(EdgeLabel.ISAFFERENTOF.toString())
-                         .is(affectedPackage))
-                .out(EdgeLabel.DEPENDSON.toString())
-                .where(__.out(EdgeLabel.BELONGSTO.toString())
-                        .is(affectedPackage))
-                .toSet();
-        var outDep = g.V(smell.getOutDep())
-                .in(EdgeLabel.BELONGSTO.toString())
-                .where(__.out(EdgeLabel.ISEFFERENTOF.toString())
-                        .is(affectedPackage))
-                .in(EdgeLabel.DEPENDSON.toString())
-                .where(__.out(EdgeLabel.BELONGSTO.toString())
-                        .is(affectedPackage))
-                .toSet();
+        var outDep = smell.getClassesDependingOnEfferentPackages();
+        var inDep = smell.getClassesDependedUponByAfferentPackages();
 
         var paths = g.withComputer().V(inDep).
                 shortestPath()

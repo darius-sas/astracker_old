@@ -2,7 +2,7 @@
 /src/test/graphimages/*
 /data-analysis/*.pdf
 /data-analysis/*.csv
-/test-data
+/test-data/output/trackASOutput/
 /arcan
 /qualitas-corpus
 

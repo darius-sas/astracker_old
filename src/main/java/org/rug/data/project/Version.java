@@ -3,6 +3,8 @@ package org.rug.data.project;
 import org.apache.tinkerpop.gremlin.process.traversal.IO;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
+import org.rug.data.characteristics.comps.ClassSourceCodeRetriever;
+import org.rug.data.characteristics.comps.JarClassSourceCodeRetrieval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,9 +13,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 /**
- * Represents a version of a system.
+ * Represents a version of a system of JARs and GraphML files.
  */
-public class Version implements Comparable<Version>{
+public class Version implements IVersion{
 
     private final static Logger logger = LoggerFactory.getLogger(Version.class);
 
@@ -22,6 +24,7 @@ public class Version implements Comparable<Version>{
     private Path jarPath;
     private Path graphMLPath;
     private Graph graph;
+    private JarClassSourceCodeRetrieval sourceCodeRetrieval;
 
     public Version(){}
 
@@ -31,6 +34,8 @@ public class Version implements Comparable<Version>{
      */
     public Version(Path path){
         this.versionString = parseVersion(path);
+        this.sourceCodeRetrieval = new JarClassSourceCodeRetrieval();
+        this.sourceCodeRetrieval.setClassPath(path);
     }
 
     /**
@@ -94,16 +99,22 @@ public class Version implements Comparable<Version>{
             graph = TinkerGraph.open();
             try {
                 var graphMLfile = graphMLPath.toFile();
-                if (graphMLfile.isFile() && graphMLfile.canRead())
+                if (graphMLfile.isFile() && graphMLfile.canRead()) {
                     this.graph.traversal().io(graphMLPath.toAbsolutePath().toString())
                             .read().with(IO.reader, IO.graphml).iterate();
-                else
+                }else {
                     throw new IOException("");
+                }
             } catch (IOException e) {
-                logger.error("Could not read file {}", graphMLPath.toAbsolutePath().toString());
+                logger.error("Could not read graph file {}", graphMLPath.toAbsolutePath().toString());
             }
         }
         return graph;
+    }
+
+    @Override
+    public ClassSourceCodeRetriever getSourceCodeRetriever() {
+        return sourceCodeRetrieval;
     }
 
     @Override

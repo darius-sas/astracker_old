@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TRACKAS_JAR="/home/p284098/git/trackas/target/trackas/trackas-0.5.jar"
+TRACKAS_JAR="/home/p284098/git/trackas/target/trackas/astracker-0.6.jar"
 ARCAN_JAR="/home/p284098/git/trackas/arcan/Arcan-1.4.0-SNAPSHOT.jar"
 ANALYSE_NOTEBOOK="/home/p284098/git/trackas/data-analysis/as-history-in-system.Rmd"
 

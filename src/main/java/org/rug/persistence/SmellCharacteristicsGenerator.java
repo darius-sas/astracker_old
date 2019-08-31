@@ -4,6 +4,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.rug.data.project.IProject;
 import org.rug.data.project.Project;
 import org.rug.tracker.ASmellTracker;
 
@@ -12,9 +13,9 @@ import java.util.*;
 public class SmellCharacteristicsGenerator extends CSVDataGenerator<ASmellTracker>{
 
     private List<String> header = new ArrayList<>();
-    private Project project;
+    private IProject project;
 
-    public SmellCharacteristicsGenerator(String outputFile, Project project) {
+    public SmellCharacteristicsGenerator(String outputFile, IProject project) {
         super(outputFile);
         this.project = project;
     }

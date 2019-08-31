@@ -16,7 +16,7 @@ import java.util.Properties;
  * Models an external tool which command is defined in the 'tools.properties' file and arguments
  * can be given at runtime.
  */
-public abstract class ToolRunner {
+public abstract class ToolRunner{
 
     private final static Logger logger = LoggerFactory.getLogger(ToolRunner.class);
 
@@ -55,7 +55,7 @@ public abstract class ToolRunner {
      * of the underlying process.
      * @return The process being executed.
      */
-    public int start(){
+    public int run(){
         int exitCode;
         Process p;
         try {
@@ -67,7 +67,7 @@ public abstract class ToolRunner {
                 postProcess(p);
             logger.info("Completed {} with exit code {}.", getToolName(), exitCode);
         }catch (IOException e) {
-            logger.error("Could not start the following command: {}", String.join(" ", commandLine));
+            logger.error("Could not run the following command: {}", String.join(" ", commandLine));
             logger.error("The following error message was generated: {}", e.getMessage());
             exitCode = -1;
         } catch (InterruptedException e) {

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +35,7 @@ public class PersistenceWriter {
 
     public static void writeCSV(ICSVGenerator csvGenerator){
         try{
-            BufferedWriter writer = new BufferedWriter(new FileWriter(csvGenerator.getOutputFile()));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(csvGenerator.getOutputFile(), Charset.forName("UTF-8")));
             CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader(csvGenerator.getHeader()));
 
             printer.printRecords(csvGenerator);
@@ -47,11 +48,7 @@ public class PersistenceWriter {
     }
 
     public static void writeGraphs(IGraphGenerator graphGenerator){
-        try {
-            graphGenerator.getGraph().io(IoCore.graphml()).writeGraph(graphGenerator.getOutputFile().getAbsolutePath());
-        } catch (IOException e) {
-            logger.error("Could not print graph on file: {}", e.getMessage());
-        }
+        graphGenerator.getGraph().traversal().io(graphGenerator.getOutputFile().getAbsolutePath()).write().iterate();
     }
 
     /**
@@ -75,6 +72,10 @@ public class PersistenceWriter {
         if (generatorInstances.containsKey(to)){
             generatorInstances.get(to).accept(data);
         }
+    }
+
+    public static void clearAll(){
+        generatorInstances.clear();
     }
 
 }
