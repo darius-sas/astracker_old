@@ -16,7 +16,7 @@ import static org.rug.simpletests.TestData.*;
 public class ASmellTrackerTest {
 
     @Test
-    void trackTest() {
+    void trackTestAntlr() {
 
         ISimilarityLinker scorer = new JaccardSimilarityLinker();
         ASmellTracker tracker = new ASmellTracker(scorer, false);
@@ -33,6 +33,27 @@ public class ASmellTrackerTest {
             PersistenceWriter.sendTo(SmellSimilarityDataGenerator.class, tracker);
         }
         gen.accept(tracker);
+        PersistenceWriter.sendTo(SmellCharacteristicsGenerator.class, tracker);
+        PersistenceWriter.writeAllCSV();
+    }
+
+
+    void trackTestPure() {
+        ISimilarityLinker scorer = new JaccardSimilarityLinker();
+        ASmellTracker tracker = new ASmellTracker(scorer, false);
+
+        PersistenceWriter.register(
+                new SmellSimilarityDataGenerator("test-data/output/trackASOutput/pure/jaccard-scores-consecutives-only.csv"));
+        PersistenceWriter.register(
+                new SmellCharacteristicsGenerator("test-data/output/trackASOutput/pure/smells-characteristics.csv", pure));
+
+        pure.forEach(v -> {
+            var smells = pure.getArchitecturalSmellsIn(v);
+            smells.forEach(ArchitecturalSmell::calculateCharacteristics);
+            tracker.track(smells, v);
+            PersistenceWriter.sendTo(SmellSimilarityDataGenerator.class, tracker);
+        });
+
         PersistenceWriter.sendTo(SmellCharacteristicsGenerator.class, tracker);
         PersistenceWriter.writeAllCSV();
     }

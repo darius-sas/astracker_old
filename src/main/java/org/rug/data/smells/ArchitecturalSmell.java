@@ -348,7 +348,7 @@ public abstract class ArchitecturalSmell {
         }
 
         public static Level fromString(String name){
-        	name = name.equals("component") ? "package":"class";
+        	name = name.equals("component") || name.equals("package") ? "package":"class";
             return lookup.get(name);
         }
 

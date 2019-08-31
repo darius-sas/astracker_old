@@ -3,10 +3,12 @@ package org.rug.data.project;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.rug.data.characteristics.comps.ClassSourceCodeRetriever;
 
+import java.nio.file.Path;
+
 /**
  * Represents a version of the system under analysis. The version is a single analyzable unit.
  */
-public interface IVersion extends Comparable<Version> {
+public interface IVersion extends Comparable<IVersion> {
 
     /**
      * Retrieve the string representing this version. This may differ from the
@@ -39,4 +41,26 @@ public interface IVersion extends Comparable<Version> {
      */
     ClassSourceCodeRetriever getSourceCodeRetriever();
 
+    /**
+     * Set the path to the GraphML file corresponding to this version.
+     * @param f the path to the file.
+     */
+    void setGraphMLPath(Path f);
+
+    /**
+     * Retrieve GraphML files folder path.
+     * @return the path of the GraphML folder.
+     */
+    Path getGraphMLPath();
+
+    /**
+     * Set the path to the source code folder or file.
+     * @param p the path to the source code.
+     */
+    void setSourceCodePath(Path p);
+
+    /**
+     * Get the source code path, which might be either a file or a folder.
+     */
+    Path getSourceCodePath();
 }

@@ -1,8 +1,5 @@
 package org.rug.data.project;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -43,11 +40,17 @@ public class Project extends AbstractProject {
             Files.list(jarDirPath)
                     .filter(Files::isRegularFile)
                     .filter(f -> f.getFileName().toString().matches(".*\\.jar"))
-                    .forEach(j -> addVersion(j, true));
+                    .forEach(j -> {
+                        var version = addVersion(j);
+                        version.setSourceCodePath(j);
+                    });
         }else{
             Files.list(jarDirPath)
                     .filter(Files::isDirectory)
-                    .forEach(j -> addVersion(j, true));
+                    .forEach(j -> {
+                        var version = addVersion(j);
+                        version.setSourceCodePath(j);
+                    });
         }
 
         initVersionPositions();
@@ -65,7 +68,10 @@ public class Project extends AbstractProject {
         File dir = new File(graphMLDir);
 
         var graphMlFiles = getGraphMls(dir.toPath());
-        graphMlFiles.forEach(f -> addVersion(f, false));
+        graphMlFiles.forEach(f -> {
+            var version = addVersion(f);
+            version.setGraphMLPath(f);
+        });
         hasGraphMLs = true;
         initVersionPositions();
     }
@@ -90,30 +96,15 @@ public class Project extends AbstractProject {
         return Files.list(dir).filter(f -> Files.isRegularFile(f) && f.getFileName().toString().matches(".*\\.graphml")).collect(Collectors.toList());
     }
 
-    /**
-     * Initializes the version positions.
-     */
-    private void initVersionPositions(){
-        long counter = 1;
-        for (var version : getVersionedSystem().values()){
-            version.setVersionPosition(counter++);
-        }
-    }
 
     /**
      * Helper method that adds a file to the versions of the system.
      * @param f the file to add.
-     * @param isJar whether f is to be added as a Jar(true) or as a graphML (false).
      */
-    private void addVersion(Path f, boolean isJar){
-        IVersion version = versionedSystem.getOrDefault(Version.parseVersion(f), new Version(f));
-        if (version instanceof Version) {
-            if(isJar) {
-                ((Version) version).setJarPath(f);
-            } else {
-                ((Version) version).setGraphMLPath(f);
-            }
-        }
+    private IVersion addVersion(Path f){
+        IVersion version = new Version(f);
+        version = versionedSystem.getOrDefault(version.getVersionString(), version);
         versionedSystem.putIfAbsent(version.getVersionString(), version);
+        return version;
     }
 }

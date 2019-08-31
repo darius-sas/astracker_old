@@ -110,4 +110,14 @@ public abstract class AbstractProject implements IProject {
     public SortedMap<String, IVersion> getVersionedSystem() {
         return versionedSystem;
     }
+
+    /**
+     * Initializes the version positions.
+     */
+    protected void initVersionPositions(){
+        long counter = 1;
+        for (var version : getVersionedSystem().values()){
+            version.setVersionPosition(counter++);
+        }
+    }
 }

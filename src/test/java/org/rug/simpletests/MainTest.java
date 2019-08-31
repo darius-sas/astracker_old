@@ -46,9 +46,9 @@ class MainTest {
         executeMainProject("ant");
     }
 
-    @Test
-    void integrationTestAntlr(){
-        executeMainProject("antlr");
+
+    void integrationTestPure(){
+        executeMainProject("pure");
     }
 
     void executeMainProject(String projectName){

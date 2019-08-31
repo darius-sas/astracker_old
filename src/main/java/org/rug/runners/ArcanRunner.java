@@ -18,7 +18,7 @@ public class ArcanRunner extends ToolRunner {
      */
     public ArcanRunner(String command, Version version, String outputDir, boolean isFolderOfFoldersOfJars, boolean useNeo4j){
         super("arcan", "java -Xmx63000m -jar " + command);
-        var args = Arrays.asList("-p", version.getJarPath().toAbsolutePath().toString(),
+        var args = Arrays.asList("-p", version.getSourceCodePath().toAbsolutePath().toString(),
                 isFolderOfFoldersOfJars ? "-folderOfJars" : "-jar",
                 "-CD", "-HL", "-UD", "-CM", "-PM",
                 "-out", outputDir + File.separator + "csv");

@@ -3,7 +3,6 @@ package org.rug.simpletests.data.project;
 import org.junit.jupiter.api.Test;
 import org.rug.data.project.IVersion;
 import org.rug.data.project.Project;
-import org.rug.data.project.ProjectCPP;
 import org.rug.data.project.Version;
 
 import java.io.File;
@@ -51,7 +50,7 @@ public class ProjectTest {
                 assertNotNull(version.getGraph());
                 assertNotEquals(0, version.getGraph().traversal().V().count().next());
                 assertNotEquals(0, version.getGraph().traversal().E().count().next());
-                assertNotNull(version.getJarPath());
+                assertNotNull(version.getSourceCodePath());
             } else {
                 fail("This test is only supposed to test for Java projects");
             }
@@ -74,7 +73,7 @@ public class ProjectTest {
         var name = "pure";
         var versions = new String[] {"1.0.0.0", "1.0.0.1", "1.0.0.2", "1.0.0.3", "1.0.0.4"};
         var graphMls = "./arcanCppOutput/" + name;
-        ProjectCPP pr = new ProjectCPP(name);
+        Project pr = new Project(name);
 
         try {
             pr.addGraphMLs(graphMls);
