@@ -33,12 +33,12 @@ public class AffectedDesign extends AbstractSmellCharacteristic{
             // If so, the smell is present at both levels.
             List<ArchitecturalSmell> smellList = ArcanDependencyGraphParser.getArchitecturalSmellsIn(smell.getAffectedGraph());
             Set<ArchitecturalSmell> classLevelSmells = smellList.stream()
-                    .filter(s -> s.getType() == ArchitecturalSmell.Type.CD &&
+                    .filter(s -> s.getType() == ArchitecturalSmell.Type.CDCPP &&
                             s.getLevel() == ArchitecturalSmell.Level.CLASS)
                     .filter(s ->
                         g.V(s.getAffectedElements())
                                 .out(EdgeLabel.BELONGSTO.toString())
-                                .hasLabel(VertexLabel.PACKAGE.toString())
+                                .hasLabel(VertexLabel.COMPONENT.toString())
                                 .toSet().equals(smell.getAffectedElements()))
                     .collect(Collectors.toSet());
 

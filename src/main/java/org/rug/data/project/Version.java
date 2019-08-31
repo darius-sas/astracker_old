@@ -24,7 +24,7 @@ public class Version implements IVersion{
     private Path jarPath;
     private Path graphMLPath;
     private Graph graph;
-    private JarClassSourceCodeRetrieval sourceCodeRetrieval;
+    private ClassSourceCodeRetriever sourceCodeRetrieval;
 
     public Version(){}
 
@@ -36,6 +36,13 @@ public class Version implements IVersion{
         this.versionString = parseVersion(path);
         this.sourceCodeRetrieval = new JarClassSourceCodeRetrieval();
         this.sourceCodeRetrieval.setClassPath(path);
+    }
+    
+    public Version(Path path, ClassSourceCodeRetriever sourceCodeRetrieval){
+        this.versionString = parseVersion(path);
+        //TODO: add cpp sourceCodeRetrieval
+//        this.sourceCodeRetrieval = sourceCodeRetrieval;
+//        this.sourceCodeRetrieval.setClassPath(path);
     }
 
     /**

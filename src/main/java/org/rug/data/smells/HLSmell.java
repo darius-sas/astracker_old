@@ -28,6 +28,12 @@ public class HLSmell extends SingleElementSmell {
         this.inDep = smell.graph().traversal().V(smell).out(EdgeLabel.HLIN.toString()).toSet();
         this.outDep = smell.graph().traversal().V(smell).out(EdgeLabel.HLOUT.toString()).toSet();
     }
+    
+    public HLSmell(Vertex smell, Type type) {
+        super(smell, type);
+        this.inDep = smell.graph().traversal().V(smell).out(EdgeLabel.HLIN.toString()).toSet();
+        this.outDep = smell.graph().traversal().V(smell).out(EdgeLabel.HLOUT.toString()).toSet();
+    }
 
     /**
      * Sets the affected elements of the smell from a <code>VertexLabel.SMELL</code> vertex.
