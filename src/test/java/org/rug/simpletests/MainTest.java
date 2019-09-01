@@ -43,7 +43,7 @@ class MainTest {
 
     @Test
     void integrationTestAnt(){
-        executeMainProject("ant");
+        executeMainProject("antlr");
     }
 
 

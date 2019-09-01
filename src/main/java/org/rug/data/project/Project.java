@@ -6,6 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -17,12 +19,23 @@ public class Project extends AbstractProject {
     private boolean hasJars;
     private boolean hasGraphMLs;
 
+    /**
+     * Instantiates a project with the default type set to {@code Type.JAVA}, see {@link org.rug.data.project.AbstractProject.Type}.
+     * @param name the name of the project.
+     */
     public Project(String name){
-        super(name);
+        this(name, Type.JAVA);
+    }
+    /**
+     * Instantiates a project with the given {@link org.rug.data.project.AbstractProject.Type}.
+     * @param name the name of the project.
+     * @param projectType the type of the project (i.e. the programming language).
+     */
+    public Project(String name, Type projectType){
+        super(name, projectType);
         this.isFolderOfFolderOfJars = false;
         this.hasJars = false;
         this.hasGraphMLs = false;
-        this.versionedSystem = new TreeMap<>(new StringVersionComparator());
     }
 
     /**

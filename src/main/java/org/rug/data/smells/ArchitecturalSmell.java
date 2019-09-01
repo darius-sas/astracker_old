@@ -7,9 +7,11 @@ import org.rug.data.SmellVisitor;
 import org.rug.data.characteristics.UDCharacteristicsSet;
 import org.rug.data.labels.VertexLabel;
 import org.rug.data.characteristics.*;
+import org.rug.data.project.AbstractProject;
 import org.rug.data.project.Version;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -90,10 +92,11 @@ public abstract class ArchitecturalSmell {
      * @return the affected elements by the property "name".
      */
     public Set<String> getAffectedElementsNames(){
-        if (affectedElementsNames == null)
+        if (affectedElementsNames == null) {
             affectedElementsNames = getAffectedElements().stream()
                     .map(v -> v.value("name").toString())
                     .collect(Collectors.toSet());
+        }
         return affectedElementsNames;
     }
 
@@ -276,28 +279,26 @@ public abstract class ArchitecturalSmell {
      * Represents a type of AS and maps them to their instantiation and characteristics set.
      */
     public enum Type {
-        CD("cyclicDep", CDSmell::new, new CDCharacteristicsSet()),
-        CDCPP("cyclicDep", CDSmellCPP::new, new CDCharacteristicsSet()),
-        UD("unstableDep", UDSmell::new, new UDCharacteristicsSet()),
-        UDCPP("unstableDep", UDSmellCPP::new, new UDCharacteristicsSet()),
-        HL("hubLikeDep", HLSmell::new, new HLCharacteristicsSet()),
-        HLCPP("hubLikeDep", HLSmellCPP::new, new HLCharacteristicsSet()),
-        ICPD("ixpDep", vertex -> null, null),
-        MAS("multipleAS", vertex -> null, null),
+        CD("cyclicDep", (v, t) -> t == AbstractProject.Type.JAVA ? new CDSmell(v) : new CDSmellCPP(v), new CDCharacteristicsSet()),
+        UD("unstableDep", (v, t) -> t == AbstractProject.Type.JAVA ? new UDSmell(v) : new UDSmellCPP(v), new UDCharacteristicsSet()),
+        HL("hubLikeDep", (v, t) -> t == AbstractProject.Type.JAVA ? new HLSmell(v) : new HLSmellCPP(v), new HLCharacteristicsSet()),
+        ICPD("ixpDep", (v, t) -> null, null),
+        MAS("multipleAS", (v, t) -> null, null),
         ;
 
         private String value;
-        private Function<Vertex, ArchitecturalSmell> smellInstantiator;
+        private BiFunction<Vertex, AbstractProject.Type, ArchitecturalSmell> smellInstantiator;
         private SmellCharacteristicsSet characteristicsSet;
 
-        Type(String value, Function<Vertex, ArchitecturalSmell> smellInstantiator, SmellCharacteristicsSet characteristicsSet){
+        Type(String value, BiFunction<Vertex, AbstractProject.Type, ArchitecturalSmell> smellInstantiator,
+             SmellCharacteristicsSet characteristicsSet){
             this.value = value;
             this.smellInstantiator = smellInstantiator;
             this.characteristicsSet = characteristicsSet;
         }
 
-        public ArchitecturalSmell getInstance(Vertex vertex){
-            return this.smellInstantiator.apply(vertex);
+        public ArchitecturalSmell getInstance(Vertex vertex, AbstractProject.Type projectType){
+            return this.smellInstantiator.apply(vertex, projectType);
         }
 
         /**

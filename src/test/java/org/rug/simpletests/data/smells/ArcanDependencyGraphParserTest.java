@@ -47,20 +47,20 @@ public class ArcanDependencyGraphParserTest {
 
     	ArchitecturalSmell s1 = smells.stream().filter(as -> as.getId() == 9409).findFirst().get();
     	assertNotEquals(s1, null);
-    	assertEquals(s1.getType(), Type.UDCPP);
+    	assertEquals(s1.getType(), Type.UD);
 
     	ArchitecturalSmell s2 = smells.stream().filter(as -> as.getId() == 9421).findFirst().get();
     	assertNotEquals(s2, null);
-    	assertEquals(s2.getType(), Type.UDCPP);
+    	assertEquals(s2.getType(), Type.UD);
 
     	ArchitecturalSmell s3 = smells.stream().filter(as -> as.getId() == 9311).findFirst().get();
     	assertNotEquals(s3, null);
-    	assertEquals(s3.getType(), Type.CDCPP);
+    	assertEquals(s3.getType(), Type.CD);
     	assertEquals(((CDSmellCPP)s3).getShape(), CDSmell.Shape.UNCLASSIFIED);
 
     	ArchitecturalSmell s4 = smells.stream().filter(as -> as.getId() == 9326).findFirst().get();
     	assertNotEquals(s4, null);
-    	assertEquals(s4.getType(), Type.CDCPP);
+    	assertEquals(s4.getType(), Type.CD);
     	assertEquals(((CDSmellCPP)s4).getShape(), CDSmell.Shape.UNCLASSIFIED);
 
     	assertNotEquals(s1, s2);

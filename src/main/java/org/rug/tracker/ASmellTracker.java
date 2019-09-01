@@ -246,6 +246,14 @@ public class ASmellTracker {
     }
 
     /**
+     * Returns the number of smells linked in the current iteration.
+     * @return the number of smells linked.
+     */
+    public long smellsLinked(){
+        return this.getScorer().bestMatch().size();
+    }
+
+    /**
      * Closes the current trackgraph and returns the graph object. This operation removes the tail from the graph.
      * The result is that this trackgraph is no more usable.
      */

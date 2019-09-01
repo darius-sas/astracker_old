@@ -1,13 +1,15 @@
 package org.rug.runners;
 
-import org.rug.data.characteristics.comps.ClassSourceCodeRetriever;
 import org.rug.data.project.IProject;
-import org.rug.data.project.Project;
 import org.rug.data.characteristics.ComponentCharacteristicSet;
-import org.rug.data.characteristics.comps.JarClassSourceCodeRetrieval;
-import org.rug.data.project.Version;
 import org.rug.data.smells.ArchitecturalSmell;
-import org.rug.persistence.*;
+import org.rug.persistence.ComponentAffectedByGenerator;
+import org.rug.persistence.ComponentMetricGenerator;
+import org.rug.persistence.CondensedGraphGenerator;
+import org.rug.persistence.PersistenceWriter;
+import org.rug.persistence.SmellCharacteristicsGenerator;
+import org.rug.persistence.SmellSimilarityDataGenerator;
+import org.rug.persistence.TrackGraphGenerator;
 import org.rug.tracker.ASmellTracker;
 import org.rug.tracker.SimpleNameJaccardSimilarityLinker;
 import org.slf4j.Logger;
@@ -50,7 +52,7 @@ public class TrackASRunner extends ToolRunner {
 
             tracker.track(smells, version);
 
-            logger.info("Linked {} smells out of a total of {} in this version.", tracker.getScorer().bestMatch().size(), smells.size());
+            logger.info("Linked {} smells out of a total of {} in this version.", tracker.smellsLinked(), smells.size());
             PersistenceWriter.sendTo(SmellSimilarityDataGenerator.class, tracker);
             PersistenceWriter.sendTo(ComponentMetricGenerator.class, version);
         });

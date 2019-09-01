@@ -2,8 +2,11 @@ package org.rug.data.project;
 
 import org.rug.data.smells.ArchitecturalSmell;
 
+import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Provides an implementation for the common operations on a project.
@@ -12,13 +15,15 @@ public abstract class AbstractProject implements IProject {
 
     protected SortedMap<String, IVersion> versionedSystem;
     protected String name;
-
+    protected Type projectType;
     /**
      * Instantiates this project and sets the given name.
      * @param name the name of the project.
      */
-    public AbstractProject(String name) {
+    public AbstractProject(String name, Type projectType) {
         this.name = name;
+        this.projectType = projectType;
+        this.versionedSystem = new TreeMap<>(projectType.getVersionComparator());
     }
 
     /**
@@ -118,6 +123,60 @@ public abstract class AbstractProject implements IProject {
         long counter = 1;
         for (var version : getVersionedSystem().values()){
             version.setVersionPosition(counter++);
+        }
+    }
+
+    /**
+     * Returns the type of the project under analysis. Namely, the programming language used.
+     * @return the programming language of the analysed project.
+     */
+    public Type getProjectType() {
+        return projectType;
+    }
+
+    /**
+     * Defines the project type under analysis (programming language).
+     * A project type instantiates the version instance object based
+     * on the type of project.
+     */
+    public enum Type {
+        C("C", Version::new, StringVersionComparator::new),
+        CPP("C++", Version::new, StringVersionComparator::new),
+        JAVA("Java", Version::new, StringVersionComparator::new);
+
+        private String typeName;
+        private Function<Path, IVersion> versionSupplier;
+        private Supplier<Comparator<String>> versionComparatorSupplier;
+
+        Type(String typeName, Function<Path, IVersion> versionSupplier, Supplier<Comparator<String>> versionComparatorSupplier){
+            this.typeName = typeName;
+            this.versionSupplier = versionSupplier;
+            this.versionComparatorSupplier = versionComparatorSupplier;
+        }
+
+        /**
+         * The name of the project type.
+         * @return the project type.
+         */
+        public String getTypeName() {
+            return typeName;
+        }
+
+        /**
+         * An empty instance of the version under analysis
+         * @param p the path to use to instantiate the version.
+         * @return an {@link IVersion} object.
+         */
+        public IVersion getVersionInstance(Path p) {
+            return versionSupplier.apply(p);
+        }
+
+        /**
+         * Returns version the string  comparator for this type of project.
+         * @return a version string comparator.
+         */
+        public Comparator<String> getVersionComparator() {
+            return versionComparatorSupplier.get();
         }
     }
 }

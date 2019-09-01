@@ -8,7 +8,7 @@ import org.rug.data.labels.VertexLabel;
 public class CDSmellCPP extends CDSmell {
 
 	public CDSmellCPP(Vertex smell) {
-		super(smell, Type.CDCPP);
+		super(smell, Type.CD);
 	}
 
 	@Override

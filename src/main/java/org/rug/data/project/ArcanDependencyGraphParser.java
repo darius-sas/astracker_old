@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 public class ArcanDependencyGraphParser {
 
     public static int MAX_CACHED_GRAPH_COUNT = 1;
+    public static AbstractProject.Type PROJECT_TYPE = AbstractProject.Type.JAVA;
 
     private final static Logger logger = LoggerFactory.getLogger(ArcanDependencyGraphParser.class);
 
@@ -87,7 +88,7 @@ public class ArcanDependencyGraphParser {
                         if (smellTypeProperty != null) {
                             ArchitecturalSmell.Type smellType = ArchitecturalSmell.Type.fromString(smellTypeProperty);
                             if (!smellVertex.property(CDSmell.VISITED_SMELL_NODE).orElse("false").equals("true")) {
-                                ArchitecturalSmell as = smellType.getInstance(smellVertex);
+                                ArchitecturalSmell as = smellType.getInstance(smellVertex, PROJECT_TYPE);
                                 if (as != null)
                                     architecturalSmells.add(as);
                                 else
