@@ -1,0 +1,16 @@
+Name,ud,hl,cd
+extract_group_features,0,0,0
+group_classifier,0,0,0
+mser,0,0,5
+region_classifier,0,0,3
+boost_char_train,0,0,0
+c-boost_train,0,0,0
+min_bounding_box,0,0,0
+max_meaningful_clustering,0,0,5
+nfa,0,0,0
+fast_clustering,0,0,3
+main,0,0,0
+extract_char_features,0,0,0
+c-root,0,0,6
+boost_groups_train,0,0,0
+region,0,0,0

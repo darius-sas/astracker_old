@@ -1,0 +1,8 @@
+Cycle,boost_char_train,boost_groups_train,extract_char_features,extract_group_features,fast_clustering,group_classifier,main,max_meaningful_clustering,min_bounding_box,mser,nfa,region,region_classifier
+Cycle0,0,0,0,0,1,0,0,0,0,0,0,1,0
+Cycle1,0,0,0,0,1,0,0,0,0,1,0,0,0
+Cycle2,0,0,0,0,1,0,0,1,0,1,0,0,0
+Cycle3,0,0,0,0,0,0,0,1,0,1,0,0,0
+Cycle4,0,0,0,0,1,0,0,1,0,1,0,0,1
+Cycle5,0,0,0,0,0,0,0,1,0,1,0,0,1
+Cycle6,0,0,0,0,0,0,0,1,0,0,0,0,1
