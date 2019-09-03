@@ -2,6 +2,7 @@ package org.rug.simpletests.data.smells;
 
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.rug.data.characteristics.smells.*;
 import org.rug.data.labels.EdgeLabel;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.rug.simpletests.TestData.antlr;
 
+@Tag("unitTests")
 public class SmellCharacteristicsSetTest {
 
     @Test

@@ -3,6 +3,7 @@ package org.rug.simpletests.data.smells;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.rug.data.labels.VertexLabel;
 import org.rug.data.smells.ArchitecturalSmell;
@@ -20,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.rug.simpletests.TestData.antlr;
 
+@Tag("unitTests")
 public class ArchitecturalSmellTest {
 
     @Test

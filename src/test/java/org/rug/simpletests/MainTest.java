@@ -1,5 +1,6 @@
 package org.rug.simpletests;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.rug.Main;
 import org.rug.persistence.PersistenceWriter;
@@ -11,6 +12,7 @@ import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Tag("systemTests")
 class MainTest {
 
     private final String inputDirJars = "./test-data/input/";

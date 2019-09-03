@@ -1,6 +1,7 @@
 package org.rug.simpletests.data.smells;
 
 import org.apache.tinkerpop.gremlin.structure.Direction;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.rug.data.characteristics.comps.AbstractComponentCharacteristic;
 import org.rug.data.characteristics.comps.JarClassSourceCodeRetrieval;
@@ -12,6 +13,7 @@ import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.rug.simpletests.TestData.antlr;
 
+@Tag("unitTests")
 public class NumberOfLinesOfCodeTest {
 
     String classPath;

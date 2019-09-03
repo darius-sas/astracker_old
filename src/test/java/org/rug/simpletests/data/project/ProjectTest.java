@@ -1,5 +1,6 @@
 package org.rug.simpletests.data.project;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.rug.data.project.IVersion;
 import org.rug.data.project.Project;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.rug.simpletests.TestData.pure;
 
+@Tag("unitTests")
 public class ProjectTest {
 
     @Test

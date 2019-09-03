@@ -1,12 +1,13 @@
 package org.rug.simpletests.data.smells;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.rug.data.characteristics.comps.JarClassSourceCodeRetrieval;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
+@Tag("unitTests")
 public class JarClassSourceCodeRetrievalTest {
 
     JarClassSourceCodeRetrieval retriever = new JarClassSourceCodeRetrieval();

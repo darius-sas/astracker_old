@@ -3,6 +3,7 @@ package org.rug.simpletests.data.smells;
 import org.apache.tinkerpop.gremlin.process.traversal.IO;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.rug.data.characteristics.smells.PageRank;
 import org.rug.data.project.ArcanDependencyGraphParser;
@@ -17,6 +18,7 @@ import java.util.SortedMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("unitTests")
 public class ArcanDependencyGraphParserTest {
 
     @Test

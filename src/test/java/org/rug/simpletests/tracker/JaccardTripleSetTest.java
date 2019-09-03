@@ -1,6 +1,7 @@
 package org.rug.simpletests.tracker;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.rug.data.smells.ArchitecturalSmell;
@@ -18,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.rug.simpletests.TestData.antlr;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Tag("unitTests")
 public class JaccardTripleSetTest {
 
     private final static Logger logger = LoggerFactory.getLogger(JaccardTripleSetTest.class);

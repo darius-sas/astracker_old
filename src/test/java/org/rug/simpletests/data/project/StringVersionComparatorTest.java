@@ -1,5 +1,6 @@
 package org.rug.simpletests.data.project;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.rug.data.project.StringVersionComparator;
 
@@ -11,6 +12,7 @@ import java.util.function.BiFunction;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Tag("unitTests")
 public class StringVersionComparatorTest {
 
     @Test
