@@ -5,6 +5,7 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.SmellVisitor;
 import org.rug.data.characteristics.*;
+import org.rug.data.characteristics.smells.AffectedDesign;
 import org.rug.data.labels.VertexLabel;
 import org.rug.data.project.AbstractProject;
 
@@ -340,7 +341,9 @@ public abstract class ArchitecturalSmell {
      */
     public enum Level {
         CLASS("class"),
-        PACKAGE("package");
+        PACKAGE("package"),
+        CFILE("cfile"),
+        COMPONENT("component");
 
         private final String level;
 
@@ -349,8 +352,7 @@ public abstract class ArchitecturalSmell {
         }
 
         public static Level fromString(String name){
-        	name = name.equals("component") || name.equals("package") ? "package":"class";
-            return lookup.get(name);
+            return lookup.get(name.toLowerCase());
         }
 
         private static final Map<String, Level> lookup = new HashMap<>();
@@ -361,6 +363,24 @@ public abstract class ArchitecturalSmell {
             {
                 lookup.put(type.level, type);
             }
+        }
+
+        /**
+         * Convenience method to check whether this instance represents a design-level artifact as
+         * described by {@link AffectedDesign.Level}.
+         * @return true if this instance is #CFILE or #CLASS.
+         */
+        public boolean isDesignLevel(){
+            return this == CLASS || this == CFILE;
+        }
+
+        /**
+         * Convenience method to check whether this instance represents an architecture-level artifact as
+         * described by {@link AffectedDesign.Level}.
+         * @return true if this instance is #PACKAGE or #COMPONENT.
+         */
+        public boolean isArchitecturalLevel(){
+            return this == PACKAGE || this == COMPONENT;
         }
 
         @Override

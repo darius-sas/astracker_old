@@ -25,6 +25,7 @@ public abstract class AbstractProject implements IProject {
         this.name = name;
         this.projectType = projectType;
         this.versionedSystem = new TreeMap<>(projectType.getVersionComparator());
+        ArcanDependencyGraphParser.PROJECT_TYPE = projectType;
     }
 
     /**

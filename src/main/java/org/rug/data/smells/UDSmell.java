@@ -52,7 +52,7 @@ public class UDSmell extends SingleElementSmell {
 
     /**
      * UD is only defined at package Level, so we set it like that by default
-     * @param smell
+     * @param smell the smell this instance is instantiated from.
      */
     @Override
     protected void setLevel(Vertex smell) {

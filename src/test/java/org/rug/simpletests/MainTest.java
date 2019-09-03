@@ -28,6 +28,8 @@ class MainTest {
 
     void executeMainProjectArcan(String projectName){
 
+        PersistenceWriter.clearAll();
+
         try {
             Files.delete(Paths.get(outputDir, "trackASOutput", projectName));
             Files.delete(Paths.get(outputDir, "arcanOutput", projectName));

@@ -4,6 +4,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.IO;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.rug.data.characteristics.comps.ClassSourceCodeRetriever;
+import org.rug.data.labels.EdgeLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,6 +103,15 @@ public abstract class AbstractVersion implements IVersion {
                 if (graphMLfile.isFile() && graphMLfile.canRead()) {
                     this.graph.traversal().io(graphMLPath.toAbsolutePath().toString())
                             .read().with(IO.reader, IO.graphml).iterate();
+                    // This statement ensures compatibility between graphml files produced
+                    // with Arcan and Arcan for C/C++
+                    this.graph.traversal().E()
+                            .hasLabel(EdgeLabel.DEPENDSON.toString())
+                            .has("weight")
+                            .forEachRemaining(e -> {
+                                e.property("Weight", e.value("weight"));
+                                e.property("weight").remove();
+                            });
                 }else {
                     throw new IOException("");
                 }

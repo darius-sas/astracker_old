@@ -143,12 +143,12 @@ public class PageRank extends AbstractSmellCharacteristic {
     }
 
 
-    private static Map<Graph, Map<ArchitecturalSmell.Level, Graph>> cachedPageRankGraphs = new HashMap<>();
+    private static Map<Graph, Map<AffectedDesign.Level, Graph>> cachedPageRankGraphs = new HashMap<>();
 
     private static Graph getPageRankGraph(ArchitecturalSmell smell){
         Graph smellGraph = smell.getAffectedGraph();
         if (!cachedPageRankGraphs.containsKey(smellGraph)){
-            var innerMap = new HashMap<ArchitecturalSmell.Level, Graph>();
+            var innerMap = new HashMap<AffectedDesign.Level, Graph>();
 
             Graph explodedGraph = explodeGraph(smellGraph);
 
@@ -165,14 +165,14 @@ public class PageRank extends AbstractSmellCharacteristic {
                         .program(programClasses)
                         .submit();
                 Graph g = futureClasses.get().graph();
-                innerMap.put(ArchitecturalSmell.Level.CLASS, g);
+                innerMap.put(AffectedDesign.Level.DESIGN, g);
 
                 Future<ComputerResult> futurePackage = explodedGraph
                         .compute().workers(4)
                         .program(programPackage)
                         .submit();
                 g = futurePackage.get().graph();
-                innerMap.put(ArchitecturalSmell.Level.PACKAGE, g);
+                innerMap.put(AffectedDesign.Level.ARCHITECTURAL, g);
                 cachedPageRankGraphs.put(smellGraph, innerMap);
 
             } catch (InterruptedException e) {
@@ -183,7 +183,7 @@ public class PageRank extends AbstractSmellCharacteristic {
                 e.printStackTrace();
             }
         }
-        return cachedPageRankGraphs.get(smellGraph).get(smell.getLevel());
+        return cachedPageRankGraphs.get(smellGraph).get(smell.getLevel().isDesignLevel() ? AffectedDesign.Level.DESIGN : AffectedDesign.Level.ARCHITECTURAL);
     }
 
     /**

@@ -42,12 +42,4 @@ public enum EdgeLabel {
         return value;
     }
 
-    /**
-     * Returns the correct affected edge label based on the given level
-     * @param level
-     * @return
-     */
-    public static EdgeLabel getHLAffectedOf(ArchitecturalSmell.Level level){
-        return level == ArchitecturalSmell.Level.CLASS ? EdgeLabel.HLAFFECTEDCLASS : EdgeLabel.HLAFFECTEDPACK;
-    }
 }

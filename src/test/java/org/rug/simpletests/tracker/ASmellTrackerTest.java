@@ -4,7 +4,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.rug.data.labels.EdgeLabel;
 import org.rug.data.project.ArcanDependencyGraphParser;
+import org.rug.data.project.IProject;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.persistence.ComponentAffectedByGenerator;
 import org.rug.persistence.PersistenceWriter;
@@ -42,7 +44,7 @@ public class ASmellTrackerTest {
         }
 
         pureOracle = new HashMap<>();
-        oracle = new int[]{ 0, 2, 2, 2, 2};
+        oracle = new int[]{ 0, 132, 132, 132, 132};
         i = 0;
         for (var v : pure){
             pureOracle.put(v.getVersionString(), oracle[i++]);
@@ -58,44 +60,32 @@ public class ASmellTrackerTest {
 
     @Test
     void trackTestAntlr() {
+        trackTestProject(antlr, antlrOracle);
+    }
+
+    @Test
+    void trackTestPure() {
+        trackTestProject(pure, pureOracle);
+    }
+
+    private void trackTestProject(IProject project, Map<String, Integer> oracle) {
 
         ISimilarityLinker scorer = new SimpleNameJaccardSimilarityLinker();
         ASmellTracker tracker = new ASmellTracker(scorer, false);
         PersistenceWriter.clearAll();
-        PersistenceWriter.register(new SmellSimilarityDataGenerator(Paths.get(trackASOutputDir, antlr.getName(), "jaccard-scores-consecutives-only.csv").toString()));
-        PersistenceWriter.register(new SmellCharacteristicsGenerator(Paths.get(trackASOutputDir, antlr.getName(), "smells-characteristics.csv").toString(), antlr)); // this test is out of date, added null to allow compilation
-        var gen = new ComponentAffectedByGenerator(Paths.get(trackASOutputDir, antlr.getName(), "affectedComponents.csv").toString());
+        PersistenceWriter.register(new SmellSimilarityDataGenerator(Paths.get(trackASOutputDir, project.getName(), "jaccard-scores-consecutives-only.csv").toString()));
+        PersistenceWriter.register(new SmellCharacteristicsGenerator(Paths.get(trackASOutputDir, project.getName(), "smells-characteristics.csv").toString(), project)); // this test is out of date, added null to allow compilation
+        var gen = new ComponentAffectedByGenerator(Paths.get(trackASOutputDir, project.getName(), "affectedComponents.csv").toString());
 
-        for (var version : antlr){
+        for (var version : project){
             var graph = version.getGraph();
             List<ArchitecturalSmell> smells = ArcanDependencyGraphParser.getArchitecturalSmellsIn(graph);
             smells.forEach(ArchitecturalSmell::calculateCharacteristics);
             tracker.track(smells, version);
-            assertEquals(Long.valueOf(antlrOracle.get(version.getVersionString())), tracker.smellsLinked());
+            assertEquals(Long.valueOf(oracle.get(version.getVersionString())), tracker.smellsLinked());
             PersistenceWriter.sendTo(SmellSimilarityDataGenerator.class, tracker);
         }
         gen.accept(tracker);
-        PersistenceWriter.sendTo(SmellCharacteristicsGenerator.class, tracker);
-        PersistenceWriter.writeAllCSV();
-    }
-
-    void trackTestPure() {
-        ISimilarityLinker scorer = new SimpleNameJaccardSimilarityLinker();
-        ASmellTracker tracker = new ASmellTracker(scorer, false);
-
-        PersistenceWriter.register(
-                new SmellSimilarityDataGenerator(Paths.get(trackASOutputDir, pure.getName(), "jaccard-scores-consecutives-only.csv").toString()));
-        PersistenceWriter.register(
-                new SmellCharacteristicsGenerator(Paths.get(trackASOutputDir, pure.getName(), "smells-characteristics.csv").toString(), pure));
-
-        pure.forEach(v -> {
-            var smells = pure.getArchitecturalSmellsIn(v);
-            smells.forEach(ArchitecturalSmell::calculateCharacteristics);
-            tracker.track(smells, v);
-            System.out.println(tracker.smellsLinked() + " linked out of " + smells.size());
-            PersistenceWriter.sendTo(SmellSimilarityDataGenerator.class, tracker);
-        });
-        fail("Too few smells are linked, check linking.");
         PersistenceWriter.sendTo(SmellCharacteristicsGenerator.class, tracker);
         PersistenceWriter.writeAllCSV();
     }

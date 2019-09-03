@@ -8,8 +8,12 @@ public class UDSmellCPP extends UDSmell {
 		super(smell, Type.UD);
 	}
 
+	/**
+	 * UD is only defined at component Level, so we set it like that by default.
+	 * @param smell the smell this instance is instantiated from.
+	 */
 	@Override
-	protected void setLevel(Vertex smell){
-		setLevel(Level.fromString(smell.value("vertexType") == "component" ? "package":"class"));
+	protected void setLevel(Vertex smell) {
+		setLevel(Level.COMPONENT);
 	}
 }

@@ -23,7 +23,7 @@ public class AffectedDesign extends AbstractSmellCharacteristic{
 
     @Override
     public String visit(CDSmell smell) {
-        if (smell.getLevel() == ArchitecturalSmell.Level.CLASS){
+        if (smell.getLevel().isDesignLevel()){
             return Level.DESIGN.toString();
         } else {
             GraphTraversalSource g = smell.getTraversalSource();
@@ -33,8 +33,7 @@ public class AffectedDesign extends AbstractSmellCharacteristic{
             // If so, the smell is present at both levels.
             List<ArchitecturalSmell> smellList = ArcanDependencyGraphParser.getArchitecturalSmellsIn(smell.getAffectedGraph());
             Set<ArchitecturalSmell> classLevelSmells = smellList.stream()
-                    .filter(s -> s.getType() == ArchitecturalSmell.Type.CD &&
-                            s.getLevel() == ArchitecturalSmell.Level.CLASS)
+                    .filter(s -> s.getType() == ArchitecturalSmell.Type.CD && s.getLevel().isDesignLevel())
                     .filter(s ->
                         g.V(s.getAffectedElements())
                                 .out(EdgeLabel.BELONGSTO.toString())

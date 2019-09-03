@@ -8,9 +8,4 @@ public class HLSmellCPP extends HLSmell {
 		super(smell, Type.HL);
 	}
 
-	@Override
-	protected void setLevel(Vertex smell){
-		setLevel(Level.fromString(smell.value("vertexType") == "component" ? "package":"class"));
-	}
-
 }

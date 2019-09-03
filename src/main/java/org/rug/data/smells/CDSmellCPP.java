@@ -19,12 +19,5 @@ public class CDSmellCPP extends CDSmell {
                                .out().hasLabel(VertexLabel.SMELL.toString()))
                 .out().hasLabel(P.within(VertexLabel.CFILE.toString(), VertexLabel.COMPONENT.toString())).toSet());
 	}
-	
-	@Override
-	protected void setLevel(Vertex smell){
-        setLevel(Level.fromString(smell.value("vertexType") == "component" ? "package":"class"));
-    }
-	
-	
 
 }

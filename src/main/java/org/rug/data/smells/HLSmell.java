@@ -82,8 +82,9 @@ public class HLSmell extends SingleElementSmell {
      * @return a set of vertices
      */
     public Set<Vertex> getClassesDependedUponByAfferentPackages(){
-        if (this.getLevel() != Level.PACKAGE)
+        if (!this.getLevel().isArchitecturalLevel()) {
             return Collections.emptySet();
+        }
         var affectedPackage = this.getCentre();
         return getTraversalSource().V(this.getInDep())
                 .in(EdgeLabel.BELONGSTO.toString())
@@ -100,8 +101,9 @@ public class HLSmell extends SingleElementSmell {
      * @return a set of vertices
      */
     public Set<Vertex> getClassesDependingOnEfferentPackages(){
-        if (this.getLevel() != Level.PACKAGE)
+        if (!this.getLevel().isArchitecturalLevel()) {
             return Collections.emptySet();
+        }
         var affectedPackage = this.getCentre();
         return getTraversalSource().V(this.getOutDep())
                 .in(EdgeLabel.BELONGSTO.toString())
@@ -120,9 +122,10 @@ public class HLSmell extends SingleElementSmell {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof HLSmell)
+        if (o instanceof HLSmell) {
             return super.equals(o) && ((HLSmell) o).inDep.equals(inDep) && ((HLSmell) o).outDep.equals(outDep);
-        else
+        }else {
             return false;
+        }
     }
 }
