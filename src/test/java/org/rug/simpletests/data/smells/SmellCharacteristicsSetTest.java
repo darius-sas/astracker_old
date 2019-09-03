@@ -169,7 +169,7 @@ public class SmellCharacteristicsSetTest {
         }
 
         var smell = g.addV(VertexLabel.SMELL.toString()).property("smellType", ArchitecturalSmell.Type.HL.toString()).next();
-        smell.property("vertexType", HLSmell.Level.PACKAGE);
+        smell.property("vertexType", HLSmell.Level.PACKAGE.toString());
         g.addE(EdgeLabel.HLAFFECTEDPACK.toString()).from(smell).to(affectedPackageV).next();
         g.addE(EdgeLabel.HLIN.toString()).from(smell).to(inPackageV).next();
         g.addE(EdgeLabel.HLOUT.toString()).from(smell).to(outPackageV).next();

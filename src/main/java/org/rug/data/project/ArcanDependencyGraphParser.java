@@ -71,6 +71,11 @@ public class ArcanDependencyGraphParser {
         return versionedSystem;
     }
 
+    public static List<ArchitecturalSmell> getArchitecturalSmellsIn(Graph graph, Project.Type projectType){
+        PROJECT_TYPE = projectType;
+        return getArchitecturalSmellsIn(graph);
+    }
+
     /**
      * Given the graph of a system, this methods builds a list of Architectural Smells that affect this system.
      * The list is cached internally for future retrievals. A maximum of {@link #MAX_CACHED_GRAPH_COUNT} graphs are

@@ -42,7 +42,7 @@ public abstract class AbstractProject implements IProject {
      * @return the smells as a list.
      */
     public List<ArchitecturalSmell> getArchitecturalSmellsIn(IVersion version){
-        var smells = ArcanDependencyGraphParser.getArchitecturalSmellsIn(version.getGraph());
+        var smells = ArcanDependencyGraphParser.getArchitecturalSmellsIn(version.getGraph(), this.projectType);
         var versionString = version.getVersionString();
         smells.forEach(as -> as.setAffectedVersion(versionString));
         return smells;

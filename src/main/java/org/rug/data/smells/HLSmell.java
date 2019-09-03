@@ -41,10 +41,7 @@ public class HLSmell extends SingleElementSmell {
      */
     @Override
     public void setAffectedElements(Vertex smell) {
-        // Select the appropriate label based on the smell label
-        EdgeLabel label = EdgeLabel.HLAFFECTEDCLASS.toString().toLowerCase()
-                                   .contains(getLevel().toString().toLowerCase()) ?
-                EdgeLabel.HLAFFECTEDCLASS : EdgeLabel.HLAFFECTEDPACK;
+        EdgeLabel label = getLevel().isDesignLevel() ? EdgeLabel.HLAFFECTEDCLASS : EdgeLabel.HLAFFECTEDPACK;
         this.affectedElements = new HashSet<>();
         this.affectedElements.add(smell.graph().traversal().V(smell).out(label.toString()).next());
     }

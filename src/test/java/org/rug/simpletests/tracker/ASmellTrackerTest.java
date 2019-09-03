@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.rug.data.labels.EdgeLabel;
 import org.rug.data.project.ArcanDependencyGraphParser;
 import org.rug.data.project.IProject;
 import org.rug.data.smells.ArchitecturalSmell;
@@ -22,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.rug.simpletests.TestData.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -78,8 +76,7 @@ public class ASmellTrackerTest {
         var gen = new ComponentAffectedByGenerator(Paths.get(trackASOutputDir, project.getName(), "affectedComponents.csv").toString());
 
         for (var version : project){
-            var graph = version.getGraph();
-            List<ArchitecturalSmell> smells = ArcanDependencyGraphParser.getArchitecturalSmellsIn(graph);
+            List<ArchitecturalSmell> smells = project.getArchitecturalSmellsIn(version);
             smells.forEach(ArchitecturalSmell::calculateCharacteristics);
             tracker.track(smells, version);
             assertEquals(Long.valueOf(oracle.get(version.getVersionString())), tracker.smellsLinked());

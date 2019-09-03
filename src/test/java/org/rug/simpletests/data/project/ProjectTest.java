@@ -2,9 +2,13 @@ package org.rug.simpletests.data.project;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.rug.data.project.AbstractProject;
 import org.rug.data.project.IVersion;
 import org.rug.data.project.Project;
 import org.rug.data.project.Version;
+import org.rug.data.smells.CDSmellCPP;
+import org.rug.data.smells.HLSmellCPP;
+import org.rug.data.smells.UDSmellCPP;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +41,7 @@ public class ProjectTest {
     Project parseTestInternal(String name, String... versions){
         var jarDirs = "./test-data/input/" + name;
         var graphMls = "./test-data/output/arcanOutput/" + name;
-        Project pr = new Project(name);
+        Project pr = new Project(name, AbstractProject.Type.JAVA);
 
         try {
             pr.addSourceDirectory(jarDirs);
@@ -54,6 +58,13 @@ public class ProjectTest {
                 assertNotEquals(0, version.getGraph().traversal().V().count().next());
                 assertNotEquals(0, version.getGraph().traversal().E().count().next());
                 assertNotNull(version.getSourceCodePath());
+
+                var smells = pr.getArchitecturalSmellsIn(version);
+                smells.forEach(s -> {
+                    assertFalse(s instanceof CDSmellCPP ||
+                                  s instanceof HLSmellCPP ||
+                                  s instanceof UDSmellCPP);
+                });
             } else {
                 fail("This test is only supposed to test for Java projects");
             }
