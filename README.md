@@ -35,6 +35,13 @@ As an example, try running the following command on the folder `sample-data`, wh
 java -jar target/astracker-0.7-jar-with-dependencies.jar -i sample-data -p antlr -o sample-data -pC
 ```
 
+Optionally, you can execute tests by running
+```
+mvn clean compile test
+```
+though ensure you have `test-data` in the root directory of the project.
+Test reports on coverage are available in `target/site` and output logs are available in `target/surefire`.
+
 ## Input formats
 ASTracker is able to parse the `.graphML` files produced by Arcan representing the system dependency graph and the detected smells.
 In order to be able to detect the versionString of the system analysed,these files must conform to the following naming pattern:
