@@ -1,7 +1,5 @@
 package org.rug.tracker;
 
-import org.rug.data.smells.CDSmell;
-import org.rug.data.util.Triple;
 import org.rug.data.smells.ArchitecturalSmell;
 
 import java.util.Collection;

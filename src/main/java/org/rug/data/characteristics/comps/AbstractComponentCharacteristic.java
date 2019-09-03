@@ -2,7 +2,6 @@ package org.rug.data.characteristics.comps;
 
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.structure.Edge;
-import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.characteristics.IComponentCharacteristic;
 import org.rug.data.labels.EdgeLabel;

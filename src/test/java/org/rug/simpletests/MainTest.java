@@ -9,7 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.function.Supplier;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MainTest {
 
@@ -42,16 +42,16 @@ class MainTest {
     }
 
     @Test
-    void integrationTestAnt(){
-        executeMainProject("antlr");
+    void systemTestAnt(){
+        executeMainProject("ant", false);
     }
 
-
-    void integrationTestPure(){
-        executeMainProject("pure");
+    @Test
+    void systemTestTextExtraction(){
+        executeMainProject("text-extraction", true);
     }
 
-    void executeMainProject(String projectName){
+    void executeMainProject(String projectName, boolean isCPPproject){
 
         try {
             Files.delete(Paths.get(outputDir, "trackASOutput", projectName));
@@ -59,7 +59,7 @@ class MainTest {
 
         PersistenceWriter.clearAll();
 
-        Main.main(new String[]{"-p", projectName, "-i", inputDirGraphMLs, "-o", outputDir, "-pC", "-pS"});
+        Main.main(new String[]{"-p", projectName, "-i", inputDirGraphMLs, "-o", outputDir, "-pC", "-pS", isCPPproject ? "-cppP" : "-jP" });
 
         assertTrue(Files.exists(Paths.get(outputDir, "trackASOutput", projectName, "smell-characteristics-consecOnly.csv")),
                 error(projectName, "checking existence of smell characteristics file"));

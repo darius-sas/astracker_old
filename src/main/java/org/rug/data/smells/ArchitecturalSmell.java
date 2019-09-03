@@ -4,15 +4,15 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.SmellVisitor;
-import org.rug.data.characteristics.UDCharacteristicsSet;
-import org.rug.data.labels.VertexLabel;
 import org.rug.data.characteristics.*;
+import org.rug.data.labels.VertexLabel;
 import org.rug.data.project.AbstractProject;
-import org.rug.data.project.Version;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**

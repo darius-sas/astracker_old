@@ -2,8 +2,6 @@ package org.rug.persistence;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.apache.tinkerpop.gremlin.structure.Graph;
-import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

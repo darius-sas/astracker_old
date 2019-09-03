@@ -1,9 +1,9 @@
 package org.rug.data.characteristics.smells;
 
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
-import org.rug.data.project.ArcanDependencyGraphParser;
 import org.rug.data.labels.EdgeLabel;
 import org.rug.data.labels.VertexLabel;
+import org.rug.data.project.ArcanDependencyGraphParser;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.smells.CDSmell;
 

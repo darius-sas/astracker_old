@@ -1,15 +1,12 @@
 package org.rug.tracker;
 
-import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.SmellVisitor;
-import org.rug.data.util.Triple;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.smells.CDSmell;
 import org.rug.data.smells.HLSmell;
 import org.rug.data.smells.UDSmell;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  *  The Jaccard coefficient measures similarity between finite sample sets,

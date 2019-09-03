@@ -4,13 +4,7 @@ import org.rug.args.Args;
 import org.rug.data.project.IProject;
 import org.rug.data.project.Project;
 import org.rug.data.project.Version;
-import org.rug.persistence.ComponentAffectedByGenerator;
-import org.rug.persistence.CondensedGraphGenerator;
-import org.rug.persistence.PersistenceWriter;
-import org.rug.persistence.ProjectSizeGenerator;
-import org.rug.persistence.SmellCharacteristicsGenerator;
-import org.rug.persistence.SmellSimilarityDataGenerator;
-import org.rug.persistence.TrackGraphGenerator;
+import org.rug.persistence.*;
 import org.rug.runners.ArcanRunner;
 import org.rug.runners.ProjecSizeRunner;
 import org.rug.runners.ToolRunner;
@@ -46,26 +40,24 @@ public class Analysis {
 
     private void init() throws IllegalArgumentException, IOException{
         if (project == null){
+            project = new Project(args.projectName, args.isCPPproject ? Project.Type.CPP : Project.Type.JAVA);
             if (isJarProject()){
-                Project p = new Project(args.projectName);
-                p.addJars(args.getHomeProjectDirectory());
+                project.addSourceDirectory(args.getHomeProjectDirectory());
                 var outputDir = args.getArcanOutDir();
-                p.forEach(version -> {
+                project.forEach(version -> {
                     Path outputDirVers = Paths.get(outputDir, version.getVersionString());
                     if (outputDirVers.toFile().mkdirs()) {
-                        var arcan = new ArcanRunner(args.getArcanJarFile(), (Version) version, outputDirVers.toString(), p.isFolderOfFoldersOfJarsProject(), false);
+                        var arcan = new ArcanRunner(args.getArcanJarFile(), (Version) version,
+                                outputDirVers.toString(), project.isFolderOfFoldersOfSourcesProject(), false);
                         arcan.setHomeDir(args.getHomeProjectDirectory());
                         arcan.inheritOutput(args.showArcanOutput);
                         runners.add(arcan);
                     }
                 });
                 args.adjustProjDirToArcanOutput();
-                p.addGraphMLs(args.getHomeProjectDirectory());
-                project = p;
+                project.addGraphMLfiles(args.getHomeProjectDirectory());
             }else if (isGraphMLProject()){
-                Project p = new Project(args.projectName);
-                p.addGraphMLs(args.getHomeProjectDirectory());
-                project = p;
+                project.addGraphMLfiles(args.getHomeProjectDirectory());
             }else {
                 throw new IllegalArgumentException("Cannot parse project files.");
             }
@@ -102,7 +94,7 @@ public class Analysis {
     }
 
     private boolean isJarProject() throws IOException {
-        return Files.walk(args.inputDirectory.toPath()).anyMatch(path -> path.getFileName().toString().matches(".*\\.jar"));
+        return Files.walk(args.inputDirectory.toPath()).anyMatch(Project.Type.JAVA::sourcesMatch);
     }
 
     private boolean isGraphMLProject() throws IOException{

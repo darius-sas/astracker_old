@@ -1,15 +1,9 @@
 package org.rug.runners;
 
-import org.rug.data.project.IProject;
 import org.rug.data.characteristics.ComponentCharacteristicSet;
+import org.rug.data.project.IProject;
 import org.rug.data.smells.ArchitecturalSmell;
-import org.rug.persistence.ComponentAffectedByGenerator;
-import org.rug.persistence.ComponentMetricGenerator;
-import org.rug.persistence.CondensedGraphGenerator;
-import org.rug.persistence.PersistenceWriter;
-import org.rug.persistence.SmellCharacteristicsGenerator;
-import org.rug.persistence.SmellSimilarityDataGenerator;
-import org.rug.persistence.TrackGraphGenerator;
+import org.rug.persistence.*;
 import org.rug.tracker.ASmellTracker;
 import org.rug.tracker.SimpleNameJaccardSimilarityLinker;
 import org.slf4j.Logger;

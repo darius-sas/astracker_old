@@ -1,21 +1,10 @@
 package org.rug.args;
 
 import com.beust.jcommander.Parameter;
-import org.rug.data.util.Triple;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class Args {
 
@@ -36,6 +25,12 @@ public class Args {
 
     @Parameter(names = {"-runProjectSize", "-rS"}, description = "Whether to run the project size runner.")
     private boolean runProjectSizes = false;
+
+    @Parameter(names = {"-cppProject", "-cppP"}, descriptionKey = "Flag this as a C/C++ project (i.e. project analysed with Arcan for C/C++.")
+    public boolean isCPPproject = false;
+
+    @Parameter(names = {"-javaProject", "-jP"}, descriptionKey = "Flag this as a Java project (i.e. project analysed with Arcan for Java.")
+    public boolean isJavaProject = true;
 
     @Parameter(names = {"-showArcanOutput", "-sAO"}, description = "Whether or not to show Arcan's output to the console.")
     public boolean showArcanOutput = false;

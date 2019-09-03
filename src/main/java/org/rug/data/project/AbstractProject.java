@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 
 /**
  * Provides an implementation for the common operations on a project.
@@ -140,18 +141,21 @@ public abstract class AbstractProject implements IProject {
      * on the type of project.
      */
     public enum Type {
-        C("C", Version::new, StringVersionComparator::new),
-        CPP("C++", Version::new, StringVersionComparator::new),
-        JAVA("Java", Version::new, StringVersionComparator::new);
+        C("C", Version::new, StringVersionComparator::new, Pattern.compile("^.*\\.([ch])$")),
+        CPP("C++", Version::new, StringVersionComparator::new, Pattern.compile("^.*\\.((cpp)|[ch])$")),
+        JAVA("Java", Version::new, StringVersionComparator::new, Pattern.compile("^.*\\.jar$"));
 
         private String typeName;
         private Function<Path, IVersion> versionSupplier;
         private Supplier<Comparator<String>> versionComparatorSupplier;
+        private Pattern sourcesFileExt;
 
-        Type(String typeName, Function<Path, IVersion> versionSupplier, Supplier<Comparator<String>> versionComparatorSupplier){
+        Type(String typeName, Function<Path, IVersion> versionSupplier,
+             Supplier<Comparator<String>> versionComparatorSupplier, Pattern sourcesFileExt){
             this.typeName = typeName;
             this.versionSupplier = versionSupplier;
             this.versionComparatorSupplier = versionComparatorSupplier;
+            this.sourcesFileExt = sourcesFileExt;
         }
 
         /**
@@ -177,6 +181,14 @@ public abstract class AbstractProject implements IProject {
          */
         public Comparator<String> getVersionComparator() {
             return versionComparatorSupplier.get();
+        }
+
+        /**
+         * Returns the regular expression pattern matching the files for this project type.
+         * @return a compiled Regex pattern.
+         */
+        public boolean sourcesMatch(Path p){
+            return sourcesFileExt.matcher(p.toString()).matches();
         }
     }
 }

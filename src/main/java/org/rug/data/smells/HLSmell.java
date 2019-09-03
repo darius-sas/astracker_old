@@ -4,7 +4,6 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.SmellVisitor;
 import org.rug.data.labels.EdgeLabel;
-import org.rug.data.labels.VertexLabel;
 
 import java.util.Collections;
 import java.util.HashSet;

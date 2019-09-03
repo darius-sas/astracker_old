@@ -11,11 +11,14 @@ import org.rug.data.smells.CDSmell;
 import org.rug.data.smells.HLSmell;
 import org.rug.data.smells.UDSmell;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.rug.simpletests.TestData.*;
+import static org.rug.simpletests.TestData.antlr;
 
 public class SmellCharacteristicsSetTest {
 

@@ -1,6 +1,5 @@
 package org.rug.data.characteristics;
 
-import org.rug.data.characteristics.comps.ClassSourceCodeRetriever;
 import org.rug.data.characteristics.comps.NumberOfClassesInPackage;
 import org.rug.data.characteristics.comps.NumberOfLinesOfCode;
 

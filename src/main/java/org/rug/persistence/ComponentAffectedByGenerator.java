@@ -2,7 +2,6 @@ package org.rug.persistence;
 
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Direction;
-import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.rug.tracker.ASmellTracker;
 
 import java.util.ArrayList;

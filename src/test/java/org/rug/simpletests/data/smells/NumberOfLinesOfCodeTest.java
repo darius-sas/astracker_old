@@ -5,12 +5,12 @@ import org.junit.jupiter.api.Test;
 import org.rug.data.characteristics.comps.AbstractComponentCharacteristic;
 import org.rug.data.characteristics.comps.JarClassSourceCodeRetrieval;
 import org.rug.data.characteristics.comps.NumberOfLinesOfCode;
-import static org.rug.simpletests.TestData.*;
 
 import java.io.IOException;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.rug.simpletests.TestData.antlr;
 
 public class NumberOfLinesOfCodeTest {
 

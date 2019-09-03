@@ -17,8 +17,8 @@ public class TestData {
 
     static {
         try {
-            antlr.addJars(antlrProjectDir);
-            antlr.addGraphMLs(antlrGraphMLDir);
+            antlr.addSourceDirectory(antlrProjectDir);
+            antlr.addGraphMLfiles(antlrGraphMLDir);
         } catch (IOException e){
             System.err.println("Cannot load antlr project for tests execution. Are you sure the paths are correct?");
             System.err.println(String.format("Project dir: %s", antlrProjectDir));
@@ -26,9 +26,9 @@ public class TestData {
         }
 
         try {
-            pure.addGraphMLs(pureGraphMLDir);
+            pure.addGraphMLfiles(pureGraphMLDir);
         } catch (IOException e){
-            System.err.println("Cannot load antlr project for tests execution. Are you sure the paths are correct?");
+            System.err.println("Cannot load pure project for tests execution. Are you sure the paths are correct?");
             System.err.println(String.format("GraphML dir: %s", pureGraphMLDir));
         }
 

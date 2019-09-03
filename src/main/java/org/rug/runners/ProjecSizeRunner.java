@@ -1,8 +1,7 @@
 package org.rug.runners;
 
-import org.rug.data.project.IProject;
-import org.rug.data.project.Project;
 import org.rug.data.labels.VertexLabel;
+import org.rug.data.project.IProject;
 import org.rug.persistence.PersistenceWriter;
 import org.rug.persistence.ProjectSizeGenerator;
 import org.slf4j.Logger;

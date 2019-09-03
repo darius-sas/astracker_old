@@ -14,9 +14,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 
-import static org.rug.simpletests.TestData.*;
-
 import static org.junit.jupiter.api.Assertions.*;
+import static org.rug.simpletests.TestData.antlr;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class JaccardTripleSetTest {

@@ -1,8 +1,6 @@
 package org.rug.data.characteristics.smells;
 
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.rug.data.labels.EdgeLabel;
-import org.rug.data.labels.VertexLabel;
 import org.rug.data.smells.UDSmell;
 
 /**

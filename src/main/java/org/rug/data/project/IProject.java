@@ -1,8 +1,8 @@
 package org.rug.data.project;
 
-import org.rug.data.characteristics.comps.ClassSourceCodeRetriever;
 import org.rug.data.smells.ArchitecturalSmell;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.SortedSet;
 
@@ -55,4 +55,24 @@ public interface IProject extends Iterable<IVersion> {
      * @return the position of the given version in the ordered list of versions of this system.
      */
     Long getVersionIndex(String version);
+
+    /**
+     * Add the directory where the sources of the different versions are stored.
+     * @param sourceMainDir a path to the sources.
+     * @exception IOException raised when the given directory {@code sourceMainDir} does not exist.
+     */
+    void addSourceDirectory(String sourceMainDir) throws IOException;
+
+    /**
+     * Wethere the source directory set up with {@link #addSourceDirectory(String)} is a folder of folders of sources.
+     * @return true if the folder contains folders of sources, false otherwise.
+     */
+    boolean isFolderOfFoldersOfSourcesProject();
+
+    /**
+     * The directory where the GraphML files for all the versions to analyse are stored.
+     * @param dir the directory containing the GraphML files.
+     * @throws IOException raised if {@code dir} does not exist.
+     */
+    void addGraphMLfiles(String dir) throws IOException;
 }

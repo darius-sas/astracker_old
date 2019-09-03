@@ -5,9 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -44,7 +42,7 @@ public class Project extends AbstractProject {
      * @param mainJarProjectDir the home folder of the project.
      * @throws IOException if cannot read the given directory.
      */
-    public void addJars(String mainJarProjectDir) throws IOException {
+    public void addSourceDirectory(String mainJarProjectDir) throws IOException {
         Path jarDirPath = Paths.get(mainJarProjectDir);
         this.isFolderOfFolderOfJars = !containsJars(jarDirPath);
         hasJars = true;
@@ -52,7 +50,7 @@ public class Project extends AbstractProject {
         if (!isFolderOfFolderOfJars){
             Files.list(jarDirPath)
                     .filter(Files::isRegularFile)
-                    .filter(f -> f.getFileName().toString().matches(".*\\.jar"))
+                    .filter(projectType::sourcesMatch)
                     .forEach(j -> {
                         var version = addVersion(j);
                         version.setSourceCodePath(j);
@@ -77,7 +75,7 @@ public class Project extends AbstractProject {
      * @param graphMLDir the directory where to read graph files from, or where they should be written.
      * @throws IOException
      */
-    public void addGraphMLs(String graphMLDir) throws IOException{
+    public void addGraphMLfiles(String graphMLDir) throws IOException{
         File dir = new File(graphMLDir);
 
         var graphMlFiles = getGraphMls(dir.toPath());
@@ -93,16 +91,16 @@ public class Project extends AbstractProject {
      * Returns the nature of the project represented by this instance.
      * In a project where the main folder is full of jars, every version is represented by a single jar file.
      * On the other side, a project that is a folder of folders of jars, every version is a folder of jars.
-     * NOTE: This value is by default false. You need to call {@link #addJars(String)} in order to correctly set
+     * NOTE: This value is by default false. You need to call {@link #addSourceDirectory(String)} in order to correctly set
      * this flag.
      * @return true if this project is a folder of folder of jars.
      */
-    public boolean isFolderOfFoldersOfJarsProject() {
+    public boolean isFolderOfFoldersOfSourcesProject() {
         return isFolderOfFolderOfJars;
     }
 
     private boolean containsJars(Path dir) throws IOException{
-        return Files.list(dir).anyMatch(f -> Files.isRegularFile(f) && f.getFileName().toString().matches(".*\\.jar"));
+        return Files.list(dir).anyMatch(f -> Files.isRegularFile(f) && Type.JAVA.sourcesMatch(f));
     }
 
     private List<Path> getGraphMls(Path dir) throws IOException{

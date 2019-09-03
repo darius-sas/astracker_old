@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.rug.simpletests.TestData.pure;
 
 public class ProjectTest {
 
@@ -22,12 +23,12 @@ public class ProjectTest {
                 "2.7.3", "2.7.4", "2.7.5", "2.7.6", "2.7.7", "3.0", "3.0.1", "3.1", "3.1.1", "3.1.2",
                 "3.1.3", "3.2", "3.3", "3.4", "3.5", "4.0");
 
-        assertTrue(project.isFolderOfFoldersOfJarsProject());
+        assertTrue(project.isFolderOfFoldersOfSourcesProject());
 
         project = parseTestInternal("ant",   "1.1", "1.2", "1.3", "1.4", "1.4.1", "1.5",
                 "1.5.1", "1.5.2", "1.5.3.1", "1.5.4", "1.6.0", "1.6.1", "1.6.2", "1.6.3",
                 "1.6.4", "1.6.5", "1.7.0", "1.7.1", "1.8.0", "1.8.1", "1.8.2", "1.8.3", "1.8.4");
-        assertTrue(project.isFolderOfFoldersOfJarsProject());
+        assertTrue(project.isFolderOfFoldersOfSourcesProject());
 
     }
 
@@ -37,8 +38,8 @@ public class ProjectTest {
         Project pr = new Project(name);
 
         try {
-            pr.addJars(jarDirs);
-            pr.addGraphMLs(graphMls);
+            pr.addSourceDirectory(jarDirs);
+            pr.addGraphMLfiles(graphMls);
         } catch (IOException e) {
             System.err.println("Error while reading data.");
         }
@@ -60,9 +61,9 @@ public class ProjectTest {
         var dir = new File(graphMls);
         var listDir = dir.list();
         if (listDir == null || listDir.length == 0)
-            assertThrows(IllegalArgumentException.class, () -> pr2.addGraphMLs(graphMls), "Error while reading graphMLs.");
+            assertThrows(IllegalArgumentException.class, () -> pr2.addGraphMLfiles(graphMls), "Error while reading graphMLs.");
         else {
-            assertDoesNotThrow(() -> pr2.addGraphMLs(graphMls), "Error while reading graphMLs.");
+            assertDoesNotThrow(() -> pr2.addGraphMLfiles(graphMls), "Error while reading graphMLs.");
             assertTrue(pr2.numberOfVersions() > 0);
         }
         return pr;
@@ -70,19 +71,8 @@ public class ProjectTest {
 
     @Test
     void parseTestCpp(){
-        var name = "pure";
+        // Parsing for CPP projects should be the same, so we only do a quick test
         var versions = new String[] {"1.0.0.0", "1.0.0.1", "1.0.0.2", "1.0.0.3", "1.0.0.4"};
-        var graphMls = "./arcanCppOutput/" + name;
-        Project pr = new Project(name);
-
-        try {
-            pr.addGraphMLs(graphMls);
-        } catch (IOException e) {
-            System.err.println("Error while reading data.");
-        }
-
-        assertEquals(Arrays.asList(versions), new ArrayList<>(pr.versions().stream().map(IVersion::getVersionString).collect(Collectors.toList())));
-
-        pr.forEach(System.out::println);
+        assertEquals(Arrays.asList(versions), new ArrayList<>(pure.versions().stream().map(IVersion::getVersionString).collect(Collectors.toList())));
     }
 }

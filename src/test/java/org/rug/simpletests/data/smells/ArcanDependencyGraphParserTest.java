@@ -10,10 +10,10 @@ import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.smells.ArchitecturalSmell.Type;
 import org.rug.data.smells.CDSmell;
 import org.rug.data.smells.CDSmellCPP;
-import org.rug.data.smells.HLSmell;
-import org.rug.data.smells.UDSmell;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.SortedMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 

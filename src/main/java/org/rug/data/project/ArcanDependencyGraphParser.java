@@ -2,7 +2,6 @@ package org.rug.data.project;
 
 import org.apache.tinkerpop.gremlin.process.traversal.IO;
 import org.apache.tinkerpop.gremlin.structure.Graph;
-import org.apache.tinkerpop.gremlin.structure.io.IoCore;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.rug.data.labels.VertexLabel;
 import org.rug.data.smells.ArchitecturalSmell;

@@ -9,7 +9,8 @@ import org.rug.data.smells.CDSmell;
 import org.rug.data.smells.HLSmell;
 import org.rug.data.smells.UDSmell;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This characteristics computes the overlap of the smells affected by the given smell with the other smells in the system.

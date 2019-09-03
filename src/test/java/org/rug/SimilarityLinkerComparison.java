@@ -26,7 +26,7 @@ public class SimilarityLinkerComparison {
         var outputDir = "./test-data/output/trackASOutput/" + project.getName() + "/linker-tests/";
         var outputDirF = new File(outputDir);
         outputDirF.mkdirs();
-        project.addGraphMLs("./test-data/output/arcanOutput/" + project.getName());
+        project.addGraphMLfiles("./test-data/output/arcanOutput/" + project.getName());
 
         var normalLinker = new JaccardSimilarityLinker();
         var simpleNamesLinker = new SimpleNameJaccardSimilarityLinker();
