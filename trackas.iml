@@ -39,5 +39,12 @@
     <orderEntry type="library" name="Maven: com.beust:jcommander:1.72" level="project" />
     <orderEntry type="library" name="Maven: org.benf:cfr:0.139" level="project" />
     <orderEntry type="library" name="Maven: javax.servlet:javax.servlet-api:3.1.0" level="project" />
+    <orderEntry type="library" name="Maven: org.eclipse.jgit:org.eclipse.jgit:5.4.2.201908231537-r" level="project" />
+    <orderEntry type="library" name="Maven: com.jcraft:jsch:0.1.55" level="project" />
+    <orderEntry type="library" name="Maven: com.jcraft:jzlib:1.1.1" level="project" />
+    <orderEntry type="library" name="Maven: com.googlecode.javaewah:JavaEWAH:1.1.6" level="project" />
+    <orderEntry type="library" name="Maven: org.bouncycastle:bcpg-jdk15on:1.61" level="project" />
+    <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15on:1.61" level="project" />
+    <orderEntry type="library" name="Maven: org.bouncycastle:bcpkix-jdk15on:1.61" level="project" />
   </component>
 </module>
