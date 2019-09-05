@@ -2,12 +2,16 @@ package org.rug.data.project;
 
 import org.rug.data.smells.ArchitecturalSmell;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the common operations on a project.
@@ -134,6 +138,48 @@ public abstract class AbstractProject implements IProject {
      */
     public Type getProjectType() {
         return projectType;
+    }
+
+    /**
+     * Adds the given directory of graphML files to the current versioned system.
+     * If directory does not exist, this method will fill the current versioned systems
+     * with the paths to the ghost graphMl files. In that case, the paths will have
+     * the following format: graphMLDir/name/version/name-version.graphml.
+     * @param graphMLDir the directory where to read graph files from, or where they should be written.
+     * @throws IOException
+     */
+    public void addGraphMLfiles(String graphMLDir) throws IOException{
+        File dir = new File(graphMLDir);
+
+        var graphMlFiles = getGraphMls(dir.toPath());
+        graphMlFiles.forEach(f -> {
+            var version = addVersion(f);
+            version.setGraphMLPath(f);
+        });
+
+        initVersionPositions();
+    }
+
+    /**
+     * Helper method that retrieves all GraphML files from a given directory and returns
+     * them as a list of Path.
+     * @param dir the directory containing the GraphMLs
+     * @return list of GraphML files.
+     * @throws IOException
+     */
+    protected List<Path> getGraphMls(Path dir) throws IOException{
+        return Files.list(dir).filter(f -> Files.isRegularFile(f) && f.getFileName().toString().matches(".*\\.graphml")).collect(Collectors.toList());
+    }
+
+    /**
+     * Helper method that adds a file to the versions of the system.
+     * @param f the file to add.
+     */
+    protected IVersion addVersion(Path f){
+        IVersion version = new Version(f);
+        version = versionedSystem.getOrDefault(version.getVersionString(), version);
+        versionedSystem.putIfAbsent(version.getVersionString(), version);
+        return version;
     }
 
     /**
