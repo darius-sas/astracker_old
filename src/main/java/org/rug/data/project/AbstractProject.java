@@ -21,14 +21,15 @@ public abstract class AbstractProject implements IProject {
     protected SortedMap<String, IVersion> versionedSystem;
     protected String name;
     protected Type projectType;
+    protected Function<Path, IVersion> versionInitializer;
     /**
      * Instantiates this project and sets the given name.
      * @param name the name of the project.
      */
-    public AbstractProject(String name, Type projectType) {
+    public AbstractProject(String name, Type projectType, Comparator<String> versionStringComparator) {
         this.name = name;
         this.projectType = projectType;
-        this.versionedSystem = new TreeMap<>(projectType.getVersionComparator());
+        this.versionedSystem = new TreeMap<>();
         ArcanDependencyGraphParser.PROJECT_TYPE = projectType;
     }
 
@@ -176,7 +177,7 @@ public abstract class AbstractProject implements IProject {
      * @param f the file to add.
      */
     protected IVersion addVersion(Path f){
-        IVersion version = new Version(f);
+        IVersion version = versionInitializer.apply(f);
         version = versionedSystem.getOrDefault(version.getVersionString(), version);
         versionedSystem.putIfAbsent(version.getVersionString(), version);
         return version;
@@ -188,20 +189,15 @@ public abstract class AbstractProject implements IProject {
      * on the type of project.
      */
     public enum Type {
-        C("C", Version::new, StringVersionComparator::new, Pattern.compile("^.*\\.([ch])$")),
-        CPP("C++", Version::new, StringVersionComparator::new, Pattern.compile("^.*\\.((cpp)|[ch])$")),
-        JAVA("Java", Version::new, StringVersionComparator::new, Pattern.compile("^.*\\.jar$"));
+        C("C", Pattern.compile("^.*\\.([ch])$")),
+        CPP("C++", Pattern.compile("^.*\\.((cpp)|[ch])$")),
+        JAVA("Java", Pattern.compile("^.*\\.jar$"));
 
         private String typeName;
-        private Function<Path, IVersion> versionSupplier;
-        private Supplier<Comparator<String>> versionComparatorSupplier;
         private Pattern sourcesFileExt;
 
-        Type(String typeName, Function<Path, IVersion> versionSupplier,
-             Supplier<Comparator<String>> versionComparatorSupplier, Pattern sourcesFileExt){
+        Type(String typeName, Pattern sourcesFileExt){
             this.typeName = typeName;
-            this.versionSupplier = versionSupplier;
-            this.versionComparatorSupplier = versionComparatorSupplier;
             this.sourcesFileExt = sourcesFileExt;
         }
 
@@ -211,23 +207,6 @@ public abstract class AbstractProject implements IProject {
          */
         public String getTypeName() {
             return typeName;
-        }
-
-        /**
-         * An empty instance of the version under analysis
-         * @param p the path to use to instantiate the version.
-         * @return an {@link IVersion} object.
-         */
-        public IVersion getVersionInstance(Path p) {
-            return versionSupplier.apply(p);
-        }
-
-        /**
-         * Returns version the string  comparator for this type of project.
-         * @return a version string comparator.
-         */
-        public Comparator<String> getVersionComparator() {
-            return versionComparatorSupplier.get();
         }
 
         /**

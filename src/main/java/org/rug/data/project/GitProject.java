@@ -1,6 +1,7 @@
 package org.rug.data.project;
 
 import org.eclipse.jgit.api.Git;
+import org.rug.data.characteristics.comps.JavaClassSourceCodeRetriever;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,16 +20,18 @@ public class GitProject extends AbstractProject {
      * @param projectType
      */
     public GitProject(String name, Type projectType) {
-        super(name, projectType);
+        super(name, projectType, new StringCommitComparator());
     }
 
     @Override
     public void addSourceDirectory(String sourceMainDir) throws IOException {
         gitRepo = Git.open(new File(sourceMainDir));
+        super.versionInitializer = (f) -> new GitVersion(f, gitRepo.checkout(), new JavaClassSourceCodeRetriever());
     }
 
     @Override
     public boolean isFolderOfFoldersOfSourcesProject() {
         return false;
     }
+
 }

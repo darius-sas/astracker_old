@@ -28,8 +28,9 @@ public class Project extends AbstractProject {
      * @param projectType the type of the project (i.e. the programming language).
      */
     public Project(String name, Type projectType){
-        super(name, projectType);
+        super(name, projectType, new StringVersionComparator());
         this.isFolderOfFolderOfJars = false;
+        this.versionInitializer = Version::new;
     }
 
     /**
