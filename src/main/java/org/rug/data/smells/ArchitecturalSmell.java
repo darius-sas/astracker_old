@@ -283,7 +283,7 @@ public abstract class ArchitecturalSmell {
         CD("cyclicDep", (v, t) -> t == AbstractProject.Type.JAVA ? new CDSmell(v) : new CDSmellCPP(v), new CDCharacteristicsSet()),
         UD("unstableDep", (v, t) -> t == AbstractProject.Type.JAVA ? new UDSmell(v) : new UDSmellCPP(v), new UDCharacteristicsSet()),
         HL("hubLikeDep", (v, t) -> t == AbstractProject.Type.JAVA ? new HLSmell(v) : new HLSmellCPP(v), new HLCharacteristicsSet()),
-        GC("godComponent", (v, t) -> t == AbstractProject.Type.JAVA ? new GCSmell(v) : null, null),
+        GC("godComponent", (v, t) -> t == AbstractProject.Type.JAVA ? new GCSmell(v) : null, new GCCharacteristicsSet()),
         ICPD("ixpDep", (v, t) -> null, null),
         MAS("multipleAS", (v, t) -> null, null),
         ;

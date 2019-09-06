@@ -1,6 +1,7 @@
 package org.rug.data;
 
 import org.rug.data.smells.CDSmell;
+import org.rug.data.smells.GCSmell;
 import org.rug.data.smells.HLSmell;
 import org.rug.data.smells.UDSmell;
 
@@ -26,4 +27,10 @@ public interface SmellVisitor<R> {
      * @param smell the UD smell to visit.
      */
     R visit(UDSmell smell);
+
+    /**
+     * Visit the given smell.
+     * @param smell the GC smell to visit
+     */
+    R visit(GCSmell smell);
 }

@@ -2,6 +2,7 @@ package org.rug.data.characteristics.smells;
 
 import org.rug.data.characteristics.ISmellCharacteristic;
 import org.rug.data.smells.CDSmell;
+import org.rug.data.smells.GCSmell;
 import org.rug.data.smells.HLSmell;
 import org.rug.data.smells.UDSmell;
 
@@ -60,6 +61,17 @@ public abstract class AbstractSmellCharacteristic implements ISmellCharacteristi
      */
     @Override
     public String visit(UDSmell smell) {
+        return NO_VALUE;
+    }
+
+    /**
+     * Calculates this characteristic and returns the value computed.
+     *
+     * @param smell the GC smell to visit
+     * @return the value computed.
+     */
+    @Override
+    public String visit(GCSmell smell) {
         return NO_VALUE;
     }
 }

@@ -2,6 +2,9 @@ package org.rug.data.smells;
 
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.SmellVisitor;
+import org.rug.data.labels.EdgeLabel;
+
+import java.util.Set;
 
 public class GCSmell extends SingleElementSmell {
     /**
@@ -21,5 +24,13 @@ public class GCSmell extends SingleElementSmell {
     @Override
     public <T> T accept(SmellVisitor<T> visitor) {
         return null;
+    }
+
+    /**
+     * Retrieves the elements that directly belong to the element affected by God Component.
+     * @return a set of vertices (classes and packages) that belong to the affected element.
+     */
+    public Set<Vertex> getElementsInAffected(){
+        return getTraversalSource().V(getCentre()).in(EdgeLabel.BELONGSTO.toString()).toSet();
     }
 }

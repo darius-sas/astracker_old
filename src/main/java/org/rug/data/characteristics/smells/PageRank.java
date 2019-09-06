@@ -10,10 +10,7 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.rug.data.labels.EdgeLabel;
 import org.rug.data.labels.VertexLabel;
-import org.rug.data.smells.ArchitecturalSmell;
-import org.rug.data.smells.CDSmell;
-import org.rug.data.smells.HLSmell;
-import org.rug.data.smells.UDSmell;
+import org.rug.data.smells.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,6 +84,11 @@ public class PageRank extends AbstractSmellCharacteristic {
      */
     @Override
     public String visit(UDSmell smell) {
+        return visitInternal(smell);
+    }
+
+    @Override
+    public String visit(GCSmell smell) {
         return visitInternal(smell);
     }
 

@@ -4,10 +4,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.labels.VertexLabel;
-import org.rug.data.smells.ArchitecturalSmell;
-import org.rug.data.smells.CDSmell;
-import org.rug.data.smells.HLSmell;
-import org.rug.data.smells.UDSmell;
+import org.rug.data.smells.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -56,6 +53,16 @@ public class OverlapRatio extends AbstractSmellCharacteristic {
         vertices.add(smell.getCentre());
         vertices.addAll(smell.getBadDep());
         return calculateOverlapRatio(vertices, smell);
+    }
+
+    /**
+     * The ratio of elements belonging to the element affected that are affected by another smell.
+     * @param smell the GC smell to visit.
+     * @return the overlap ratio.
+     */
+    @Override
+    public String visit(GCSmell smell) {
+        return calculateOverlapRatio(smell.getElementsInAffected(), smell);
     }
 
     /**

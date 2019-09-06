@@ -1,6 +1,7 @@
 package org.rug.data.characteristics.smells;
 
 import org.rug.data.smells.CDSmell;
+import org.rug.data.smells.GCSmell;
 import org.rug.data.smells.HLSmell;
 import org.rug.data.smells.UDSmell;
 
@@ -44,4 +45,12 @@ public class Size extends AbstractSmellCharacteristic {
     public String visit(UDSmell smell) {
         return String.valueOf(smell.getBadDep().size());
     }
+
+    /**
+     * Calculates the number of elements within the smell.
+     * @param smell the GC smell to visit.
+     * @return the number of elements within the affected element.
+     */
+    @Override
+    public String visit(GCSmell smell){ return String.valueOf(smell.getElementsInAffected().size()); }
 }

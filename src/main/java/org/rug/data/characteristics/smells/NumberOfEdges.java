@@ -3,10 +3,7 @@ package org.rug.data.characteristics.smells;
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.rug.data.smells.ArchitecturalSmell;
-import org.rug.data.smells.CDSmell;
-import org.rug.data.smells.HLSmell;
-import org.rug.data.smells.UDSmell;
+import org.rug.data.smells.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -42,6 +39,12 @@ public class NumberOfEdges extends AbstractSmellCharacteristic {
         vertices.add(smell.getCentre());
         vertices.addAll(smell.getInDep());
         vertices.addAll(smell.getOutDep());
+        return countEdges(vertices, smell);
+    }
+
+    @Override
+    public String visit(GCSmell smell) {
+        Set<Vertex> vertices = new HashSet<>(smell.getElementsInAffected());
         return countEdges(vertices, smell);
     }
 
