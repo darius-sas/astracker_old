@@ -17,7 +17,7 @@ public class GitProject extends AbstractProject {
      * Instantiates this project and sets the given name.
      *
      * @param name        the name of the project.
-     * @param projectType
+     * @param projectType the type of the project (programming language).
      */
     public GitProject(String name, Type projectType) {
         super(name, projectType, new StringCommitComparator());
@@ -29,9 +29,17 @@ public class GitProject extends AbstractProject {
         super.versionInitializer = (f) -> new GitVersion(f, gitRepo.checkout(), new JavaClassSourceCodeRetriever());
     }
 
+
+    @Override
+    protected void initVersionPositions() {
+        // Version positions are initialized by the git version
+    }
+
     @Override
     public boolean isFolderOfFoldersOfSourcesProject() {
         return false;
     }
+
+
 
 }

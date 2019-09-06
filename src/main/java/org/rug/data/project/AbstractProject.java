@@ -29,7 +29,7 @@ public abstract class AbstractProject implements IProject {
     public AbstractProject(String name, Type projectType, Comparator<String> versionStringComparator) {
         this.name = name;
         this.projectType = projectType;
-        this.versionedSystem = new TreeMap<>();
+        this.versionedSystem = new TreeMap<>(versionStringComparator);
         ArcanDependencyGraphParser.PROJECT_TYPE = projectType;
     }
 

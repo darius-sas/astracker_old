@@ -16,7 +16,7 @@ public class Version extends AbstractVersion{
 
     /**
      * Partially builds this instance by parsing the version string from the given path.
-     * @param path the directory or file that respect {@link #parseVersion(Path)} version formatting.
+     * @param path the directory or file that respect {@link #parseVersionString(Path)} version formatting.
      */
     public Version(Path path){
         super(path, new JarClassSourceCodeRetrieval());
@@ -24,7 +24,7 @@ public class Version extends AbstractVersion{
 
     /**
      * Partially builds this instance by setting the source direct
-     * @param path the directory or file that respect {@link #parseVersion(Path)} version formatting.
+     * @param path the directory or file that respect {@link #parseVersionString(Path)} version formatting.
      * @param retriever a class source code retriever.
      */
     public Version(Path path, ClassSourceCodeRetriever retriever){

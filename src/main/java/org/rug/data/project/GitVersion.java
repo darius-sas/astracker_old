@@ -9,6 +9,8 @@ import java.nio.file.Path;
 public class GitVersion extends AbstractVersion {
 
     private CheckoutCommand checkoutCommand;
+    private String versionDate;
+    private String commitName;
 
     public GitVersion(Path path, CheckoutCommand checkoutCommand, ClassSourceCodeRetriever sourceCodeRetriever){
         super(path, sourceCodeRetriever);
@@ -18,7 +20,7 @@ public class GitVersion extends AbstractVersion {
 
     @Override
     public ClassSourceCodeRetriever getSourceCodeRetriever() {
-        checkoutCommand.setName(versionString);
+        checkoutCommand.setName(commitName);
         try{
             checkoutCommand.call();
         }catch (GitAPIException e){
@@ -26,5 +28,37 @@ public class GitVersion extends AbstractVersion {
         }
 
         return super.getSourceCodeRetriever();
+    }
+
+    /**
+     * Parses a file name (presumably of a GraphML file) that contains information
+     * about the version in the following format:
+     * {@code graph-#versionPosition-#day-#month-#year-#commitName.graphML}
+     * Note that the file extension is not used.
+     * @param f the path object to use for parsing the string version from the name.
+     * @return the versionString of this version in the following format {@code #versionPosition-#commitName}.
+     */
+    @Override
+    public String parseVersionString(Path f) {
+        var fileName = f.getFileName().toString();
+        int endIndex = f.toFile().isDirectory() ? fileName.length() : fileName.lastIndexOf('.');
+        var splits = fileName.substring(0, endIndex).split("-");
+        setVersionPosition(Long.parseLong(splits[1]));
+        versionDate = String.join("-", splits[2], splits[3], splits[4]);
+        commitName = splits[5];
+        return String.join("-", String.valueOf(versionPosition), commitName);
+    }
+
+    /**
+     * Returns the date string of this version.
+     * @return a date in the format %dd-%mm-%yyyy.
+     */
+    public String getVersionDate() {
+        return versionDate;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s: %s", versionString, graphMLPath);
     }
 }

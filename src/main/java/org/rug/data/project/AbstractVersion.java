@@ -28,7 +28,7 @@ public abstract class AbstractVersion implements IVersion {
      * @param sourceCodeRetrieval the source code retriever object.
      */
     public AbstractVersion(Path path, ClassSourceCodeRetriever sourceCodeRetrieval){
-        this.versionString = parseVersion(path);
+        this.versionString = parseVersionString(path);
         this.sourceCodeRetrieval = sourceCodeRetrieval;
         this.sourceCodeRetrieval.setClassPath(path);
     }
@@ -156,7 +156,7 @@ public abstract class AbstractVersion implements IVersion {
      * @param f the path object to use for parsing the string version from the name.
      * @return the string version of the version
      */
-    public String parseVersion(Path f){
+    public String parseVersionString(Path f){
         int endIndex = f.toFile().isDirectory() ? f.toString().length() : f.toString().lastIndexOf('.');
         String version = f.toString().substring(
                 f.toString().lastIndexOf('-') + 1,
