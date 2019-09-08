@@ -1,11 +1,10 @@
 package org.rug.simpletests.data.project;
 
+import org.apache.tinkerpop.gremlin.process.traversal.IO;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.rug.data.project.AbstractProject;
-import org.rug.data.project.IVersion;
-import org.rug.data.project.Project;
-import org.rug.data.project.Version;
+import org.rug.data.characteristics.comps.JavaClassSourceCodeRetriever;
+import org.rug.data.project.*;
 import org.rug.data.smells.CDSmellCPP;
 import org.rug.data.smells.HLSmellCPP;
 import org.rug.data.smells.UDSmellCPP;
@@ -87,5 +86,26 @@ public class ProjectTest {
         // Parsing for CPP projects should be the same, so we only do a quick test
         var versions = new String[] {"1.0.0.0", "1.0.0.1", "1.0.0.2", "1.0.0.3", "1.0.0.4"};
         assertEquals(Arrays.asList(versions), new ArrayList<>(pure.versions().stream().map(IVersion::getVersionString).collect(Collectors.toList())));
+    }
+
+    @Test
+    void testCommitVersionParseString(){
+        var f = new File("./graph-1-25_5_2019-16e03e9ea1d416c8f3cd3ab79273245ce631ac92.graphml");
+        var version = new GitVersion(f.toPath(), null, new JavaClassSourceCodeRetriever());
+        assertEquals("1-16e03e9ea1d416c8f3cd3ab79273245ce631ac92", version.getVersionString());
+        assertEquals("25_5_2019", version.getVersionDate());
+        assertEquals(1L, version.getVersionPosition());
+        assertEquals("16e03e9ea1d416c8f3cd3ab79273245ce631ac92", version.getCommitName());
+    }
+
+    @Test
+    void gitProjectTest() throws IOException {
+        IProject p = new GitProject("metrics", AbstractProject.Type.JAVA);
+        p.addSourceDirectory("/home/fenn/git/pyne");
+        p.addGraphMLfiles("test-data/output/arcanOutput/pyne");
+        assertEquals(3, p.numberOfVersions());
+
+        var version = p.getVersion("2-9b56310796d3924587bdd2e8fcc698e23225ae24");
+        p.getArchitecturalSmellsIn(version);
     }
 }

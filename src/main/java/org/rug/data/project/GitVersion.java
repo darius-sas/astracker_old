@@ -44,8 +44,8 @@ public class GitVersion extends AbstractVersion {
         int endIndex = f.toFile().isDirectory() ? fileName.length() : fileName.lastIndexOf('.');
         var splits = fileName.substring(0, endIndex).split("-");
         setVersionPosition(Long.parseLong(splits[1]));
-        versionDate = String.join("-", splits[2], splits[3], splits[4]);
-        commitName = splits[5];
+        versionDate = String.join("-", splits[2]);
+        commitName = splits[3];
         return String.join("-", String.valueOf(versionPosition), commitName);
     }
 
@@ -55,6 +55,14 @@ public class GitVersion extends AbstractVersion {
      */
     public String getVersionDate() {
         return versionDate;
+    }
+
+    /**
+     * Retrieves the name of the commit represented by this version instance.
+     * @return the SHA-1 commit id parsed during initialization.
+     */
+    public String getCommitName() {
+        return commitName;
     }
 
     @Override

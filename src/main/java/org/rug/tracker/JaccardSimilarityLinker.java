@@ -1,10 +1,7 @@
 package org.rug.tracker;
 
 import org.rug.data.SmellVisitor;
-import org.rug.data.smells.ArchitecturalSmell;
-import org.rug.data.smells.CDSmell;
-import org.rug.data.smells.HLSmell;
-import org.rug.data.smells.UDSmell;
+import org.rug.data.smells.*;
 
 import java.util.*;
 
@@ -149,4 +146,8 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
         return elements;
     }
 
+    @Override
+    public Set<String> visit(GCSmell smell) {
+        return smell.getAffectedElementsNames();
+    }
 }
