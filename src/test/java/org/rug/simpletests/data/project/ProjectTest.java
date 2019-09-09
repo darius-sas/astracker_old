@@ -106,6 +106,7 @@ public class ProjectTest {
         assertEquals(3, p.numberOfVersions());
 
         var version = p.getVersion("2-9b56310796d3924587bdd2e8fcc698e23225ae24");
-        p.getArchitecturalSmellsIn(version);
+        var smells = p.getArchitecturalSmellsIn(version);
+        assertEquals(2, smells.size());
     }
 }

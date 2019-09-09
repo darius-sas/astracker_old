@@ -36,14 +36,17 @@ public class Main {
             Analysis analysis = new Analysis(args);
 
             boolean errorsOccurred = false;
+            String errorRunnerName = "";
             for (var r : analysis.getRunners()) {
                 int exitCode = r.run();
                 errorsOccurred = exitCode != 0;
                 if (errorsOccurred) {
+                    errorRunnerName = r.getToolName();
                     break;
                 }
             }
             if (errorsOccurred) {
+                logger.error("Unexpected errors have occurred while running runner: {}", errorRunnerName);
                 System.exit(-1);
             }
             logger.info("Writing to output directory...");
