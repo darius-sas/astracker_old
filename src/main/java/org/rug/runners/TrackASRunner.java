@@ -49,6 +49,7 @@ public class TrackASRunner extends ToolRunner {
             logger.info("Linked {} smells out of a total of {} in this version.", tracker.smellsLinked(), smells.size());
             PersistenceWriter.sendTo(SmellSimilarityDataGenerator.class, tracker);
             PersistenceWriter.sendTo(ComponentMetricGenerator.class, version);
+            version.clearGraph();
         });
 
         logger.info("Tracking complete, processing data...");

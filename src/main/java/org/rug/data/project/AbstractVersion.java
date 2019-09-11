@@ -123,6 +123,11 @@ public abstract class AbstractVersion implements IVersion {
     }
 
     @Override
+    public void clearGraph(){
+        graph = null;
+    }
+
+    @Override
     public ClassSourceCodeRetriever getSourceCodeRetriever() {
         return sourceCodeRetrieval;
     }

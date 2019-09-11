@@ -1,5 +1,8 @@
 package org.rug.data.project;
 
+import org.rug.data.characteristics.comps.ClassSourceCodeRetriever;
+import org.rug.data.characteristics.comps.CppSourceCodeRetriever;
+import org.rug.data.characteristics.comps.JarClassSourceCodeRetrieval;
 import org.rug.data.smells.ArchitecturalSmell;
 
 import java.io.File;
@@ -189,16 +192,18 @@ public abstract class AbstractProject implements IProject {
      * on the type of project.
      */
     public enum Type {
-        C("C", Pattern.compile("^.*\\.([ch])$")),
-        CPP("C++", Pattern.compile("^.*\\.((cpp)|[ch])$")),
-        JAVA("Java", Pattern.compile("^.*\\.jar$"));
+        C("C", Pattern.compile("^.*\\.([ch])$"), CppSourceCodeRetriever::new),
+        CPP("C++", Pattern.compile("^.*\\.((cpp)|[ch])$"), CppSourceCodeRetriever::new),
+        JAVA("Java", Pattern.compile("^.*\\.jar$"), JarClassSourceCodeRetrieval::new);
 
         private String typeName;
         private Pattern sourcesFileExt;
+        private Supplier<ClassSourceCodeRetriever> sourceCodeRetrieverSupplier;
 
-        Type(String typeName, Pattern sourcesFileExt){
+        Type(String typeName, Pattern sourcesFileExt, Supplier<ClassSourceCodeRetriever> sourceCodeRetrieverSupplier){
             this.typeName = typeName;
             this.sourcesFileExt = sourcesFileExt;
+            this.sourceCodeRetrieverSupplier = sourceCodeRetrieverSupplier;
         }
 
         /**
@@ -207,6 +212,15 @@ public abstract class AbstractProject implements IProject {
          */
         public String getTypeName() {
             return typeName;
+        }
+
+        /**
+         * Returns the correct implementation of the source code retrieved depending on the language
+         * of this project.
+         * @return A new instance of a retriever.
+         */
+        public ClassSourceCodeRetriever getSourceCodeRetrieverInstance(){
+            return sourceCodeRetrieverSupplier.get();
         }
 
         /**

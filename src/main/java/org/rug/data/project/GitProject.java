@@ -26,7 +26,7 @@ public class GitProject extends AbstractProject {
     @Override
     public void addSourceDirectory(String sourceMainDir) throws IOException {
         gitRepo = Git.open(new File(sourceMainDir));
-        super.versionInitializer = (f) -> new GitVersion(f, gitRepo.checkout(), new JavaClassSourceCodeRetriever());
+        super.versionInitializer = (f) -> new GitVersion(f, gitRepo.checkout(), projectType.getSourceCodeRetrieverInstance());
     }
 
 

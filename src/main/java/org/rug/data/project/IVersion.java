@@ -63,4 +63,11 @@ public interface IVersion extends Comparable<IVersion> {
      * Get the source code path, which might be either a file or a folder.
      */
     Path getSourceCodePath();
+
+    /**
+     * Sets the current graph to null in order for the JVM to remove the graph from memory as soon
+     * as it is not required anymore within the system.
+     * This method is supposed to be used to save memory.
+     */
+    void clearGraph();
 }
