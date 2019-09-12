@@ -21,13 +21,13 @@ import java.util.stream.Collectors;
  * @author Jasper Mohlmann
  * @author Darius Sas
  */
-public class JarSourceCodeRetrieval extends SourceCodeRetriever {
+public class JarSourceCodeRetriever extends SourceCodeRetriever {
 
     private String[] classPath;
     private SourceClassSink sourceClasses;
     private boolean errorOccured = false;
 
-    public JarSourceCodeRetrieval(Path classPathDir) {
+    public JarSourceCodeRetriever(Path classPathDir) {
         super(classPathDir);
         sourceClasses = new SourceClassSink(classesCache);
         setClassPath(sourcePath);
@@ -108,13 +108,6 @@ public class JarSourceCodeRetrieval extends SourceCodeRetriever {
         }
     }
 
-    /**
-     * Whether CFR decompiler has encountered an error.
-     * @return true if an error has occurred, false otherwise.
-     */
-    public boolean hasErrorOccured() {
-        return errorOccured;
-    }
 
     /**
      * Explicitly free the memory of the current source code classes.
