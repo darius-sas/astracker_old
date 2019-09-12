@@ -3,7 +3,7 @@ package org.rug.data.project;
 import org.apache.tinkerpop.gremlin.process.traversal.IO;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
-import org.rug.data.characteristics.comps.ClassSourceCodeRetriever;
+import org.rug.data.characteristics.comps.SourceCodeRetriever;
 import org.rug.data.labels.EdgeLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,22 +15,21 @@ public abstract class AbstractVersion implements IVersion {
 
     private final static Logger logger = LoggerFactory.getLogger(Version.class);
 
-    protected String versionString;
+    private String versionString;
     protected long versionPosition;
-    protected Path sourcePath;
-    protected Path graphMLPath;
+    private Path sourcePath;
+    private Path graphMLPath;
     protected Graph graph;
-    protected ClassSourceCodeRetriever sourceCodeRetrieval;
+    private SourceCodeRetriever sourceCodeRetrieval;
 
     /**
      * Partially builds this version by setting the version string starting from the given path.
      * @param path the path to parse the version string from.
      * @param sourceCodeRetrieval the source code retriever object.
      */
-    public AbstractVersion(Path path, ClassSourceCodeRetriever sourceCodeRetrieval){
+    public AbstractVersion(Path path, SourceCodeRetriever sourceCodeRetrieval){
         this.versionString = parseVersionString(path);
         this.sourceCodeRetrieval = sourceCodeRetrieval;
-        this.sourceCodeRetrieval.setClassPath(path);
     }
 
     /**
@@ -125,10 +124,11 @@ public abstract class AbstractVersion implements IVersion {
     @Override
     public void clearGraph(){
         graph = null;
+        getSourceCodeRetriever().clearCache();
     }
 
     @Override
-    public ClassSourceCodeRetriever getSourceCodeRetriever() {
+    public SourceCodeRetriever getSourceCodeRetriever() {
         return sourceCodeRetrieval;
     }
 

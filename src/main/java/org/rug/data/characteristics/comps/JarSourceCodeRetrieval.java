@@ -7,7 +7,11 @@ import org.benf.cfr.reader.api.SinkReturns;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -21,12 +25,17 @@ import java.util.stream.Collectors;
  * @author Jasper Mohlmann
  * @author Darius Sas
  */
-public class JarClassSourceCodeRetrieval extends ClassSourceCodeRetriever {
+public class JarSourceCodeRetrieval extends SourceCodeRetriever {
 
     private String[] classPath;
-    private SourceClassSink sourceClasses = new SourceClassSink();
+    private SourceClassSink sourceClasses;
     private boolean errorOccured = false;
 
+    public JarSourceCodeRetrieval(Path classPathDir) {
+        super(classPathDir);
+        sourceClasses = new SourceClassSink(classesCache);
+        setClassPath(sourcePath);
+    }
 
     /**
      * Retrieves the source code as a string from the given class name.
@@ -38,10 +47,10 @@ public class JarClassSourceCodeRetrieval extends ClassSourceCodeRetriever {
     @Override
     public String getClassSource(String className) {
         if (errorOccured || classPath == null)
-            return "";
+            return NOT_FOUND;
         if (sourceClasses.isEmpty())
             decompile();
-        return sourceClasses.getSource(className, "");
+        return sourceClasses.getSource(className, NOT_FOUND);
     }
 
     /**
@@ -49,7 +58,7 @@ public class JarClassSourceCodeRetrieval extends ClassSourceCodeRetriever {
      * The method clears the currently cached decompiled classes automatically.
      * @param classPath an array of paths to JAR files.
      */
-    public void setClassPath(String[] classPath) {
+    private void setClassPath(String[] classPath) {
         clear();
         this.classPath = classPath;
     }
@@ -58,7 +67,7 @@ public class JarClassSourceCodeRetrieval extends ClassSourceCodeRetriever {
      * @see #setClassPath(String[])
      * @param classPath a list of paths to JAR files.
      */
-    public void setClassPath(List<String> classPath){
+    private void setClassPath(List<String> classPath){
         setClassPath(classPath.toArray(new String[classPath.size()]));
     }
 
@@ -67,7 +76,7 @@ public class JarClassSourceCodeRetrieval extends ClassSourceCodeRetriever {
      * @param directory The directory that contains the JAR files. If directory is a file, it is
      *                  assumed it is a JAR file.
      */
-    public void setClassPath(Path directory){
+    private void setClassPath(Path directory){
         if (directory.toFile().isDirectory()) {
             try (var walk = Files.walk(directory)) {
                 var jars = walk.filter(Files::isRegularFile)
@@ -82,11 +91,12 @@ public class JarClassSourceCodeRetrieval extends ClassSourceCodeRetriever {
             setClassPath(directory.toFile().getAbsolutePath());
     }
 
+
     /**
      * @see #setClassPath(String[])
      * @param file A JAR file that contains the classes.
      */
-    public void setClassPath(String file){
+    private void setClassPath(String file){
         setClassPath(new String[]{file});
     }
 
@@ -122,7 +132,11 @@ public class JarClassSourceCodeRetrieval extends ClassSourceCodeRetriever {
      */
     protected static class SourceClassSink implements OutputSinkFactory {
 
-        private Map<String, String> classes = new HashMap<>();
+        private Map<String, String> classes;
+
+        SourceClassSink(Map<String, String> classes) {
+            this.classes = classes;
+        }
 
         @Override
         public List<OutputSinkFactory.SinkClass> getSupportedSinks(OutputSinkFactory.SinkType

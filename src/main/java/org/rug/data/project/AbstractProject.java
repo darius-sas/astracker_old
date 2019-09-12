@@ -1,8 +1,9 @@
 package org.rug.data.project;
 
-import org.rug.data.characteristics.comps.ClassSourceCodeRetriever;
+import org.rug.data.characteristics.comps.CSourceCodeRetriever;
+import org.rug.data.characteristics.comps.SourceCodeRetriever;
 import org.rug.data.characteristics.comps.CppSourceCodeRetriever;
-import org.rug.data.characteristics.comps.JarClassSourceCodeRetrieval;
+import org.rug.data.characteristics.comps.JarSourceCodeRetrieval;
 import org.rug.data.smells.ArchitecturalSmell;
 
 import java.io.File;
@@ -192,15 +193,15 @@ public abstract class AbstractProject implements IProject {
      * on the type of project.
      */
     public enum Type {
-        C("C", Pattern.compile("^.*\\.([ch])$"), CppSourceCodeRetriever::new),
+        C("C", Pattern.compile("^.*\\.([ch])$"), CSourceCodeRetriever::new),
         CPP("C++", Pattern.compile("^.*\\.((cpp)|[ch])$"), CppSourceCodeRetriever::new),
-        JAVA("Java", Pattern.compile("^.*\\.jar$"), JarClassSourceCodeRetrieval::new);
+        JAVA("Java", Pattern.compile("^.*\\.jar$"), JarSourceCodeRetrieval::new);
 
         private String typeName;
         private Pattern sourcesFileExt;
-        private Supplier<ClassSourceCodeRetriever> sourceCodeRetrieverSupplier;
+        private Function<Path, SourceCodeRetriever> sourceCodeRetrieverSupplier;
 
-        Type(String typeName, Pattern sourcesFileExt, Supplier<ClassSourceCodeRetriever> sourceCodeRetrieverSupplier){
+        Type(String typeName, Pattern sourcesFileExt, Function<Path, SourceCodeRetriever> sourceCodeRetrieverSupplier){
             this.typeName = typeName;
             this.sourcesFileExt = sourcesFileExt;
             this.sourceCodeRetrieverSupplier = sourceCodeRetrieverSupplier;
@@ -219,8 +220,8 @@ public abstract class AbstractProject implements IProject {
          * of this project.
          * @return A new instance of a retriever.
          */
-        public ClassSourceCodeRetriever getSourceCodeRetrieverInstance(){
-            return sourceCodeRetrieverSupplier.get();
+        public SourceCodeRetriever getSourceCodeRetrieverInstance(Path p){
+            return sourceCodeRetrieverSupplier.apply(p);
         }
 
         /**

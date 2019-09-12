@@ -2,7 +2,7 @@ package org.rug.data.project;
 
 import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.rug.data.characteristics.comps.ClassSourceCodeRetriever;
+import org.rug.data.characteristics.comps.SourceCodeRetriever;
 
 import java.nio.file.Path;
 
@@ -12,21 +12,20 @@ public class GitVersion extends AbstractVersion {
     private String versionDate;
     private String commitName;
 
-    public GitVersion(Path path, CheckoutCommand checkoutCommand, ClassSourceCodeRetriever sourceCodeRetriever){
+    public GitVersion(Path path, CheckoutCommand checkoutCommand, SourceCodeRetriever sourceCodeRetriever){
         super(path, sourceCodeRetriever);
         this.checkoutCommand = checkoutCommand;
     }
 
 
     @Override
-    public ClassSourceCodeRetriever getSourceCodeRetriever() {
+    public SourceCodeRetriever getSourceCodeRetriever() {
         checkoutCommand.setName(commitName);
         try{
             checkoutCommand.call();
         }catch (GitAPIException e){
-            throw new IllegalArgumentException("Could not checkout the given commit: " + versionString);
+            throw new IllegalArgumentException("Could not checkout the given commit: " + getVersionString());
         }
-
         return super.getSourceCodeRetriever();
     }
 
@@ -67,6 +66,6 @@ public class GitVersion extends AbstractVersion {
 
     @Override
     public String toString() {
-        return String.format("%s: %s", versionString, graphMLPath);
+        return String.format("%s: %s", getVersionString(), getGraphMLPath().toString());
     }
 }

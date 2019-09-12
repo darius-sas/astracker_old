@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  */
 public class NumberOfLinesOfCode extends AbstractComponentCharacteristic {
 
-    private ClassSourceCodeRetriever sourceRetriever;
+    private SourceCodeRetriever sourceRetriever;
 
     /**
      * Instantiates the calculator of LOC.
@@ -75,7 +75,7 @@ public class NumberOfLinesOfCode extends AbstractComponentCharacteristic {
 
     }
 
-    public void setSourceRetriever(ClassSourceCodeRetriever sourceRetriever) {
+    public void setSourceRetriever(SourceCodeRetriever sourceRetriever) {
         this.sourceRetriever = sourceRetriever;
     }
 

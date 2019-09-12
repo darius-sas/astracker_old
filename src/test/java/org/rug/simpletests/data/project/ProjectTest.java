@@ -1,9 +1,8 @@
 package org.rug.simpletests.data.project;
 
-import org.apache.tinkerpop.gremlin.process.traversal.IO;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.rug.data.characteristics.comps.JavaClassSourceCodeRetriever;
+import org.rug.data.characteristics.comps.JavaSourceCodeRetriever;
 import org.rug.data.project.*;
 import org.rug.data.smells.CDSmellCPP;
 import org.rug.data.smells.HLSmellCPP;
@@ -91,7 +90,7 @@ public class ProjectTest {
     @Test
     void testCommitVersionParseString(){
         var f = new File("./graph-1-25_5_2019-16e03e9ea1d416c8f3cd3ab79273245ce631ac92.graphml");
-        var version = new GitVersion(f.toPath(), null, new JavaClassSourceCodeRetriever());
+        var version = new GitVersion(f.toPath(), null, null);
         assertEquals("1-16e03e9ea1d416c8f3cd3ab79273245ce631ac92", version.getVersionString());
         assertEquals("25_5_2019", version.getVersionDate());
         assertEquals(1L, version.getVersionPosition());

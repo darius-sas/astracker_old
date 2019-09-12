@@ -1,7 +1,7 @@
 package org.rug.data.project;
 
 import org.apache.tinkerpop.gremlin.structure.Graph;
-import org.rug.data.characteristics.comps.ClassSourceCodeRetriever;
+import org.rug.data.characteristics.comps.SourceCodeRetriever;
 
 import java.nio.file.Path;
 
@@ -39,7 +39,7 @@ public interface IVersion extends Comparable<IVersion> {
      * Get the source code retriever for this version.
      * @return a source code retriever that returns the source code of this version.
      */
-    ClassSourceCodeRetriever getSourceCodeRetriever();
+    SourceCodeRetriever getSourceCodeRetriever();
 
     /**
      * Set the path to the GraphML file corresponding to this version.
@@ -67,6 +67,7 @@ public interface IVersion extends Comparable<IVersion> {
     /**
      * Sets the current graph to null in order for the JVM to remove the graph from memory as soon
      * as it is not required anymore within the system.
+     * Additionally, cleanses the source code loaded by the retrievers.
      * This method is supposed to be used to save memory.
      */
     void clearGraph();

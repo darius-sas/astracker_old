@@ -1,7 +1,7 @@
 package org.rug.data.project;
 
-import org.rug.data.characteristics.comps.ClassSourceCodeRetriever;
-import org.rug.data.characteristics.comps.JarClassSourceCodeRetrieval;
+import org.rug.data.characteristics.comps.SourceCodeRetriever;
+import org.rug.data.characteristics.comps.JarSourceCodeRetrieval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +19,7 @@ public class Version extends AbstractVersion{
      * @param path the directory or file that respect {@link #parseVersionString(Path)} version formatting.
      */
     public Version(Path path){
-        super(path, new JarClassSourceCodeRetrieval());
+        super(path, new JarSourceCodeRetrieval(path));
     }
 
     /**
@@ -27,7 +27,7 @@ public class Version extends AbstractVersion{
      * @param path the directory or file that respect {@link #parseVersionString(Path)} version formatting.
      * @param retriever a class source code retriever.
      */
-    public Version(Path path, ClassSourceCodeRetriever retriever){
+    public Version(Path path, SourceCodeRetriever retriever){
         super(path, retriever);
     }
 

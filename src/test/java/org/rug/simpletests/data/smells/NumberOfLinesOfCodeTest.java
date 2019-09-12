@@ -4,9 +4,10 @@ import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.rug.data.characteristics.comps.AbstractComponentCharacteristic;
-import org.rug.data.characteristics.comps.JarClassSourceCodeRetrieval;
+import org.rug.data.characteristics.comps.JarSourceCodeRetrieval;
 import org.rug.data.characteristics.comps.NumberOfLinesOfCode;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -16,17 +17,9 @@ import static org.rug.simpletests.TestData.antlr;
 @Tag("unitTests")
 public class NumberOfLinesOfCodeTest {
 
-    String classPath;
-
-    public NumberOfLinesOfCodeTest() {
-        classPath = "test-data/jars/astracker-0.7.jar";
-    }
-
     @Test
     void calculate() throws IOException {
-        JarClassSourceCodeRetrieval retriever = new JarClassSourceCodeRetrieval();
-
-        retriever.setClassPath(classPath);
+        JarSourceCodeRetrieval retriever = new JarSourceCodeRetrieval(new File("test-data/jars/astracker-0.7.jar").toPath());
 
         var src = retriever.getClassSource(AbstractComponentCharacteristic.class.getCanonicalName());
         assertFalse(src.isEmpty());
