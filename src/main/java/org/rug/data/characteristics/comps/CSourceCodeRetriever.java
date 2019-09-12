@@ -9,7 +9,7 @@ public class CSourceCodeRetriever extends SourceCodeRetriever {
     }
 
     @Override
-    public String getClassSource(String className) {
+    public String getSource(String className) {
         return null;
     }
 

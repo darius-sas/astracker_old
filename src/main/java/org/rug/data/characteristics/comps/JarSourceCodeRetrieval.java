@@ -7,11 +7,7 @@ import org.benf.cfr.reader.api.SinkReturns;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -45,7 +41,7 @@ public class JarSourceCodeRetrieval extends SourceCodeRetriever {
      * an empty string is returned.
      */
     @Override
-    public String getClassSource(String className) {
+    public String getSource(String className) {
         if (errorOccured || classPath == null)
             return NOT_FOUND;
         if (sourceClasses.isEmpty())

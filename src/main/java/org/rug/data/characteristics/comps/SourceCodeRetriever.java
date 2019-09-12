@@ -1,5 +1,7 @@
 package org.rug.data.characteristics.comps;
 
+import org.apache.tinkerpop.gremlin.structure.Vertex;
+
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,11 +28,19 @@ public abstract class SourceCodeRetriever {
 
     /**
      * Retrieves the source code as a string from the given class name.
-     * @param className the full name of the class without the .java suffix (e.g. org.package.Class).
-     * @return the source code of the class as string or {@link #NOT_FOUND} if no class is found.
+     * @param elementName the full name of the element (suffix may or may not be necessary based on the implementation).
+     * @return the source code of the element as string or {@link #NOT_FOUND} if no class is found.
      */
-    public abstract String getClassSource(String className);
+    public abstract String getSource(String elementName);
 
+    /**
+     * Retrieves the source code of the given vertex element using the "name" property.
+     * @param element the element to retrieve the source code of.
+     * @return the source code of the element as string or {@link #NOT_FOUND} if no class is found.
+     */
+    public String getSource(Vertex element){
+        return getSource(element.value("name").toString());
+    }
 
     /**
      * Clear cached classes' source code.

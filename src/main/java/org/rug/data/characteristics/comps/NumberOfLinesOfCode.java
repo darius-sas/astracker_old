@@ -86,8 +86,8 @@ public class NumberOfLinesOfCode extends AbstractComponentCharacteristic {
     }
 
     private Pattern linePattern = Pattern.compile("[^\\s*].*[\\n\\r]+");
-    private long countLOC(Vertex clazz){
-        var sourceCode = sourceRetriever.getClassSource(clazz.value("name"));
+    private long countLOC(Vertex element){
+        var sourceCode = sourceRetriever.getSource(element);
 
         var matcher = linePattern.matcher(sourceCode);
         var linesOfCode = 0;

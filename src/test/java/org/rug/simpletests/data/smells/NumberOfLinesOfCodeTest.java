@@ -8,7 +8,6 @@ import org.rug.data.characteristics.comps.JarSourceCodeRetrieval;
 import org.rug.data.characteristics.comps.NumberOfLinesOfCode;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,10 +17,10 @@ import static org.rug.simpletests.TestData.antlr;
 public class NumberOfLinesOfCodeTest {
 
     @Test
-    void calculate() {
+    void testCalculateJava() {
         JarSourceCodeRetrieval retriever = new JarSourceCodeRetrieval(new File("test-data/jars/astracker-0.7.jar").toPath());
 
-        var src = retriever.getClassSource(AbstractComponentCharacteristic.class.getCanonicalName());
+        var src = retriever.getSource(AbstractComponentCharacteristic.class.getCanonicalName());
         assertFalse(src.isEmpty());
         var linesOfCode = src.split("[\n|\r]");
         var nbloc = Arrays.stream(linesOfCode).filter(line -> line.length() > 0).count();
@@ -48,6 +47,11 @@ public class NumberOfLinesOfCodeTest {
         vertex.vertices(Direction.IN, "belongsTo").forEachRemaining(charLOC::calculate);
         assertEquals(loc, vertex.value("linesOfCode"));
 
+    }
+
+
+    void testCalculateCPP(){
+        var charLOC = new NumberOfLinesOfCode();
     }
 
 }

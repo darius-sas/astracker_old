@@ -20,7 +20,7 @@ public class JavaSourceCodeRetriever extends SourceCodeRetriever {
     }
 
     @Override
-    public String getClassSource(String className) {
+    public String getSource(String className) {
         var classFile = Paths.get(sourcePath.toString(),
                 className.replace('.', File.separatorChar) + ".java").toFile();
         if (!classesCache.containsKey(className)) {
