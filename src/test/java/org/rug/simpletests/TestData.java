@@ -12,6 +12,7 @@ public class TestData {
 
     public final static Project pure = new Project("pure", Project.Type.CPP);
     private final static String pureGraphMLDir = "./test-data/output/arcanOutput/pure";
+    private final static String pureSourcesDir = "./test-data/git-projects/pure";
 
     public final static String trackASOutputDir = "./test-data/output/trackASOutput/";
 

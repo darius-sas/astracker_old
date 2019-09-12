@@ -2,7 +2,6 @@ package org.rug.simpletests.data.project;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.rug.data.characteristics.comps.JavaSourceCodeRetriever;
 import org.rug.data.project.*;
 import org.rug.data.smells.CDSmellCPP;
 import org.rug.data.smells.HLSmellCPP;

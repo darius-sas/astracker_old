@@ -1,9 +1,9 @@
 package org.rug.data.project;
 
 import org.rug.data.characteristics.comps.CSourceCodeRetriever;
-import org.rug.data.characteristics.comps.SourceCodeRetriever;
 import org.rug.data.characteristics.comps.CppSourceCodeRetriever;
 import org.rug.data.characteristics.comps.JarSourceCodeRetrieval;
+import org.rug.data.characteristics.comps.SourceCodeRetriever;
 import org.rug.data.smells.ArchitecturalSmell;
 
 import java.io.File;
@@ -13,7 +13,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 

@@ -1,7 +1,5 @@
 package org.rug.data.labels;
 
-import org.rug.data.smells.ArchitecturalSmell;
-
 public enum EdgeLabel {
     PARTOFCYCLE("partOfCycle"),
     DEPENDSON("dependsOn"),

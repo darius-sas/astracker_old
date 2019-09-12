@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.rug.data.project.ArcanDependencyGraphParser;
 import org.rug.data.project.IProject;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.persistence.ComponentAffectedByGenerator;

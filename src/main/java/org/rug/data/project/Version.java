@@ -1,7 +1,7 @@
 package org.rug.data.project;
 
-import org.rug.data.characteristics.comps.SourceCodeRetriever;
 import org.rug.data.characteristics.comps.JarSourceCodeRetrieval;
+import org.rug.data.characteristics.comps.SourceCodeRetriever;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
