@@ -18,7 +18,7 @@ import static org.rug.simpletests.TestData.antlr;
 public class NumberOfLinesOfCodeTest {
 
     @Test
-    void calculate() throws IOException {
+    void calculate() {
         JarSourceCodeRetrieval retriever = new JarSourceCodeRetrieval(new File("test-data/jars/astracker-0.7.jar").toPath());
 
         var src = retriever.getClassSource(AbstractComponentCharacteristic.class.getCanonicalName());

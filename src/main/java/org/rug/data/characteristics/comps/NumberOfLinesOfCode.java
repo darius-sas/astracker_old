@@ -22,13 +22,16 @@ public class NumberOfLinesOfCode extends AbstractComponentCharacteristic {
      * Instantiates the calculator of LOC.
      */
     public NumberOfLinesOfCode(){
-        super("linesOfCode", EnumSet.of(VertexLabel.CLASS, VertexLabel.PACKAGE), EnumSet.noneOf(EdgeLabel.class));
+        super("linesOfCode",
+                EnumSet.of(VertexLabel.CLASS, VertexLabel.PACKAGE, VertexLabel.CFILE,
+                    VertexLabel.HFILE, VertexLabel.COMPONENT),
+                EnumSet.noneOf(EdgeLabel.class));
     }
 
     @Override
     public void calculate(IVersion version) {
-        super.calculate(version);
         this.sourceRetriever = version.getSourceCodeRetriever();
+        super.calculate(version);
     }
 
     /**
@@ -45,18 +48,21 @@ public class NumberOfLinesOfCode extends AbstractComponentCharacteristic {
             return;
 
         long loc;
-        if (vertex.label().equals(VertexLabel.CLASS.toString())) {
+        if (vertex.label().equals(VertexLabel.CLASS.toString()) ||
+                vertex.label().equals(VertexLabel.CFILE.toString()) ||
+                vertex.label().equals(VertexLabel.HFILE.toString())){
             loc = countLOC(vertex);
-        }else if (vertex.label().equals(VertexLabel.PACKAGE.toString()) &&
-             vertex.edges(Direction.IN, EdgeLabel.BELONGSTO.toString()).hasNext()) {
-                vertex.graph().traversal().V(vertex)
-                        .in(EdgeLabel.BELONGSTO.toString())
-                        .hasNot(this.name)
-                        .forEachRemaining(this::calculate);
-                loc = vertex.graph().traversal().V(vertex)
-                        .in(EdgeLabel.BELONGSTO.toString())
-                        .values(this.name)
-                        .sum().next().longValue();
+        }else if ((vertex.label().equals(VertexLabel.PACKAGE.toString()) ||
+                   vertex.label().equals(VertexLabel.COMPONENT.toString())) &&
+                   vertex.edges(Direction.IN, EdgeLabel.BELONGSTO.toString()).hasNext()) {
+            vertex.graph().traversal().V(vertex)
+                    .in(EdgeLabel.BELONGSTO.toString())
+                    .hasNot(this.name)
+                    .forEachRemaining(this::calculate);
+            loc = vertex.graph().traversal().V(vertex)
+                    .in(EdgeLabel.BELONGSTO.toString())
+                    .values(this.name)
+                    .sum().next().longValue();
         }else {
             return;
         }

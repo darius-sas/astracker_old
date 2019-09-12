@@ -10,7 +10,7 @@ import java.util.EnumSet;
 public class NumberOfClassesInPackage extends AbstractComponentCharacteristic {
 
     public NumberOfClassesInPackage() {
-        super("numOfClassesInPackage", EnumSet.of(VertexLabel.PACKAGE), EnumSet.noneOf(EdgeLabel.class));
+        super("numOfClassesInPackage", EnumSet.of(VertexLabel.PACKAGE, VertexLabel.COMPONENT), EnumSet.noneOf(EdgeLabel.class));
     }
 
     /**
