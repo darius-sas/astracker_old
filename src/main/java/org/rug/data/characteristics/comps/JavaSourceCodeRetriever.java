@@ -51,4 +51,13 @@ public class JavaSourceCodeRetriever extends SourceCodeRetriever {
         return elementFile.exists() ? Optional.of(elementFile.toPath()) : Optional.empty();
     }
 
+    /**
+     * Returns the path of a component based on its `name` property and using {@link #toFileName(Vertex)}.
+     * @param component the vertex (please note that only vertices that refer to files/packages/etc. will work.
+     * @return the Path instance of the given component or null if no element was found.
+     */
+    public Optional<Path> getPathOf(Vertex component) {
+        return getPathOf((String)component.value("name"));
+    }
+
 }

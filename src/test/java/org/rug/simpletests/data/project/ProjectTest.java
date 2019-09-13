@@ -89,7 +89,7 @@ public class ProjectTest {
     @Test
     void testCommitVersionParseString(){
         var f = new File("./graph-1-25_5_2019-16e03e9ea1d416c8f3cd3ab79273245ce631ac92.graphml");
-        var version = new GitVersion(f.toPath(), null, null);
+        var version = new GitVersion(f.toPath(), null, null, null);
         assertEquals("1-16e03e9ea1d416c8f3cd3ab79273245ce631ac92", version.getVersionString());
         assertEquals("25_5_2019", version.getVersionDate());
         assertEquals(1L, version.getVersionPosition());
@@ -98,8 +98,8 @@ public class ProjectTest {
 
     @Test
     void gitProjectTest() throws IOException {
-        IProject p = new GitProject("pyne", AbstractProject.Type.JAVA);
-        p.addSourceDirectory("/home/fenn/git/pyne");
+        IProject p = new GitProject("pyne", "/home/fenn/git/pyne", AbstractProject.Type.JAVA);
+        p.addSourceDirectory("/home/fenn/git/pyne/pyne-cli/src/main/java/");
         p.addGraphMLfiles("test-data/output/arcanOutput/pyne");
         assertEquals(3, p.numberOfVersions());
 

@@ -88,7 +88,17 @@ public abstract class SourceCodeRetriever {
      * @param elementName the name of the component.
      * @return the Path object to the given element or null if no element was found.
      */
-    public abstract Optional<Path> getPathOf(String elementName);
+    public Optional<Path> getPathOf(String elementName){
+
+            Optional<Path> elementFile = Optional.empty();
+            try (var walk = Files.walk(sourcePath)) {
+                elementFile = walk.filter(p -> p.getFileName().endsWith(elementName)).findFirst();
+            } catch (IOException e) {
+                logger.error("Could not find source file: {}", elementName);
+            }
+            return elementFile;
+
+    }
 
     /**
      * Returns the path of a component based on its `name` property and using {@link #toFileName(Vertex)}.

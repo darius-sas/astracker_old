@@ -1,9 +1,6 @@
 package org.rug.data.project;
 
-import org.rug.data.characteristics.comps.CSourceCodeRetriever;
-import org.rug.data.characteristics.comps.CppSourceCodeRetriever;
-import org.rug.data.characteristics.comps.JarSourceCodeRetriever;
-import org.rug.data.characteristics.comps.SourceCodeRetriever;
+import org.rug.data.characteristics.comps.*;
 import org.rug.data.smells.ArchitecturalSmell;
 
 import java.io.File;
@@ -194,7 +191,7 @@ public abstract class AbstractProject implements IProject {
     public enum Type {
         C("C", Pattern.compile("^.*\\.([ch])$"), CSourceCodeRetriever::new),
         CPP("C++", Pattern.compile("^.*\\.((cpp)|[ch])$"), CppSourceCodeRetriever::new),
-        JAVA("Java", Pattern.compile("^.*\\.jar$"), JarSourceCodeRetriever::new);
+        JAVA("Java", Pattern.compile("^.*\\.jar$"), JavaSourceCodeRetriever::new);
 
         private String typeName;
         private Pattern sourcesFileExt;

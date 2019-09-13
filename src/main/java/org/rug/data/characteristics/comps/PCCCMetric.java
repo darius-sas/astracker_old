@@ -2,13 +2,10 @@ package org.rug.data.characteristics.comps;
 
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.eclipse.jgit.diff.DiffConfig;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.FollowFilter;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.rug.data.labels.EdgeLabel;
@@ -19,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -33,9 +29,10 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
     private Map<String, Long> changeHistory;
     private GitVersion previousVersion;
     private GitVersion currentVersion;
+    private long totalCommits = 1;
 
     public PCCCMetric() {
-        super("pccc",
+        super("percCommClassChanged",
                 VertexLabel.allFiles(),
                 EnumSet.noneOf(EdgeLabel.class));
         this.changeHistory = new HashMap<>();
@@ -51,8 +48,10 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
         if (version instanceof GitVersion) {
             currentVersion = (GitVersion)version;
             retriever = version.getSourceCodeRetriever();
-
-            super.calculate(version);
+            if (previousVersion != null) {
+                super.calculate(version);
+            }
+            totalCommits++;
             previousVersion = currentVersion;
         }
     }
@@ -70,20 +69,26 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
                 currentVersion.getCommitObjectId(),
                 pathFileStr);
 
-        if (change == null){return;}
-
-        switch (change.getChangeType()){
-            case ADD:
-            case MODIFY:
-                changeHistory.merge(pathFileStr, 1L, Long::sum);
-                break;
-            case COPY:
-            case RENAME:
-                // Handle key switching
-            case DELETE:
-            default:
-                break;
+        if (change == null){
+            logger.info("Could not retrieve changes for: {}", pathFileStr);
+            return;
+        }else {
+            switch (change.getChangeType()) {
+                case ADD:
+                case MODIFY:
+                    changeHistory.merge(change.getNewPath(), 1L, Long::sum);
+                    break;
+                case COPY:
+                case RENAME:
+                    var oldValue = changeHistory.remove(change.getOldPath());
+                    changeHistory.put(change.getNewPath(), oldValue + 1);
+                    break;
+                case DELETE:
+                default:
+                    break;
+            }
         }
+        vertex.property(this.name, changeHistory.getOrDefault(change.getNewPath(), 0L) * totalCommits / 100);
     }
 
     @Override
@@ -111,21 +116,6 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
         }
         diffFormatter.close();
         return entries.isEmpty() ? null : entries.get(0);
-    }
-
-    /**
-     * Checks if a file has changed from previous commit.
-     * @param file the file name to check if it changed
-     * @return true if it changed, false otherwise
-     */
-    private boolean didFileChange(Path file) {
-        for(DiffEntry diffEntry : diffEntries) {
-            if(file.endsWith(diffEntry.getOldPath()) &&
-                    diffEntry.getChangeType() == DiffEntry.ChangeType.MODIFY) {
-                return true;
-            }
-        }
-        return false;
     }
 
 }

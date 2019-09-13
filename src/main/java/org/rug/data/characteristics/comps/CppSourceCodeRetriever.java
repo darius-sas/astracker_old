@@ -63,18 +63,4 @@ public class CppSourceCodeRetriever extends SourceCodeRetriever {
         return elementName;
     }
 
-    /**
-     * Return the path of a component with the given `name` property.
-     * @param elementName the name of the component.
-     * @return the Path object to the given element or null if no element was found.
-     */
-    public Optional<Path> getPathOf(String elementName){
-        Optional<Path> elementFile = Optional.empty();
-        try (var walk = Files.walk(sourcePath)) {
-            elementFile = walk.filter(p -> p.getFileName().endsWith(elementName)).findFirst();
-        } catch (IOException e) {
-            logger.error("Could not find source file: {}", elementName);
-        }
-        return elementFile;
-    }
 }

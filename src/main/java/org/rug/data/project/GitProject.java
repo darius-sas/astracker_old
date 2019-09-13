@@ -18,14 +18,17 @@ public class GitProject extends AbstractProject {
      * @param name        the name of the project.
      * @param projectType the type of the project (programming language).
      */
-    public GitProject(String name, Type projectType) {
+    public GitProject(String name, String gitDir, Type projectType) throws IOException {
         super(name, projectType, new StringCommitComparator());
+        this.git = Git.open(new File(gitDir));
     }
 
     @Override
-    public void addSourceDirectory(String sourceMainDir) throws IOException {
-        git = Git.open(new File(sourceMainDir));
-        super.versionInitializer = (f) -> new GitVersion(f, git.checkout(), projectType.getSourceCodeRetrieverInstance(f));
+    public void addSourceDirectory(String sourceMainDir) {
+        var srcDirPath = new File(sourceMainDir).toPath();
+        super.versionInitializer = (f) ->
+                new GitVersion(f, git.getRepository(), git.checkout(),
+                        projectType.getSourceCodeRetrieverInstance(srcDirPath));
     }
 
 

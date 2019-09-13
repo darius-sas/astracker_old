@@ -1,5 +1,7 @@
 package org.rug.simpletests;
 
+import org.rug.data.project.GitProject;
+import org.rug.data.project.IProject;
 import org.rug.data.project.Project;
 
 import java.io.File;
@@ -10,7 +12,7 @@ public class TestData {
     private final static String antlrProjectDir = "./test-data/input/antlr";
     private final static String antlrGraphMLDir = "./test-data/output/arcanOutput/antlr";
 
-    public final static Project pure = new Project("pure", Project.Type.CPP);
+    public final static IProject pure = new Project("pure", Project.Type.CPP);
     private final static String pureGraphMLDir = "./test-data/output/arcanOutput/pure";
     private final static String pureSourcesDir = "./test-data/git-projects/pure";
 

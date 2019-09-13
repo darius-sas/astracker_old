@@ -15,9 +15,10 @@ public class GitVersion extends AbstractVersion {
     private String versionDate;
     private String commitName;
 
-    public GitVersion(Path path, CheckoutCommand checkoutCommand, SourceCodeRetriever sourceCodeRetriever){
+    public GitVersion(Path path, Repository repository, CheckoutCommand checkoutCommand, SourceCodeRetriever sourceCodeRetriever){
         super(path, sourceCodeRetriever);
         this.checkoutCommand = checkoutCommand;
+        this.repository = repository;
     }
 
 
