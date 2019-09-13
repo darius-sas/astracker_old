@@ -10,7 +10,7 @@ import java.io.IOException;
  */
 public class GitProject extends AbstractProject {
 
-    private Git gitRepo;
+    private Git git;
 
     /**
      * Instantiates this project and sets the given name.
@@ -24,8 +24,8 @@ public class GitProject extends AbstractProject {
 
     @Override
     public void addSourceDirectory(String sourceMainDir) throws IOException {
-        gitRepo = Git.open(new File(sourceMainDir));
-        super.versionInitializer = (f) -> new GitVersion(f, gitRepo.checkout(), projectType.getSourceCodeRetrieverInstance(f));
+        git = Git.open(new File(sourceMainDir));
+        super.versionInitializer = (f) -> new GitVersion(f, git.checkout(), projectType.getSourceCodeRetrieverInstance(f));
     }
 
 

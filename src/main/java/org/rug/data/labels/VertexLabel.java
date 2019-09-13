@@ -23,6 +23,10 @@ public enum VertexLabel {
                 VertexLabel.HFILE, VertexLabel.COMPONENT);
     }
 
+    public static EnumSet<VertexLabel> allFiles(){
+        return EnumSet.of(VertexLabel.CLASS, VertexLabel.CFILE, VertexLabel.HFILE);
+    }
+
     @Override
     public String toString() {
         return value;

@@ -41,8 +41,12 @@ public abstract class AbstractComponentCharacteristic implements IComponentChara
     @Override
     public void calculate(IVersion version) {
         var graph = version.getGraph();
-        graph.traversal().V().hasLabel(P.within(vLabels)).forEachRemaining(this::calculate);
-        graph.traversal().E().hasLabel(P.within(eLabels)).forEachRemaining(this::calculate);
+        if (!vLabels.isEmpty()) {
+            graph.traversal().V().hasLabel(P.within(vLabels)).forEachRemaining(this::calculate);
+        }
+        if (!eLabels.isEmpty()) {
+            graph.traversal().E().hasLabel(P.within(eLabels)).forEachRemaining(this::calculate);
+        }
     }
 
     /**

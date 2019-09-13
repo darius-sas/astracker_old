@@ -2,12 +2,15 @@ package org.rug.data.project;
 
 import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.Repository;
 import org.rug.data.characteristics.comps.SourceCodeRetriever;
 
 import java.nio.file.Path;
 
 public class GitVersion extends AbstractVersion {
 
+    private Repository repository;
     private CheckoutCommand checkoutCommand;
     private String versionDate;
     private String commitName;
@@ -62,6 +65,18 @@ public class GitVersion extends AbstractVersion {
      */
     public String getCommitName() {
         return commitName;
+    }
+
+    /**
+     * Returns the current commit name as an object id.
+     * @return an object id instance
+     */
+    public ObjectId getCommitObjectId(){
+        return ObjectId.fromString(commitName);
+    }
+
+    public Repository getRepository() {
+        return repository;
     }
 
     @Override
