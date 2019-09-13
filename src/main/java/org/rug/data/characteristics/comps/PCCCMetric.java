@@ -2,10 +2,12 @@ package org.rug.data.characteristics.comps;
 
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.eclipse.jgit.diff.DiffConfig;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.FollowFilter;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
@@ -13,24 +15,24 @@ import org.rug.data.labels.EdgeLabel;
 import org.rug.data.labels.VertexLabel;
 import org.rug.data.project.GitVersion;
 import org.rug.data.project.IVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Characteristics that calculates the metric PCCC (Percentage of Commits a Class has Changed)
  */
 public class PCCCMetric extends AbstractComponentCharacteristic {
 
+    private final static Logger logger = LoggerFactory.getLogger(PCCCMetric.class);
+
     private SourceCodeRetriever retriever;
-    private Map<GitVersion, Map<String, Long>> changeHistory;
+    private Map<String, Long> changeHistory;
     private GitVersion previousVersion;
     private GitVersion currentVersion;
-    private List<DiffEntry> diffEntries;
 
     public PCCCMetric() {
         super("pccc",
@@ -49,10 +51,7 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
         if (version instanceof GitVersion) {
             currentVersion = (GitVersion)version;
             retriever = version.getSourceCodeRetriever();
-            diffEntries = getDifference(previousVersion.getRepository(),
-                    previousVersion.getCommitObjectId(),
-                    currentVersion.getCommitObjectId(),
-                    ".java");
+
             super.calculate(version);
             previousVersion = currentVersion;
         }
@@ -60,14 +59,30 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
 
     @Override
     protected void calculate(Vertex vertex) {
+        // the path starts from the src directory indicated by the user (sourcePath of SourceCodeRetriever).
         var pathFile = retriever.getPathOf(vertex);
         if (pathFile.isEmpty() || !pathFile.get().toFile().exists()){
             return;
         }
-        var fileHasChanged = didFileChange(pathFile.get());
+        var pathFileStr = pathFile.get().toString();
+        var change = getDifference(currentVersion.getRepository(),
+                previousVersion.getCommitObjectId(),
+                currentVersion.getCommitObjectId(),
+                pathFileStr);
 
-        if (fileHasChanged){
-            
+        if (change == null){return;}
+
+        switch (change.getChangeType()){
+            case ADD:
+            case MODIFY:
+                changeHistory.merge(pathFileStr, 1L, Long::sum);
+                break;
+            case COPY:
+            case RENAME:
+                // Handle key switching
+            case DELETE:
+            default:
+                break;
         }
     }
 
@@ -77,25 +92,25 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
     }
 
     /**
-     * Returns a List of DiffEntry that contains all the differences between the 2 commits.
+     * Returns a List of DiffEntry that contains all the differences between the 2 commits for the given file.
      * @param repo The repository in which the commits are.
      * @param parent The parent commit to which needs to be compared.
      * @param child The child commit that needs to be compared to the parent commit.
-     * @param suffixFilter The string that will be used to filter the files in the commits as a suffix. E.g. ".java" to filter .java files.
-     * @return a list of DiffEntries which contains the differences
+     * @param fileSuffixFilter The string that will be used to filter the files in the commits as a suffix.
+     * @return a list of DiffEntries which contains the differences of the given file
      */
-    private List<DiffEntry> getDifference(Repository repo, ObjectId parent, ObjectId child, String suffixFilter) {
+    private DiffEntry getDifference(Repository repo, ObjectId parent, ObjectId child, String fileSuffixFilter) {
         DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
         diffFormatter.setRepository(repo);
-        diffFormatter.setPathFilter(PathSuffixFilter.create(suffixFilter));
-        List<DiffEntry> entries = null;
+        diffFormatter.setPathFilter(PathSuffixFilter.create(fileSuffixFilter));
+        List<DiffEntry> entries = new ArrayList<>();
         try {
             entries = diffFormatter.scan(parent, child);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Could not perform diff between parent commit {} and child {}.", parent.getName(), child.getName());
         }
         diffFormatter.close();
-        return entries;
+        return entries.isEmpty() ? null : entries.get(0);
     }
 
     /**
