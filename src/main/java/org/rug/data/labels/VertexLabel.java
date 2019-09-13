@@ -1,5 +1,7 @@
 package org.rug.data.labels;
 
+import java.util.EnumSet;
+
 public enum VertexLabel {
     PACKAGE("package"),
     SMELL("smell"),
@@ -14,6 +16,11 @@ public enum VertexLabel {
 
     VertexLabel(String s) {
         this.value = s;
+    }
+
+    public static EnumSet<VertexLabel> allComponents(){
+        return EnumSet.of(VertexLabel.CLASS, VertexLabel.PACKAGE, VertexLabel.CFILE,
+                VertexLabel.HFILE, VertexLabel.COMPONENT);
     }
 
     @Override

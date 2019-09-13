@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * Retrieves CPP source code.
@@ -29,31 +30,27 @@ public class CppSourceCodeRetriever extends SourceCodeRetriever {
     @Override
     public String getSource(String elementName) {
         if (!classesCache.containsKey(elementName)) {
-            try (var walk = Files.walk(sourcePath)) {
-                var elementFile = walk.filter(p -> p.getFileName().endsWith(elementName)).findFirst();
-                if (elementFile.isPresent()) {
+            var elementFile = getPathOf(elementName);
+            if (elementFile.isPresent()) {
+                try{
                     var source = Files.readString(elementFile.get());
                     classesCache.putIfAbsent(elementName, source);
-                }else if (!elementName.endsWith(".c")){
-                    var newElementName = elementName.substring(0, elementName.lastIndexOf("."));
-                    newElementName = newElementName + ".c";
-                    return getSource(newElementName);
+                } catch (IOException e) {
+                    logger.error("Could not read source code from file: {}", elementName);
                 }
-            } catch (IOException e) {
-                logger.error("Could not read source code from file: {}", elementName);
+            }else if (!elementName.endsWith(".c")){
+                var newElementName = elementName.substring(0, elementName.lastIndexOf("."));
+                newElementName = newElementName + ".c";
+                return this.getSource(newElementName);
+            } else {
+                logger.error("Could not find source file: {}", elementName);
             }
         }
         return classesCache.getOrDefault(elementName, NOT_FOUND);
     }
 
-    /**
-     * Retrieves the source code of the given vertex element using the name and the label of the element
-     * to correctly invoke {@link #getSource(String)}.
-     * @param element the element to retrieve the source code of.
-     * @return See {@link #getSource(String)}.
-     */
     @Override
-    public String getSource(Vertex element) {
+    protected String toFileName(Vertex element) {
         String elementName = element.value("name");
         switch (VertexLabel.valueOf(element.label())){
             case CFILE:
@@ -63,6 +60,21 @@ public class CppSourceCodeRetriever extends SourceCodeRetriever {
                 elementName = elementName + ".h";
                 break;
         }
-        return getSource(elementName);
+        return elementName;
+    }
+
+    /**
+     * Return the path of a component with the given `name` property.
+     * @param elementName the name of the component.
+     * @return the Path object to the given element or null if no element was found.
+     */
+    public Optional<Path> getPathOf(String elementName){
+        Optional<Path> elementFile = Optional.empty();
+        try (var walk = Files.walk(sourcePath)) {
+            elementFile = walk.filter(p -> p.getFileName().endsWith(elementName)).findFirst();
+        } catch (IOException e) {
+            logger.error("Could not find source file: {}", elementName);
+        }
+        return elementFile;
     }
 }

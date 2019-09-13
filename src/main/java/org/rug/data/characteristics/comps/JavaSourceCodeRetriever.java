@@ -1,15 +1,22 @@
 package org.rug.data.characteristics.comps;
 
+import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 /**
  * Retrieves source code of Java classes from Java projects.
  */
 public class JavaSourceCodeRetriever extends SourceCodeRetriever {
+
+    private final static Logger logger = LoggerFactory.getLogger(JavaSourceCodeRetriever.class);
 
     /**
      * Instantiates a retriever for Java projects.
@@ -19,22 +26,29 @@ public class JavaSourceCodeRetriever extends SourceCodeRetriever {
         super(sourcePath);
     }
 
+    /**
+     * Transforms element from a full name description (e.g. org.package.Class) to a file name path (e.g. org/package/Class.java).
+     * @param element the element to extract the file path from.
+     * @return a string that represents the name of the file defining the class and the packages containing
+     * such class.
+     */
     @Override
-    public String getSource(String className) {
-        var classFile = Paths.get(sourcePath.toString(),
-                className.replace('.', File.separatorChar) + ".java").toFile();
-        if (!classesCache.containsKey(className)) {
-            if (classFile.exists() && classFile.isFile()) {
-                try {
-                    var source = Files.readString(classFile.toPath());
-                    classesCache.putIfAbsent(className, source);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+    protected String toFileName(Vertex element) {
+        String elementName = element.value("name");
+        return toFileName(elementName);
+    }
 
-        return classesCache.getOrDefault(className, NOT_FOUND);
+    private String toFileName(String elementName){
+        return elementName.replace('.', File.separatorChar) + ".java";
+    }
+
+    @Override
+    public Optional<Path> getPathOf(String elementName) {
+        var elementFile = Paths.get(sourcePath.toString(), toFileName(elementName)).toFile();
+        if (!elementFile.exists() || !elementFile.isFile()){
+            logger.error("Could not find file: {}", elementFile);
+        }
+        return elementFile.exists() ? Optional.of(elementFile.toPath()) : Optional.empty();
     }
 
 }

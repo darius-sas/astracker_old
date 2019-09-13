@@ -5,9 +5,11 @@ import org.rug.data.labels.VertexLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * Retrieves source code of C files.
@@ -21,33 +23,11 @@ public class CSourceCodeRetriever extends SourceCodeRetriever {
     }
 
     /**
-     * Reads the source code of the given file.
-     * @param elementName the full name of the element (suffix may or may not be necessary based on the implementation).
-     * @return a string containing the source code of the given element.
+     * Attaches the file extension based on the label of the vertex
+     * @param element the element to extract the file path from.
+     * @return a file name without any path component.
      */
-    @Override
-    public String getSource(String elementName) {
-        if (!classesCache.containsKey(elementName)) {
-            try (var walk = Files.walk(sourcePath)) {
-                var elementFile = walk.filter(p -> p.getFileName().endsWith(elementName)).findFirst();
-                if (elementFile.isPresent()) {
-                    var source = Files.readString(elementFile.get());
-                    classesCache.putIfAbsent(elementName, source);
-                }
-            } catch (IOException e) {
-                logger.error("Could not read source code from file: {}", elementName);
-            }
-        }
-        return classesCache.getOrDefault(elementName, NOT_FOUND);
-    }
-
-    /**
-     * Returns the source code of the given vertex element as described by {@link #getSource(String)}.
-     * @param element the element to retrieve the source code of.
-     * @return the source code of the element as string.
-     */
-    @Override
-    public String getSource(Vertex element) {
+    protected String toFileName(Vertex element){
         String elementName = element.value("name");
         switch (VertexLabel.valueOf(element.label())){
             case HFILE:
@@ -57,7 +37,21 @@ public class CSourceCodeRetriever extends SourceCodeRetriever {
                 elementName = elementName + ".c";
                 break;
         }
-        return getSource(elementName);
+        return elementName;
     }
 
+    /**
+     * Return the path of a component with the given `name` property.
+     * @param elementName the name of the component.
+     * @return the Path object to the given element or null if no element was found.
+     */
+    public Optional<Path> getPathOf(String elementName){
+        Optional<Path> elementFile = Optional.empty();
+        try (var walk = Files.walk(sourcePath)) {
+            elementFile = walk.filter(p -> p.getFileName().endsWith(elementName)).findFirst();
+        } catch (IOException e) {
+            logger.error("Could not find source file: {}", elementName);
+        }
+        return elementFile;
+    }
 }

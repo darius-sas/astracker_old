@@ -1,5 +1,6 @@
 package org.rug.data.characteristics.comps;
 
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.benf.cfr.reader.api.CfrDriver;
 import org.benf.cfr.reader.api.OutputSinkFactory;
 import org.benf.cfr.reader.api.SinkReturns;
@@ -47,6 +48,21 @@ public class JarSourceCodeRetriever extends SourceCodeRetriever {
         if (sourceClasses.isEmpty())
             decompile();
         return sourceClasses.getSource(className, NOT_FOUND);
+    }
+
+    @Override
+    protected String toFileName(Vertex element) {
+        return element.value("name");
+    }
+
+    @Override
+    public Optional<Path> getPathOf(Vertex component) {
+        throw new UnsupportedOperationException("Cannot retrieve the path of an element when using JAR as sources.");
+    }
+
+    @Override
+    public Optional<Path> getPathOf(String elementName) {
+        throw new UnsupportedOperationException("Cannot retrieve the path of an element when using JAR as sources.");
     }
 
     /**
