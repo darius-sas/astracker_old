@@ -14,6 +14,7 @@ import java.util.Optional;
 /**
  * This class manages the retrieval of the source code of a class from
  * multiple sources.
+ * This class handles the logic to retrieve the source code files.
  */
 public abstract class SourceCodeRetriever {
 
@@ -38,32 +39,36 @@ public abstract class SourceCodeRetriever {
      * @param elementName the full name of the element (suffix may or may not be necessary based on the implementation).
      * @return the source code of the element as string or {@link #NOT_FOUND} if no class is found.
      */
-    public String getSource(String elementName) {
-        if (!classesCache.containsKey(elementName)) {
-            var classFile = getPathOf(elementName);
+    public String getSource(String elementName, String extension) {
+        String key = toFileName(elementName, extension);
+        if (!classesCache.containsKey(key)) {
+            var classFile = getPathOf(elementName, extension);
             try {
                 if (classFile.isPresent()) {
                     var source = Files.readString(classFile.get());
-                    classesCache.putIfAbsent(elementName, source);
+                    classesCache.putIfAbsent(key, source);
                 } else {
                     throw new IOException();
                 }
             } catch (IOException e) {
-                logger.error("Could not read source from: {}", elementName);
+                logger.error("Could not read source from: {}", key);
             }
         }
 
-        return classesCache.getOrDefault(elementName, NOT_FOUND);
+        return classesCache.getOrDefault(key, NOT_FOUND);
     }
 
 
     /**
-     * Returns the source code of the given vertex element as described by {@link #getSource(String)}.
+     * Returns the source code of the given vertex element as described by {@link #getSource(String, String)}.
      * @param element the element to retrieve the source code of.
      * @return the source code of the element as string or {@link #NOT_FOUND} if no class is found.
      */
     public String getSource(Vertex element) {
-        return getSource(toFileName(element));
+        var fileName = toFileName(element);
+        var extension = fileName.substring(fileName.lastIndexOf("."));
+        fileName = fileName.substring(0, fileName.lastIndexOf("."));
+        return getSource(fileName, extension);
     }
 
     /**
@@ -84,20 +89,22 @@ public abstract class SourceCodeRetriever {
     protected abstract String toFileName(Vertex element);
 
     /**
+     * Default implementation pastes the element name and extension together.
+     * @param elementName the name of the element
+     * @param extension the extension with a . as a prefix.
+     * @return a string in the following format `#elementName.#extension`.
+     */
+    protected String toFileName(String elementName, String extension) {
+        return String.format("%s%s", elementName, extension);
+    }
+
+    /**
      * Return the path of a component with the given `name` property.
      * @param elementName the name of the component.
      * @return the Path object to the given element or null if no element was found.
      */
-    public Optional<Path> getPathOf(String elementName){
-
-            Optional<Path> elementFile = Optional.empty();
-            try (var walk = Files.walk(sourcePath)) {
-                elementFile = walk.filter(p -> p.getFileName().endsWith(elementName)).findFirst();
-            } catch (IOException e) {
-                logger.error("Could not find source file: {}", elementName);
-            }
-            return elementFile;
-
+    public Optional<Path> getPathOf(String elementName, String extension){
+        return findFile(toFileName(elementName, extension));
     }
 
     /**
@@ -106,7 +113,25 @@ public abstract class SourceCodeRetriever {
      * @return the Path instance of the given component or null if no element was found.
      */
     public Optional<Path> getPathOf(Vertex component) {
-        var elementName = toFileName(component);
-        return getPathOf(elementName);
+        return findFile(toFileName(component));
+    }
+
+    /**
+     * Finds a file by searching recursively in the current source path for a file path that
+     * ends with the given file name(or path) suffix.
+     * @param fileName the file (optionally including the path) to find.
+     * @return an optional Path.
+     */
+    protected Optional<Path> findFile(String fileName){
+        Optional<Path> elementFile = Optional.empty();
+        try (var walk = Files.walk(sourcePath)) {
+            elementFile = walk.filter(p -> p.endsWith(fileName)).findFirst();
+            if (elementFile.isPresent()){
+                elementFile = Optional.of(sourcePath.relativize(elementFile.get()));
+            }
+        } catch (IOException e) {
+            logger.error("Could not find source file: {}", fileName);
+        }
+        return elementFile;
     }
 }

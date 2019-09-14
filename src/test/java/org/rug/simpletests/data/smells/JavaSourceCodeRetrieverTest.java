@@ -15,7 +15,11 @@ public class JavaSourceCodeRetrieverTest {
     @Test
     void testGetClassName(){
         var retriever = new JavaSourceCodeRetriever(Paths.get("src", "main", "java"));
-        var source = retriever.getSource("org.rug.data.characteristics.comps.JavaSourceCodeRetriever");
+        var source = retriever.getSource("org.rug.data.characteristics.comps.JavaSourceCodeRetriever", ".java");
+        assertNotNull(source);
+        assertNotEquals("", source);
+
+        source = retriever.getSource("org.rug.data.characteristics.comps.JavaSourceCodeRetriever$hello", ".java");
         assertNotNull(source);
         assertNotEquals("", source);
         System.out.println(source);

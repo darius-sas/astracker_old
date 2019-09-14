@@ -27,6 +27,7 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
 
     private SourceCodeRetriever retriever;
     private Map<String, Long> changeHistory;
+    private Set<String> updateStatus;
     private GitVersion previousVersion;
     private GitVersion currentVersion;
     private long totalCommits = 1;
@@ -35,7 +36,8 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
         super("percCommClassChanged",
                 VertexLabel.allFiles(),
                 EnumSet.noneOf(EdgeLabel.class));
-        this.changeHistory = new HashMap<>();
+        this.changeHistory = new HashMap<>(100);
+        this.updateStatus = new HashSet<>();
     }
 
     /**
@@ -51,6 +53,7 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
             if (previousVersion != null) {
                 super.calculate(version);
             }
+            this.updateStatus.clear();
             totalCommits++;
             previousVersion = currentVersion;
         }
@@ -60,7 +63,7 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
     protected void calculate(Vertex vertex) {
         // the path starts from the src directory indicated by the user (sourcePath of SourceCodeRetriever).
         var pathFile = retriever.getPathOf(vertex);
-        if (pathFile.isEmpty() || !pathFile.get().toFile().exists()){
+        if (pathFile.isEmpty() || updateStatus.contains(pathFile.get().toString())){
             return;
         }
         var pathFileStr = pathFile.get().toString();
@@ -87,8 +90,9 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
                 default:
                     break;
             }
+            updateStatus.add(pathFile.get().toString());
         }
-        vertex.property(this.name, changeHistory.getOrDefault(change.getNewPath(), 0L) * totalCommits / 100);
+        vertex.property(this.name, (changeHistory.getOrDefault(change.getNewPath(), 0L) * 100d) / totalCommits);
     }
 
     @Override

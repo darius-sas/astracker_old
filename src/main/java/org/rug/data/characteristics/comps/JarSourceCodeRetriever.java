@@ -34,15 +34,20 @@ public class JarSourceCodeRetriever extends SourceCodeRetriever {
         setClassPath(sourcePath);
     }
 
+    public String getSource(String className){
+        return getSource(className, "");
+    }
+
     /**
      * Retrieves the source code as a string from the given class name.
      *
      * @param className the full name of the class without the .java suffix (e.g. org.package.Class).
+     * @param extension this parameter is unused.
      * @return the source code of the class as string. If the class is not present, or an error has occurred,
      * an empty string is returned.
      */
     @Override
-    public String getSource(String className) {
+    public String getSource(String className, String extension) {
         if (errorOccured || classPath == null)
             return NOT_FOUND;
         if (sourceClasses.isEmpty())
@@ -51,8 +56,18 @@ public class JarSourceCodeRetriever extends SourceCodeRetriever {
     }
 
     @Override
+    public String getSource(Vertex element) {
+        return this.getSource(toFileName(element));
+    }
+
+    @Override
     protected String toFileName(Vertex element) {
         return element.value("name");
+    }
+
+    @Override
+    protected String toFileName(String elementName, String extension) {
+        return elementName;
     }
 
     @Override
@@ -61,7 +76,7 @@ public class JarSourceCodeRetriever extends SourceCodeRetriever {
     }
 
     @Override
-    public Optional<Path> getPathOf(String elementName) {
+    public Optional<Path> getPathOf(String elementName, String extension) {
         throw new UnsupportedOperationException("Cannot retrieve the path of an element when using JAR as sources.");
     }
 

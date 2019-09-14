@@ -1,15 +1,12 @@
 package org.rug.data.characteristics.comps;
 
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.rug.data.labels.VertexLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Optional;
 
 /**
  * Retrieves source code of Java classes from Java projects.
@@ -28,6 +25,7 @@ public class JavaSourceCodeRetriever extends SourceCodeRetriever {
 
     /**
      * Transforms element from a full name description (e.g. org.package.Class) to a file name path (e.g. org/package/Class.java).
+     * This method removes inner classes and returns the files were they are defined.
      * @param element the element to extract the file path from.
      * @return a string that represents the name of the file defining the class and the packages containing
      * such class.
@@ -35,29 +33,37 @@ public class JavaSourceCodeRetriever extends SourceCodeRetriever {
     @Override
     protected String toFileName(Vertex element) {
         String elementName = element.value("name");
-        return toFileName(elementName);
-    }
-
-    private String toFileName(String elementName){
-        return elementName.replace('.', File.separatorChar) + ".java";
-    }
-
-    @Override
-    public Optional<Path> getPathOf(String elementName) {
-        var elementFile = Paths.get(sourcePath.toString(), toFileName(elementName)).toFile();
-        if (!elementFile.exists() || !elementFile.isFile()){
-            logger.error("Could not find file: {}", elementFile);
+        String extension;
+        switch (VertexLabel.fromString(element.label())){
+            case CLASS:
+                extension = ".java";
+                break;
+            default:
+                extension = "";
+                break;
         }
-        return elementFile.exists() ? Optional.of(elementFile.toPath()) : Optional.empty();
+        return toFileName(elementName, extension);
     }
 
     /**
-     * Returns the path of a component based on its `name` property and using {@link #toFileName(Vertex)}.
-     * @param component the vertex (please note that only vertices that refer to files/packages/etc. will work.
-     * @return the Path instance of the given component or null if no element was found.
+     * Converts the dotted name of the given element to a concrete file name with the .java extension.
+     * @param elementName the name of the element to convert.
+     * @return a path suffix of the given element.
      */
-    public Optional<Path> getPathOf(Vertex component) {
-        return getPathOf((String)component.value("name"));
+    @Override
+    protected String toFileName(String elementName, String extension){
+        return clean(elementName).replace('.', File.separatorChar) + extension;
     }
 
+    /**
+     * Removes internal classes and lambdas from and extracts the file name without extension.
+     * @param elementName the elementName to clean.
+     * @return a cleaned element name string.
+     */
+    private String clean(String elementName) {
+        if (elementName.contains("$")) {
+            elementName = elementName.substring(0, elementName.indexOf("$"));
+        }
+        return elementName;
+    }
 }

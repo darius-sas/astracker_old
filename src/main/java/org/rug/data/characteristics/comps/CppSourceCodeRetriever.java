@@ -24,43 +24,39 @@ public class CppSourceCodeRetriever extends SourceCodeRetriever {
     /**
      * Retrieves the source code of the given element. This method also looks for .c files in case
      * no .cpp or .h file is found with the given extension.
-     * @param elementName the full name of the element with a suffix (e.g. .cpp, .c, .h)
+     * @param elementName the full name of the element.
+     * @param extension the extension to use.
      * @return the source code of the given element, or {@link #NOT_FOUND} if file is not found.
      */
     @Override
-    public String getSource(String elementName) {
-        if (!classesCache.containsKey(elementName)) {
-            var elementFile = getPathOf(elementName);
-            if (elementFile.isPresent()) {
-                try{
-                    var source = Files.readString(elementFile.get());
-                    classesCache.putIfAbsent(elementName, source);
-                } catch (IOException e) {
-                    logger.error("Could not read source code from file: {}", elementName);
-                }
-            }else if (!elementName.endsWith(".c")){
-                var newElementName = elementName.substring(0, elementName.lastIndexOf("."));
-                newElementName = newElementName + ".c";
-                return this.getSource(newElementName);
-            } else {
-                logger.error("Could not find source file: {}", elementName);
+    public String getSource(String elementName, String extension) {
+        var src = super.getSource(elementName, extension);
+        if (src.isEmpty() && !extension.equals(".c")){
+            src = getSource(elementName, ".c");
+            if (!src.isEmpty()){
+                logger.info("Using same-name file with `.c` extension");
             }
         }
-        return classesCache.getOrDefault(elementName, NOT_FOUND);
+        return src;
     }
 
     @Override
     protected String toFileName(Vertex element) {
         String elementName = element.value("name");
-        switch (VertexLabel.valueOf(element.label())){
+        String extension;
+        switch (VertexLabel.fromString(element.label())){
             case CFILE:
-                elementName = elementName + ".cpp";
+                extension = ".cpp";
                 break;
             case HFILE:
-                elementName = elementName + ".h";
+                extension = ".h";
+                break;
+            case COMPONENT:
+            default:
+                extension = "";
                 break;
         }
-        return elementName;
+        return toFileName(elementName, extension);
     }
 
 }

@@ -87,6 +87,16 @@ public abstract class AbstractProject implements IProject {
     }
 
     /**
+     * Returns the version with the given version position.
+     * @param versionPosition the position of the version as an index.
+     * @return a version object or null if no version is found.
+     */
+    @Override
+    public IVersion getVersionWith(long versionPosition) {
+        return versionedSystem.values().stream().filter(v -> v.getVersionPosition() == versionPosition).findFirst().orElse(null);
+    }
+
+    /**
      * Returns the number of versions in this project.
      * @return the counting of the versions.
      */

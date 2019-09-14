@@ -75,4 +75,11 @@ public interface IProject extends Iterable<IVersion> {
      * @throws IOException raised if {@code dir} does not exist.
      */
     void addGraphMLfiles(String dir) throws IOException;
+
+    /**
+     * Returns the version with the given versionPosition.
+     * @param versionPosition the position of the version as an index.
+     * @return the version object for which {@link IVersion#getVersionPosition()} equals the given value.
+     */
+    IVersion getVersionWith(long versionPosition);
 }

@@ -29,29 +29,19 @@ public class CSourceCodeRetriever extends SourceCodeRetriever {
      */
     protected String toFileName(Vertex element){
         String elementName = element.value("name");
-        switch (VertexLabel.valueOf(element.label())){
+        String extension;
+        switch (VertexLabel.fromString(element.label())){
             case HFILE:
-                elementName = elementName + ".h";
+                extension = ".h";
                 break;
             case CFILE:
-                elementName = elementName + ".c";
+                extension =  ".c";
                 break;
+            case COMPONENT:
+            default:
+                extension = "";
         }
-        return elementName;
+        return toFileName(elementName, extension);
     }
 
-    /**
-     * Return the path of a component with the given `name` property.
-     * @param elementName the name of the component.
-     * @return the Path object to the given element or null if no element was found.
-     */
-    public Optional<Path> getPathOf(String elementName){
-        Optional<Path> elementFile = Optional.empty();
-        try (var walk = Files.walk(sourcePath)) {
-            elementFile = walk.filter(p -> p.getFileName().endsWith(elementName)).findFirst();
-        } catch (IOException e) {
-            logger.error("Could not find source file: {}", elementName);
-        }
-        return elementFile;
-    }
 }
