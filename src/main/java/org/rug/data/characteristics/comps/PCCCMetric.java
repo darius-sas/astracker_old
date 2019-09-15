@@ -1,6 +1,11 @@
 package org.rug.data.characteristics.comps;
 
+import org.apache.tinkerpop.gremlin.process.traversal.P;
+import org.apache.tinkerpop.gremlin.process.traversal.TextP;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
+import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
@@ -27,7 +32,6 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
 
     private SourceCodeRetriever retriever;
     private Map<String, Long> changeHistory;
-    private Set<String> updateStatus;
     private GitVersion previousVersion;
     private GitVersion currentVersion;
     private long totalCommits = 1;
@@ -37,7 +41,6 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
                 VertexLabel.allFiles(),
                 EnumSet.noneOf(EdgeLabel.class));
         this.changeHistory = new HashMap<>(100);
-        this.updateStatus = new HashSet<>();
     }
 
     /**
@@ -53,7 +56,6 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
             if (previousVersion != null) {
                 super.calculate(version);
             }
-            this.updateStatus.clear();
             totalCommits++;
             previousVersion = currentVersion;
         }
@@ -61,9 +63,9 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
 
     @Override
     protected void calculate(Vertex vertex) {
-        // the path starts from the src directory indicated by the user (sourcePath of SourceCodeRetriever).
         var pathFile = retriever.getPathOf(vertex);
-        if (pathFile.isEmpty() || updateStatus.contains(pathFile.get().toString())){
+        if (pathFile.isEmpty()){
+            vertex.property(this.name, 0d);
             return;
         }
         var pathFileStr = pathFile.get().toString();
@@ -72,27 +74,24 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
                 currentVersion.getCommitObjectId(),
                 pathFileStr);
 
-        if (change == null){
-            logger.info("Could not retrieve changes for: {}", pathFileStr);
-            return;
-        }else {
+        if (change != null){
+            String key = String.format("%s#%s", change.getNewPath(), vertex.value("name"));
             switch (change.getChangeType()) {
                 case ADD:
                 case MODIFY:
-                    changeHistory.merge(change.getNewPath(), 1L, Long::sum);
+                    changeHistory.merge(key, 1L, Long::sum);
                     break;
                 case COPY:
                 case RENAME:
-                    var oldValue = changeHistory.remove(change.getOldPath());
-                    changeHistory.put(change.getNewPath(), oldValue + 1);
+                    var oldValue = changeHistory.remove(String.format("%s#%s", change.getOldPath(), vertex.value("name")));
+                    changeHistory.put(key, oldValue + 1);
                     break;
                 case DELETE:
                 default:
                     break;
             }
-            updateStatus.add(pathFile.get().toString());
+            vertex.property(this.name, (changeHistory.getOrDefault(key, 0L) * 100d) / totalCommits);
         }
-        vertex.property(this.name, (changeHistory.getOrDefault(change.getNewPath(), 0L) * 100d) / totalCommits);
     }
 
     @Override

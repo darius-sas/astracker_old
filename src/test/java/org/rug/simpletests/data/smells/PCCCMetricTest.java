@@ -26,8 +26,6 @@ public class PCCCMetricTest {
                 .has(pccc.getName())
                 .toSet()
                 .forEach(v -> System.out.println(String.format("%s -> %s", v.value("name"), v.value(pccc.getName()))));
-        pccc.getName();
-        //TODO we can find the vertex the inner class belongs to and update that one instead
-        //FIXME fix bug "could not retrieve changes" for certain files
+        
     }
 }

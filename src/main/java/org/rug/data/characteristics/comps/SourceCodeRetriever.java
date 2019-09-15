@@ -109,10 +109,14 @@ public abstract class SourceCodeRetriever {
 
     /**
      * Returns the path of a component based on its `name` property and using {@link #toFileName(Vertex)}.
+     * This method ignores retrieved classes (e.g. Java lang classes, primitives, etc.).
      * @param component the vertex (please note that only vertices that refer to files/packages/etc. will work.
      * @return the Path instance of the given component or null if no element was found.
      */
     public Optional<Path> getPathOf(Vertex component) {
+        if (component.value("ClassType").toString().toLowerCase().contains("retrieved")) {
+            return Optional.empty();
+        }
         return findFile(toFileName(component));
     }
 
