@@ -63,7 +63,7 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
 
     @Override
     protected void calculate(Vertex vertex) {
-        var pathFile = retriever.getPathOf(vertex);
+        var pathFile = retriever.getPathOf(vertex); // edu.rug.pyne.api.parser.Parser has been added after first commit
         if (pathFile.isEmpty()){
             vertex.property(this.name, 0d);
             return;
@@ -74,24 +74,27 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
                 currentVersion.getCommitObjectId(),
                 pathFileStr);
 
+        String key = "";
         if (change != null){
-            String key = String.format("%s#%s", change.getNewPath(), vertex.value("name"));
+            long oldValue;
+            key = String.format("%s#%s", change.getNewPath(), vertex.value("name"));
             switch (change.getChangeType()) {
                 case ADD:
                 case MODIFY:
-                    changeHistory.merge(key, 1L, Long::sum);
+                    oldValue = changeHistory.getOrDefault(key, 0L);
+                    changeHistory.put(key, oldValue + 1);
                     break;
                 case COPY:
                 case RENAME:
-                    var oldValue = changeHistory.remove(String.format("%s#%s", change.getOldPath(), vertex.value("name")));
+                    oldValue = changeHistory.remove(String.format("%s#%s", change.getOldPath(), vertex.value("name")));
                     changeHistory.put(key, oldValue + 1);
                     break;
                 case DELETE:
                 default:
                     break;
             }
-            vertex.property(this.name, (changeHistory.getOrDefault(key, 0L) * 100d) / totalCommits);
         }
+        vertex.property(this.name, (changeHistory.getOrDefault(key, 0L) * 100d) / totalCommits);
     }
 
     @Override
@@ -108,6 +111,8 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
      * @return a list of DiffEntries which contains the differences of the given file
      */
     private DiffEntry getDifference(Repository repo, ObjectId parent, ObjectId child, String fileSuffixFilter) {
+        //TODO this implementation only returns the differences between the two given commits
+        // and not the changes happened in-between the two commits
         DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
         diffFormatter.setRepository(repo);
         diffFormatter.setPathFilter(PathSuffixFilter.create(fileSuffixFilter));
