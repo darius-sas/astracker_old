@@ -74,7 +74,7 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
                 currentVersion.getCommitObjectId(),
                 pathFileStr);
 
-        String key = "";
+        String key = String.format("%s#%s", pathFileStr, vertex.value("name"));
         if (change != null){
             long oldValue;
             key = String.format("%s#%s", change.getNewPath(), vertex.value("name"));
@@ -104,6 +104,8 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
 
     /**
      * Returns a List of DiffEntry that contains all the differences between the 2 commits for the given file.
+     * Note that this implementation only returns the differences between the two given commit, ignoring any
+     * commit in between.
      * @param repo The repository in which the commits are.
      * @param parent The parent commit to which needs to be compared.
      * @param child The child commit that needs to be compared to the parent commit.
@@ -111,18 +113,19 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
      * @return a list of DiffEntries which contains the differences of the given file
      */
     private DiffEntry getDifference(Repository repo, ObjectId parent, ObjectId child, String fileSuffixFilter) {
-        //TODO this implementation only returns the differences between the two given commits
-        // and not the changes happened in-between the two commits
         DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
         diffFormatter.setRepository(repo);
-        diffFormatter.setPathFilter(PathSuffixFilter.create(fileSuffixFilter));
+        diffFormatter.setDetectRenames(true);
+        diffFormatter.setPathFilter(PathSuffixFilter.create(fileSuffixFilter.substring(fileSuffixFilter.lastIndexOf("/"))));
         List<DiffEntry> entries = new ArrayList<>();
         try {
             entries = diffFormatter.scan(parent, child);
         } catch (IOException e) {
             logger.error("Could not perform diff between parent commit {} and child {}.", parent.getName(), child.getName());
         }
-        diffFormatter.close();
+        diffFormatter.close(); //The reason why we do not detect a all the changes for the parser is because the suffix
+                                // will filter moved files as used at the moment, so better not use it at all
+                               // and then parse all the changes for that file or use only the last one (or whatever)
         return entries.isEmpty() ? null : entries.get(0);
     }
 
