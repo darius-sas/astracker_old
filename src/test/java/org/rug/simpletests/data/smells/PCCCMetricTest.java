@@ -2,6 +2,7 @@ package org.rug.simpletests.data.smells;
 
 import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.TextP;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.rug.data.characteristics.comps.PCCCMetric;
 import org.rug.data.labels.VertexLabel;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("unitTests")
 public class PCCCMetricTest {
 
     @Test

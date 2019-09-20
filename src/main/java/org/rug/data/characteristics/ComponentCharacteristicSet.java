@@ -2,6 +2,7 @@ package org.rug.data.characteristics;
 
 import org.rug.data.characteristics.comps.NumberOfClassesInPackage;
 import org.rug.data.characteristics.comps.NumberOfLinesOfCode;
+import org.rug.data.characteristics.comps.PCCCMetric;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -17,6 +18,7 @@ public class ComponentCharacteristicSet {
         characteristics = new HashSet<>();
         characteristics.add(new NumberOfClassesInPackage());
         characteristics.add(new NumberOfLinesOfCode());
+        characteristics.add(new PCCCMetric());
     }
 
     public Set<IComponentCharacteristic> getCharacteristicSet(){

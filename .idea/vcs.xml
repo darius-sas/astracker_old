@@ -4,5 +4,6 @@
     <mapping directory="$PROJECT_DIR$/../arcan" vcs="Git" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/bin" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/test-data/git-projects/pure" vcs="Git" />
   </component>
 </project>

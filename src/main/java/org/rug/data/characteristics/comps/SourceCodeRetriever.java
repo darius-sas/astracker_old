@@ -127,15 +127,22 @@ public abstract class SourceCodeRetriever {
      * @return an optional Path.
      */
     protected Optional<Path> findFile(String fileName){
-        Optional<Path> elementFile = Optional.empty();
+        Optional<Path> elementFile;
         try (var walk = Files.walk(sourcePath)) {
             elementFile = walk.filter(p -> p.endsWith(fileName)).findFirst();
-            if (elementFile.isPresent()){
-                elementFile = Optional.of(sourcePath.relativize(elementFile.get()));
-            }
         } catch (IOException e) {
             logger.error("Could not find source file: {}", fileName);
+            elementFile = Optional.empty();
         }
         return elementFile;
+    }
+
+    /**
+     * Returns the given path as a relative path starting from the current {@link #sourcePath} directory.
+     * @param path the path to relativize
+     * @return the path relative to the source path or an empty optional otherwise.
+     */
+    public Optional<Path> relativize(Optional<Path> path){
+        return path.map(value -> sourcePath.relativize(value));
     }
 }

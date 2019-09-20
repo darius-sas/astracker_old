@@ -77,7 +77,7 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
 
     @Override
     protected void calculate(Vertex vertex) {
-        var pathFile = retriever.getPathOf(vertex);
+        var pathFile = retriever.relativize(retriever.getPathOf(vertex));
         if (pathFile.isEmpty()){
             vertex.property(this.name, 0d);
             return;
@@ -98,7 +98,6 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
                     break;
                 case COPY:
                 case RENAME:
-                    System.out.println(change);
                     oldValue = changeHistory.remove(String.format("%s#%s", change.getOldPath(), vertex.value("name")));
                     oldValue = oldValue == null ? 0L : oldValue;
                     changeHistory.put(key, oldValue + 1);

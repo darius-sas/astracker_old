@@ -52,5 +52,6 @@ public abstract class SmellCharacteristicsSet {
         characteristics.add(new PageRank("pageRankAvrg", x -> x.average().orElse(0)));
         characteristics.add(new NumberOfEdges());
         characteristics.add(new AffectedComponentsType());
+        characteristics.add(new AverageNumOfChanges());
     }
 }
