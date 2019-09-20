@@ -87,3 +87,24 @@ The information described are *the architectural smells tracked* starting from t
 
 In order to print the properties as a single CSV file, the `-pC` option can be added to the initial command line.
 A file named `smell-characteristics-consecOnly.csv` will also appear in the output directory.
+
+# ASTracker architecture
+This section briefly explains the general architecture of the AStracker and the responsibility of every component.
+
+![Components](docs/astracker-architecture.png)
+
+Explanation:
+* The *Tracker* module has the responsibility to track architectural smells throughout versions. This component has the following interfaces:
+    * *ASTracker* which is responsible of the actual logic for performing the tracking;
+    * *SimilarityLinker* which is responsible for the logic of establishing when two smells from two versions match (i.e. can be linked);
+  
+* The *Runners* module contains all the code to perform an analysis as a whole on a given `Project`, for example to track the smells on that project or to also run Arcan on it;
+* The *Persistence* module is responsible to write the relevant data to disk in order to save the results of the tracking and collect the necessary data;
+  This module is designed with a "subscriber" design: data is sent to a central persistence writer (master), and if there are any specific writer subscribed to write that type of data (object), than such object is delivered to all subscribers.
+  This allows for a flexible and lightweight management of output writing of data;
+* The *Data* module is the biggest module of ASTracker. All the data handled by ASTracker is modeled by this module:
+    * The *Architectural smells* sub-module contains all the models of the smells supported by ASTracker for tracking.
+    * The *Characteristics* sub-module contains the smells characteristics and component characteristics that are computed by ASTracker as a complementary task to the tracking of smells itself.
+    * The *Project* sub-module contains key components that abstract the project under analysis as versions and allow a client to retrieve the source code of a class/package/file of the analysed project starting from its `Vertex` in the dependency graph.
+      Different project types require different implementations of the `Project` and `Version` interfaces, though most of the functionality is common and dedicated abstract classes handled those aspect.
+      These interfaces are mostly responsible of representing in-memory the project on the file system.
