@@ -43,7 +43,7 @@ public abstract class SmellCharacteristicsSet {
      */
     private void addSmellGenericCharacteristics(Set<ISmellCharacteristic> characteristics){
         characteristics.add(new Size());
-        characteristics.add(new AverageNumNOfChanges());
+        characteristics.add(new AverageNumOfChanges());
         characteristics.add(new OverlapRatio());
         characteristics.add(new OverlapRatio(ArchitecturalSmell.Type.CD));
         characteristics.add(new OverlapRatio(ArchitecturalSmell.Type.HL));

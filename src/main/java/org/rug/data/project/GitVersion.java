@@ -14,21 +14,25 @@ public class GitVersion extends AbstractVersion {
     private CheckoutCommand checkoutCommand;
     private String versionDate;
     private String commitName;
+    private boolean isCheckedOut;
 
     public GitVersion(Path path, Repository repository, CheckoutCommand checkoutCommand, SourceCodeRetriever sourceCodeRetriever){
         super(path, sourceCodeRetriever);
         this.checkoutCommand = checkoutCommand;
         this.repository = repository;
+        this.isCheckedOut = false;
     }
 
 
     @Override
     public SourceCodeRetriever getSourceCodeRetriever() {
-        checkoutCommand.setName(commitName);
-        try{
-            checkoutCommand.call();
-        }catch (GitAPIException e){
-            throw new IllegalArgumentException("Could not checkout the given commit: " + getVersionString());
+        if (!isCheckedOut) {
+            checkoutCommand.setName(commitName);
+            try {
+                checkoutCommand.call();
+            } catch (GitAPIException e) {
+                throw new IllegalArgumentException("Could not checkout the given commit: " + getVersionString());
+            }
         }
         return super.getSourceCodeRetriever();
     }

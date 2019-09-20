@@ -4,10 +4,12 @@ import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.TextP;
 import org.junit.jupiter.api.Test;
 import org.rug.data.characteristics.comps.PCCCMetric;
+import org.rug.data.labels.VertexLabel;
 import org.rug.data.project.AbstractProject;
 import org.rug.data.project.GitProject;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,14 +36,18 @@ public class PCCCMetricTest {
                 .has("name", "edu.rug.pyne.api.parser.analysisprocessor.ClassAnalysis")
                 .next().value(pccc.getName());
         assertTrue(Math.abs(2/3d * 100 - pcccValue) < 1e-5);
+
+        pcccValue = graph.traversal().V()
+                .has("name", "edu.rug.pyne.api.parser.Parser")
+                .next().value(pccc.getName());
+
+        assertTrue(Math.abs(1/3d * 100 - pcccValue) < 1e-5);
+
         graph.traversal()
-                .V().hasLabel(P.within("class"))
+                .V().hasLabel((P<String>) P.within(VertexLabel.allTypes().stream().map(VertexLabel::toString).collect(Collectors.toSet())))
                 .has("name", TextP.startingWith("edu.rug"))
                 .has(pccc.getName())
                 .toSet()
                 .forEach(v -> System.out.println(String.format("%s -> %.2f", v.value("name"), v.value(pccc.getName()))));
-
-        //todo edu.rug.pyne.api.parser.Parser has been added after first commit and has changed at least once
-        // but it is still computed as 0% percentage
     }
 }

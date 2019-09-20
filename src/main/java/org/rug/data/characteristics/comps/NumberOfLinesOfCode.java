@@ -23,7 +23,7 @@ public class NumberOfLinesOfCode extends AbstractComponentCharacteristic {
      */
     public NumberOfLinesOfCode(){
         super("linesOfCode",
-                VertexLabel.allComponents(),
+                VertexLabel.allTypes(),
                 EnumSet.noneOf(EdgeLabel.class));
     }
 
