@@ -3,7 +3,7 @@ package org.rug.simpletests;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.rug.Main;
-import org.rug.persistence.PersistenceWriter;
+import org.rug.persistence.PersistenceHub;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,7 +28,7 @@ class MainTest {
 
     void executeMainProjectArcan(String projectName){
 
-        PersistenceWriter.clearAll();
+        PersistenceHub.clearAll();
 
         try {
             Files.delete(Paths.get(outputDir, "trackASOutput", projectName));
@@ -61,7 +61,7 @@ class MainTest {
             Files.delete(Paths.get(outputDir, "trackASOutput", projectName));
         } catch (IOException e) {}
 
-        PersistenceWriter.clearAll();
+        PersistenceHub.clearAll();
 
         Main.main(new String[]{"-p", projectName, "-i", inputDirGraphMLs, "-o", outputDir, "-pC", "-pS", isCPPproject ? "-cppP" : "-jP" });
 
@@ -69,7 +69,7 @@ class MainTest {
                 error(projectName, "checking existence of smell characteristics file"));
         assertTrue(Files.exists(Paths.get(outputDir, "trackASOutput", projectName, "similarity-scores-consecOnly.csv")),
                 error(projectName, "checking existence similarity scores file"));
-        PersistenceWriter.clearAll();
+        PersistenceHub.clearAll();
     }
 
     Supplier<String> error(String projectName, String cause){

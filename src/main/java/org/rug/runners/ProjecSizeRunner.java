@@ -2,7 +2,7 @@ package org.rug.runners;
 
 import org.rug.data.labels.VertexLabel;
 import org.rug.data.project.IProject;
-import org.rug.persistence.PersistenceWriter;
+import org.rug.persistence.PersistenceHub;
 import org.rug.persistence.ProjectSizeGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +47,7 @@ public class ProjecSizeRunner extends ToolRunner {
                 record.add(String.valueOf(version.getVersionPosition()));
                 record.add(String.valueOf(nP));
                 record.add(String.valueOf(nC));
-                PersistenceWriter.sendTo(ProjectSizeGenerator.class, record);
+                PersistenceHub.sendToAndWrite(ProjectSizeGenerator.class, record);
             });
             logger.info("Completed.");
             exitCode = 0;

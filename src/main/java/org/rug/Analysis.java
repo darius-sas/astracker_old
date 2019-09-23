@@ -66,21 +66,21 @@ public class Analysis {
                 runners.add(new TrackASRunner(project, args.trackNonConsecutiveVersions));
 
                 if (args.similarityScores) {
-                    PersistenceWriter.register(new SmellSimilarityDataGenerator(args.getSimilarityScoreFile()));
+                    PersistenceHub.register(new SmellSimilarityDataGenerator(args.getSimilarityScoreFile()));
                 }
 
                 if (args.smellCharacteristics) {
-                    PersistenceWriter.register(new SmellCharacteristicsGenerator(args.getSmellCharacteristicsFile(), project));
-                    PersistenceWriter.register(new ComponentAffectedByGenerator(args.getAffectedComponentsFile()));
+                    PersistenceHub.register(new SmellCharacteristicsGenerator(args.getSmellCharacteristicsFile(), project));
+                    PersistenceHub.register(new ComponentAffectedByGenerator(args.getAffectedComponentsFile()));
                 }
 
-                PersistenceWriter.register(new CondensedGraphGenerator(args.getCondensedGraphFile()));
-                PersistenceWriter.register(new TrackGraphGenerator(args.getTrackGraphFileName()));
+                PersistenceHub.register(new CondensedGraphGenerator(args.getCondensedGraphFile()));
+                PersistenceHub.register(new TrackGraphGenerator(args.getTrackGraphFileName()));
             }
 
             if (args.runProjectSizes()){
                 runners.add(new ProjecSizeRunner(project));
-                PersistenceWriter.register(new ProjectSizeGenerator(args.getProjectSizesFile()));
+                PersistenceHub.register(new ProjectSizeGenerator(args.getProjectSizesFile()));
             }
         }
     }

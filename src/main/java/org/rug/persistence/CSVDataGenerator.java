@@ -1,26 +1,39 @@
 package org.rug.persistence;
 
-import java.io.File;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
-
 /**
  * Base modeling for CSV data generators.
  * @param <T>
  */
 public abstract class CSVDataGenerator<T> implements ICSVGenerator<T>{
 
+    private static final Logger logger = LoggerFactory.getLogger(CSVDataGenerator.class);
+
     protected final List<List<String>> records;
-    private final File outputFile;
+    private final Path outputFile;
+    private Writer fileWriter;
+    private CSVPrinter printer;
+    private final static Charset CHARSET = Charset.forName("UTF-8");
+    private CompletableFuture<Void> future;
 
     public CSVDataGenerator(String outputFile) {
         this.records = new ArrayList<>();
-        this.outputFile = new File(outputFile);
-        if (this.outputFile.isDirectory())
-            throw new IllegalArgumentException("The given outputFile is not a file: " + outputFile);
+        this.outputFile = Paths.get(outputFile);
     }
 
     /**
@@ -92,6 +105,50 @@ public abstract class CSVDataGenerator<T> implements ICSVGenerator<T>{
      * @return a file.
      */
     public File getOutputFile(){
-        return this.outputFile;
+        return this.outputFile.toFile();
+    }
+
+    /**
+     * Writes the given current list of records on file asynchronously.
+     * This method is synchronized in order to prevent concurrent writes on file.
+     * It is necessary to manually call {@link #close()} to ensure all the data has been written on the stream.
+     */
+    @Override
+    public synchronized void writeOnFile() {
+        future = CompletableFuture.runAsync(()-> {
+            try {
+                if (fileWriter == null) {
+                    fileWriter = new BufferedWriter(new FileWriter(getOutputFile(), CHARSET, false));
+                    printer = new CSVPrinter(fileWriter, CSVFormat.DEFAULT.withHeader(getHeader()));
+                }
+                printer.printRecords(records);
+                records.clear();
+            } catch (IOException e) {
+                logger.error("Could not write records on CSV data file: {}", outputFile.toAbsolutePath());
+            }
+        });
+    }
+
+    /**
+     * Waits for the remaining data to be written on file and then closes the underlying writer objects.
+     */
+    public void close(){
+        if (future != null) {
+            try {
+                future.thenRun(() -> {
+                    try {
+                        fileWriter.close();
+                        printer.close();
+                    } catch (IOException e) {
+                        logger.error("Could not close properly data writing on file: {}", outputFile.toAbsolutePath());
+                    }
+                    fileWriter = null;
+                }).get();
+            } catch (ExecutionException e) {
+                logger.error("Error while writing concurrently data on file: {}", outputFile.toAbsolutePath());
+            } catch (InterruptedException e) {
+                logger.info("Concurrent file save was interrupted for data on file: {}", outputFile.toAbsolutePath());
+            }
+        }
     }
 }

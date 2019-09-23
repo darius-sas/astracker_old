@@ -15,4 +15,14 @@ public interface IDataGenerator<T> {
      * @return a file.
      */
     File getOutputFile();
+
+    /**
+     * Write data generated with the accept method on file.
+     */
+    void writeOnFile();
+
+    /**
+     * Closes the underlying data streams for writing on files.
+     */
+    void close();
 }

@@ -2,7 +2,7 @@ package org.rug;
 
 import com.beust.jcommander.JCommander;
 import org.rug.args.Args;
-import org.rug.persistence.PersistenceWriter;
+import org.rug.persistence.PersistenceHub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,8 +50,7 @@ public class Main {
                 System.exit(-1);
             }
             logger.info("Writing to output directory...");
-            PersistenceWriter.writeAllCSV();
-            PersistenceWriter.writeAllGraphs();
+            PersistenceHub.closeAll();
 
         }catch (Exception e){
             logger.error("Unhandled error: {}", e.getMessage());

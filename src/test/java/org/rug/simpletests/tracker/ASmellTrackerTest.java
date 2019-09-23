@@ -7,7 +7,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.rug.data.project.IProject;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.persistence.ComponentAffectedByGenerator;
-import org.rug.persistence.PersistenceWriter;
+import org.rug.persistence.PersistenceHub;
 import org.rug.persistence.SmellCharacteristicsGenerator;
 import org.rug.persistence.SmellSimilarityDataGenerator;
 import org.rug.tracker.ASmellTracker;
@@ -69,9 +69,9 @@ public class ASmellTrackerTest {
 
         ISimilarityLinker scorer = new SimpleNameJaccardSimilarityLinker();
         ASmellTracker tracker = new ASmellTracker(scorer, false);
-        PersistenceWriter.clearAll();
-        PersistenceWriter.register(new SmellSimilarityDataGenerator(Paths.get(trackASOutputDir, project.getName(), "jaccard-scores-consecutives-only.csv").toString()));
-        PersistenceWriter.register(new SmellCharacteristicsGenerator(Paths.get(trackASOutputDir, project.getName(), "smells-characteristics.csv").toString(), project)); // this test is out of date, added null to allow compilation
+        PersistenceHub.clearAll();
+        PersistenceHub.register(new SmellSimilarityDataGenerator(Paths.get(trackASOutputDir, project.getName(), "jaccard-scores-consecutives-only.csv").toString()));
+        PersistenceHub.register(new SmellCharacteristicsGenerator(Paths.get(trackASOutputDir, project.getName(), "smells-characteristics.csv").toString(), project)); // this test is out of date, added null to allow compilation
         var gen = new ComponentAffectedByGenerator(Paths.get(trackASOutputDir, project.getName(), "affectedComponents.csv").toString());
 
         for (var version : project){
@@ -79,11 +79,11 @@ public class ASmellTrackerTest {
             smells.forEach(ArchitecturalSmell::calculateCharacteristics);
             tracker.track(smells, version);
             assertEquals(Long.valueOf(oracle.get(version.getVersionString())), tracker.smellsLinked());
-            PersistenceWriter.sendTo(SmellSimilarityDataGenerator.class, tracker);
+            PersistenceHub.sendTo(SmellSimilarityDataGenerator.class, tracker);
         }
         gen.accept(tracker);
-        PersistenceWriter.sendTo(SmellCharacteristicsGenerator.class, tracker);
-        PersistenceWriter.writeAllCSV();
+        PersistenceHub.sendToAndWrite(SmellCharacteristicsGenerator.class, tracker);
+        PersistenceHub.closeAll();
     }
 
 }

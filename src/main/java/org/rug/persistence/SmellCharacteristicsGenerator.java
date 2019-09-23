@@ -36,6 +36,8 @@ public class SmellCharacteristicsGenerator extends CSVDataGenerator<ASmellTracke
      * @param object the object to serialize into records of strings.
      */
     public void accept(ASmellTracker object) {
+        //TODO consider parsing characteristics from track graph rather than condensed graph to reduce
+        // execution time
         Graph simplifiedGraph = object.getCondensedGraph();
         GraphTraversalSource g = simplifiedGraph.traversal();
 

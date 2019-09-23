@@ -47,16 +47,16 @@ public class TrackASRunner extends ToolRunner {
             tracker.track(smells, version);
 
             logger.info("Linked {} smells out of a total of {} in this version.", tracker.smellsLinked(), smells.size());
-            PersistenceWriter.sendTo(SmellSimilarityDataGenerator.class, tracker);
-            PersistenceWriter.sendTo(ComponentMetricGenerator.class, version);
+            PersistenceHub.sendToAndWrite(SmellSimilarityDataGenerator.class, tracker);
+            PersistenceHub.sendToAndWrite(ComponentMetricGenerator.class, version);
             version.clearGraph();
         });
 
         logger.info("Tracking complete, processing data...");
-        PersistenceWriter.sendTo(SmellCharacteristicsGenerator.class, tracker);
-        PersistenceWriter.sendTo(ComponentAffectedByGenerator.class, tracker);
-        PersistenceWriter.sendTo(TrackGraphGenerator.class, tracker);
-        PersistenceWriter.sendTo(CondensedGraphGenerator.class, tracker);
+        PersistenceHub.sendToAndWrite(SmellCharacteristicsGenerator.class, tracker);
+        PersistenceHub.sendToAndWrite(ComponentAffectedByGenerator.class, tracker);
+        PersistenceHub.sendToAndWrite(TrackGraphGenerator.class, tracker);
+        PersistenceHub.sendToAndWrite(CondensedGraphGenerator.class, tracker);
         return 0;
     }
 

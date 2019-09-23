@@ -3,7 +3,7 @@ package org.rug;
 import org.junit.jupiter.api.Test;
 import org.rug.data.project.Project;
 import org.rug.data.smells.ArchitecturalSmell;
-import org.rug.persistence.PersistenceWriter;
+import org.rug.persistence.PersistenceHub;
 import org.rug.persistence.SmellCharacteristicsGenerator;
 import org.rug.persistence.SmellSimilarityDataGenerator;
 import org.rug.tracker.ASmellTracker;
@@ -48,15 +48,18 @@ public class SimilarityLinkerComparison {
             simpleNameGenerator.accept(simpleNameTracker);
         });
 
-        PersistenceWriter.writeCSV(normalGenerator);
-        PersistenceWriter.writeCSV(simpleNameGenerator);
+        normalGenerator.writeOnFile();
+        simpleNameGenerator.writeOnFile();
+        simpleNameGenerator.close();
 
         var normalCharactGen = new SmellCharacteristicsGenerator(outputDir + "test-normal-characteristics.csv", project);
         normalCharactGen.accept(normalTracker);
-        PersistenceWriter.writeCSV(normalCharactGen);
+        normalCharactGen.writeOnFile();
+        normalCharactGen.close();
 
         var simpleCharactGen = new SmellCharacteristicsGenerator(outputDir + "test-simple-characteristics.csv", project);
         simpleCharactGen.accept(simpleNameTracker);
-        PersistenceWriter.writeCSV(simpleCharactGen);
+        simpleCharactGen.writeOnFile();
+        simpleCharactGen.close();
     }
 }

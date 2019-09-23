@@ -13,41 +13,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class models the writing of different data on file and registers data generators.
+ * This class shuts a message consisting of objects or data to a specific object of a specific class.
  * This allows to implement optional method invocations for data generation, allowing
  * only registered generators to actually generate persistent data.
  */
-public class PersistenceWriter {
+public class PersistenceHub {
 
-    private final static Logger logger = LoggerFactory.getLogger(PersistenceWriter.class);
+    private final static Logger logger = LoggerFactory.getLogger(PersistenceHub.class);
     private final static Map<Class<? extends IDataGenerator>, IDataGenerator> generatorInstances = new HashMap<>();
-
-    public static void writeAllCSV(){
-        generatorInstances.values().stream().filter(g -> g instanceof ICSVGenerator).map(g -> (ICSVGenerator)g).forEach(PersistenceWriter::writeCSV);
-    }
-
-    public static void writeAllGraphs(){
-        generatorInstances.values().stream().filter(g -> g instanceof IGraphGenerator).map(g -> (IGraphGenerator)g).forEach(PersistenceWriter::writeGraphs);
-
-    }
-
-    public static void writeCSV(ICSVGenerator csvGenerator){
-        try{
-            BufferedWriter writer = new BufferedWriter(new FileWriter(csvGenerator.getOutputFile(), Charset.forName("UTF-8")));
-            CSVPrinter printer = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader(csvGenerator.getHeader()));
-
-            printer.printRecords(csvGenerator);
-
-            printer.close();
-            writer.close();
-        }catch (IOException e){
-            logger.error("Could not print to CSV: {}", e.getMessage());
-        }
-    }
-
-    public static void writeGraphs(IGraphGenerator graphGenerator){
-        graphGenerator.getGraph().traversal().io(graphGenerator.getOutputFile().getAbsolutePath()).write().iterate();
-    }
 
     /**
      * Register a new CSVDataGenerator. If another instance of the same class is present, this operation does
@@ -72,8 +45,30 @@ public class PersistenceWriter {
         }
     }
 
+    /**
+     * Sends to the instance of the registered class the given data and then invokes the writing on file method
+     * on the instance of the given generator. If no instance of that generator is found
+     * no invocation is performed and this methods has no effect.
+     * To ensure the data has been properly written on file, {@link #closeAll()} must be manually invoked.
+     * @param to the class of the instances that has to receive
+     * @param data the data to use for the generation
+     * @param <T> the type of the data to pass to the generator
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> void sendToAndWrite(Class<? extends IDataGenerator<T>> to, T data){
+        if (generatorInstances.containsKey(to)) {
+            var gen = generatorInstances.get(to);
+            gen.accept(data);
+            gen.writeOnFile();
+        }
+    }
+
     public static void clearAll(){
         generatorInstances.clear();
+    }
+
+    public static void closeAll(){
+        generatorInstances.values().forEach(IDataGenerator::close);
     }
 
 }
