@@ -1,5 +1,7 @@
 package org.rug.persistence;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Graph;
@@ -7,8 +9,23 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.project.IProject;
 import org.rug.tracker.ASmellTracker;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.CharBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
+/**
+ * Retrieves the smell characteristics for each smell and writes them on file.
+ * The writing is done for each observation (record) and no in-memory list of records is saved.
+ * This is done to ensure low memory usage.
+ */
 public class SmellCharacteristicsGenerator extends CSVDataGenerator<ASmellTracker>{
 
     private List<String> header = new ArrayList<>();
@@ -36,8 +53,6 @@ public class SmellCharacteristicsGenerator extends CSVDataGenerator<ASmellTracke
      * @param object the object to serialize into records of strings.
      */
     public void accept(ASmellTracker object) {
-        //TODO consider parsing characteristics from track graph rather than condensed graph to reduce
-        // execution time
         Graph simplifiedGraph = object.getCondensedGraph();
         GraphTraversalSource g = simplifiedGraph.traversal();
 
@@ -67,8 +82,40 @@ public class SmellCharacteristicsGenerator extends CSVDataGenerator<ASmellTracke
                         completeRecord.add(project.getVersionIndex(version).toString());
                         completeRecord.add(incomingEdge.value("smellId").toString());
                         characteristicKeys.forEach(k -> completeRecord.add(characteristic.property(k).orElse("NA").toString()));
-                        records.add(completeRecord);
+                        //records.add(completeRecord);
+                        writeRecordOnFile(completeRecord);
                     });
         });
+    }
+
+    /**
+     * Writes an individual record directly on file.
+     * @param record the record to write as a list of values (i.e. the columns).
+     */
+    private void writeRecordOnFile(List<String> record){
+            try {
+                if (fileWriter == null) {
+                    fileWriter = new BufferedWriter(new FileWriter(getOutputFile(), CHARSET, false));
+                    printer = new CSVPrinter(fileWriter, CSVFormat.DEFAULT.withHeader(getHeader()));
+                }
+                printer.printRecord(record);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+    }
+
+    @Override
+    public synchronized void writeOnFile() {
+
+    }
+
+    @Override
+    public void close() {
+        try {
+            printer.close();
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

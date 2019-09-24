@@ -9,6 +9,8 @@ import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.rug.data.project.IVersion;
 import org.rug.data.smells.ArchitecturalSmell;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +21,7 @@ import java.util.stream.Collectors;
 /**
  * Tracks incrementally the architectural smells and saves them internally.
  */
-public class ASmellTracker {
+public class ASmellTracker implements Serializable {
 
     public static final String NAME = "name";
     public static final String SMELL = "smell";

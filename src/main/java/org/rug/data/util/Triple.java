@@ -1,12 +1,14 @@
 package org.rug.data.util;
 
+import java.io.Serializable;
+
 /**
  * A class representing generic triple of objects
  * @param <A>
  * @param <B>
  * @param <C>
  */
-public class Triple<A, B, C> {
+public class Triple<A, B, C> implements Serializable {
     protected A a;
     protected B b;
     protected C c;

@@ -9,6 +9,7 @@ import org.rug.data.characteristics.smells.AffectedDesign;
 import org.rug.data.labels.VertexLabel;
 import org.rug.data.project.AbstractProject;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
  * have the same smell nodes ids, the same affected elements in two or more versions, this type of comparison is thus
  * necessary.
  */
-public abstract class ArchitecturalSmell {
+public abstract class ArchitecturalSmell implements Serializable {
 
     private long id;
     private String affectedVersion;

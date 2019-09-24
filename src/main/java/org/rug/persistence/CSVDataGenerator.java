@@ -26,9 +26,9 @@ public abstract class CSVDataGenerator<T> implements ICSVGenerator<T>{
 
     protected final List<List<String>> records;
     private final Path outputFile;
-    private Writer fileWriter;
-    private CSVPrinter printer;
-    private final static Charset CHARSET = Charset.forName("UTF-8");
+    protected Writer fileWriter;
+    protected CSVPrinter printer;
+    protected final static Charset CHARSET = Charset.forName("UTF-8");
     private CompletableFuture<Void> future;
 
     public CSVDataGenerator(String outputFile) {

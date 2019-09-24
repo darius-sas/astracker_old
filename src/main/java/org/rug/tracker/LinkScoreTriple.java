@@ -3,12 +3,14 @@ package org.rug.tracker;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.util.Triple;
 
+import java.io.Serializable;
+
 /**
  * Convenience class to represent a tracking triple and adequately compare between two triples based
  * on the smells.
  * Two triples are the same if any of the two smells are the same (respecting positions).
  */
-public class LinkScoreTriple extends Triple<ArchitecturalSmell, ArchitecturalSmell, Double> implements Comparable<LinkScoreTriple>{
+public class LinkScoreTriple extends Triple<ArchitecturalSmell, ArchitecturalSmell, Double> implements Comparable<LinkScoreTriple> {
 
     public LinkScoreTriple(ArchitecturalSmell smell, ArchitecturalSmell smell2, Double aDouble) {
         super(smell, smell2, aDouble);

@@ -2,6 +2,7 @@ package org.rug.tracker;
 
 import org.rug.data.smells.ArchitecturalSmell;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -9,7 +10,7 @@ import java.util.Set;
  * Models a matching strategy to match each smell in this version with the most similar one in the next version.
  * Implementers must ensure that the matches are ordered in order of matching score.
  */
-public interface ISimilarityLinker {
+public interface ISimilarityLinker extends Serializable {
 
     /**
      * Calculates the best match for every pair of smell in the two given lists and returns an ordered list
