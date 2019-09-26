@@ -4,6 +4,7 @@
 /data-analysis/*.csv
 /test-data/output/trackASOutput/
 /arcan
+/arcan-c-cpp
 /qualitas-corpus
 
 **/.Rhistory
