@@ -1,9 +1,7 @@
 package org.rug;
 
 import org.rug.args.Args;
-import org.rug.data.project.IProject;
-import org.rug.data.project.Project;
-import org.rug.data.project.Version;
+import org.rug.data.project.*;
 import org.rug.persistence.*;
 import org.rug.runners.ArcanRunner;
 import org.rug.runners.ProjecSizeRunner;
@@ -40,13 +38,13 @@ public class Analysis {
 
     private void init() throws IllegalArgumentException, IOException{
         if (project == null){
-            project = new Project(args.projectName, args.isCPPproject ? Project.Type.CPP : Project.Type.JAVA);
+            project = getProject();
             if (isJarProject()){
                 project.addSourceDirectory(args.getHomeProjectDirectory());
                 var outputDir = args.getArcanOutDir();
                 project.forEach(version -> {
                     Path outputDirVers = Paths.get(outputDir, version.getVersionString());
-                    if (outputDirVers.toFile().mkdirs()) {
+                    if (outputDirVers.toFile().mkdirs() && version instanceof Version) {
                         var arcan = new ArcanRunner(args.getArcanJarFile(), (Version) version,
                                 outputDirVers.toString(), project.isFolderOfFoldersOfSourcesProject(), false);
                         arcan.setHomeDir(args.getHomeProjectDirectory());
@@ -85,7 +83,25 @@ public class Analysis {
         }
     }
 
-    public IProject getProject() {
+    public IProject getProject() throws IOException {
+        if (project == null) {
+            Project.Type pType;
+            if (args.isCPPproject) {
+                pType = AbstractProject.Type.CPP;
+            } else if (args.isCProject) {
+                pType = AbstractProject.Type.C;
+            } else {
+                pType = AbstractProject.Type.JAVA;
+            }
+
+            if (args.isGitProject()) {
+                project = new GitProject(args.projectName, args.getGitRepo(), pType);
+                project.addSourceDirectory(args.getGitRepo().getAbsolutePath());
+            } else {
+                project = new Project(args.projectName, pType);
+            }
+
+        }
         return project;
     }
 

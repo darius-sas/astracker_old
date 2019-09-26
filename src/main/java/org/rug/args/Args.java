@@ -26,10 +26,16 @@ public class Args {
     @Parameter(names = {"-runProjectSize", "-rS"}, description = "Whether to run the project size runner.")
     private boolean runProjectSizes = false;
 
-    @Parameter(names = {"-cppProject", "-cppP"}, descriptionKey = "Flag this as a C/C++ project (i.e. project analysed with Arcan for C/C++.")
+    @Parameter(names = {"-cppProject", "-cppP"}, descriptionKey = "Flag this as a C++ project (i.e. project analysed with Arcan for C/C++).")
     public boolean isCPPproject = false;
 
-    @Parameter(names = {"-javaProject", "-jP"}, descriptionKey = "Flag this as a Java project (i.e. project analysed with Arcan for Java.")
+    @Parameter(names = {"-cProject", "-cP"}, descriptionKey = "Flag this project as C project (i.e. project analysed with Arcan for C/C++).")
+    public boolean isCProject = false;
+
+    @Parameter(names = {"-gitRepo"}, descriptionKey = "Enable history-related metrics by passing to the git repository where to read the sources from.", converter = InputDirManager.class)
+    public File gitRepo;
+
+    @Parameter(names = {"-javaProject", "-jP"}, descriptionKey = "Flag this as a Java project (i.e. project analysed with Arcan for Java).")
     public boolean isJavaProject = true;
 
     @Parameter(names = {"-showArcanOutput", "-sAO"}, description = "Whether or not to show Arcan's output to the console.")
@@ -111,6 +117,14 @@ public class Args {
         Path p = Paths.get(outputDir.getAbsolutePath(), "trackASOutput", projectName);
         p.toFile().mkdirs();
         return p.toAbsolutePath().toString();
+    }
+
+    public File getGitRepo() {
+        return gitRepo;
+    }
+
+    public boolean isGitProject(){
+        return gitRepo != null;
     }
 
     public String getClasspathComponentCharact(){

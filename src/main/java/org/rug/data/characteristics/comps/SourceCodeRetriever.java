@@ -65,6 +65,9 @@ public abstract class SourceCodeRetriever {
      * @return the source code of the element as string or {@link #NOT_FOUND} if no class is found.
      */
     public String getSource(Vertex element) {
+        if (element.values("ClassType", "Type").next().toString().toLowerCase().contains("retrieved")) {
+            return "";
+        }
         var fileName = toFileName(element);
         var extension = fileName.substring(fileName.lastIndexOf("."));
         fileName = fileName.substring(0, fileName.lastIndexOf("."));
@@ -114,7 +117,7 @@ public abstract class SourceCodeRetriever {
      * @return the Path instance of the given component or null if no element was found.
      */
     public Optional<Path> getPathOf(Vertex component) {
-        if (component.value("ClassType").toString().toLowerCase().contains("retrieved")) {
+        if (component.values("ClassType", "Type").next().toString().toLowerCase().contains("retrieved")) {
             return Optional.empty();
         }
         return findFile(toFileName(component));

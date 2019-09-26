@@ -16,11 +16,23 @@ public class GitProject extends AbstractProject {
      * Instantiates this project and sets the given name.
      *
      * @param name        the name of the project.
+     * @param gitDir      the .git directory or the directory containing the .git directory.
      * @param projectType the type of the project (programming language).
      */
     public GitProject(String name, String gitDir, Type projectType) throws IOException {
+        this(name, new File(gitDir), projectType);
+    }
+
+    /**
+     * Instantiates this project and sets the given name.
+     *
+     * @param name        the name of the project.
+     * @param gitDir      the .git directory or the directory containing the .git directory.
+     * @param projectType the type of the project (programming language).
+     */
+    public GitProject(String name, File gitDir, Type projectType) throws IOException {
         super(name, projectType, new StringCommitComparator());
-        this.git = Git.open(new File(gitDir));
+        this.git = Git.open(gitDir);
     }
 
     @Override
