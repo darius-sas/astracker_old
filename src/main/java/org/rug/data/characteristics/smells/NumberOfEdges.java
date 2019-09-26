@@ -58,13 +58,13 @@ public class NumberOfEdges extends AbstractSmellCharacteristic {
     private String countEdges(Set<Vertex> vertices, ArchitecturalSmell smell){
         return String.valueOf(
                 smell.getTraversalSource()
-                .V(vertices).bothE()
+                        .V(vertices).bothE()
                 .hasNot("Weight")
                 .where(__.otherV().is(P.within(vertices)))
                 .count().tryNext().orElse(0L)
                 +
-                smell.getTraversalSource()
-                .V(vertices).bothE()
+                        smell.getTraversalSource()
+                                .V(vertices).bothE()
                 .has("Weight")
                 .where(__.otherV().is(P.within(vertices))).as("edges")
                 .select("edges").by("Weight")

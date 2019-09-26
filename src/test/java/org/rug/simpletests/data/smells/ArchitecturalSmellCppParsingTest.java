@@ -1,7 +1,9 @@
 package org.rug.simpletests.data.smells;
 
+import org.apache.tinkerpop.gremlin.process.traversal.IO;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -57,6 +59,14 @@ public class ArchitecturalSmellCppParsingTest {
                     fail("Level is incorrect. Test failed.");
             }
         });
+    }
+
+    @Test
+    void testCDParsing2(){
+        var graph = TinkerGraph.open();
+        graph.traversal().io("/home/fenn/Downloads/gitRepos/output/arcanOutput/CoffeeConTroll/graph-16-12_6_2016-620236ec438d3c92360146a41dca1f46f459a7b4.graphml").read().with(IO.reader, IO.graphml).iterate();
+        g = graph.traversal();
+        testParsing(ArchitecturalSmell.Type.CD, CDSmellCPP::new);
     }
 
 }

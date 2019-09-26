@@ -13,7 +13,7 @@ public class CDSmellCPP extends CDSmell {
 
 	@Override
 	protected void setAffectedElements(Vertex smell) {
-		setAffectedElements(smell.graph().traversal().V(smell)
+		super.setAffectedElements(smell.graph().traversal().V(smell)
                 .choose(__.in().hasLabel(VertexLabel.CYCLESHAPE.toString()),
                         __.in().hasLabel(VertexLabel.CYCLESHAPE.toString())
                                .out().hasLabel(VertexLabel.SMELL.toString()))

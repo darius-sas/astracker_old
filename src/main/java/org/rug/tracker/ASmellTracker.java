@@ -222,7 +222,7 @@ public class ASmellTracker implements Serializable {
                                 var cce = gs.V(component).outE(HAS_CHARACTERISTIC)
                                         .has(VERSION, v.value(VERSION).toString())
                                         .tryNext();
-                                if (!cce.isPresent()){
+                                if (cce.isEmpty()){
                                     final var componentCharacteristics = gs.addV("componentCharacteristic").next();
                                     affected.keys().stream().filter(k -> !k.equals("name")).forEach(k->
                                         componentCharacteristics.property(k, affected.value(k))

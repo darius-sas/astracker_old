@@ -20,6 +20,9 @@ import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+
+import static org.rug.tracker.ASmellTracker.*;
 
 /**
  * Retrieves the smell characteristics for each smell and writes them on file.
@@ -64,25 +67,31 @@ public class SmellCharacteristicsGenerator extends CSVDataGenerator<ASmellTracke
         header.add("versionPosition");
         header.add("smellIdInVersion");
         header.addAll(characteristicKeys);
+        header.add("affectedElements");
 
         Set<Vertex> smells = g.V().hasLabel("smell").toSet();
         smells.forEach(smell -> {
             List<String> commonRecord = new ArrayList<>();
             smellKeys.forEach(k -> commonRecord.add(smell.value(k).toString()));
 
-            g.V(smell).outE("hasCharacteristic").as("e")
+            var affects = g.V(smell).outE(AFFECTS).toSet();
+
+            g.V(smell).outE(HAS_CHARACTERISTIC).as("e")
                     .inV().as("v")
                     .select("e", "v")
                     .forEachRemaining(variables -> {
                         Edge incomingEdge = (Edge)variables.get("e");
                         Vertex characteristic = (Vertex)variables.get("v");
                         List<String> completeRecord = new ArrayList<>(commonRecord);
-                        String version = incomingEdge.value("version").toString();
+                        String version = incomingEdge.value(VERSION).toString();
                         completeRecord.add(version);
                         completeRecord.add(project.getVersionIndex(version).toString());
-                        completeRecord.add(incomingEdge.value("smellId").toString());
+                        completeRecord.add(incomingEdge.value(SMELL_ID).toString());
                         characteristicKeys.forEach(k -> completeRecord.add(characteristic.property(k).orElse("NA").toString()));
-                        //records.add(completeRecord);
+                        var affected = Arrays.toString(affects.stream()
+                                .filter(e -> e.value(VERSION).equals(version))
+                                .map(e -> e.inVertex().value(NAME).toString()).sorted().toArray());
+                        completeRecord.add(affected);
                         writeRecordOnFile(completeRecord);
                     });
         });
