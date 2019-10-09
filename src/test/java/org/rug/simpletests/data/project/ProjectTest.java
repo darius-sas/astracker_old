@@ -99,7 +99,7 @@ public class ProjectTest {
     @Test
     void gitProjectTest() throws IOException {
         IProject p = new GitProject("pyne", "/home/fenn/git/pyne", AbstractProject.Type.JAVA);
-        p.addSourceDirectory("/home/fenn/git/pyne/pyne-cli/src/main/java/");
+        p.addSourceDirectory("/home/fenn/git/pyne/pyne-api/src/main/java/");
         p.addGraphMLfiles("test-data/output/arcanOutput/pyne");
         assertEquals(3, p.numberOfVersions());
 
@@ -114,5 +114,9 @@ public class ProjectTest {
         version = p.getVersion("3-a0723c8a3cefc206a7ccb15d9de1e2bf399fcff9");
         smells = p.getArchitecturalSmellsIn(version);
         assertEquals(2, smells.size());
+
+        var retriever = version.getSourceCodeRetriever();
+        var src = retriever.getSource("edu.rug.pyne.api.GitHelper", ".java");
+        assertFalse(src.isEmpty());
     }
 }

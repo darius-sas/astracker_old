@@ -34,6 +34,7 @@ public class PersistenceHubTest {
 
     @Test
     void testSendTo() throws IOException {
+        PersistenceHub.clearAll();
         var outfile = Paths.get(trackASOutputDir,antlr.getName(), "smells-characteristics.csv");
         PersistenceHub.register(new SmellCharacteristicsGenerator(outfile.toString(), antlr));
         var tracker = new ASmellTracker();
@@ -46,10 +47,12 @@ public class PersistenceHubTest {
         var lines = Files.readAllLines(outfile);
         assertEquals(7, lines.size());
         outfile.toFile().delete();
+        PersistenceHub.clearAll();
     }
 
     @Test
     void testPerformanceCharacteristicsFileWriting() throws IOException, ClassNotFoundException {
+        PersistenceHub.clearAll();
         var outfile = Paths.get(trackASOutputDir,antlr.getName(), "smells-characteristics.csv");
         PersistenceHub.register(new SmellCharacteristicsGenerator(outfile.toString(), antlr));
 
@@ -66,5 +69,6 @@ public class PersistenceHubTest {
         System.out.println(String.format("Elapsed saving time per record: %.5f", elapsedSecs/lines.size()));
         assertEquals(2328, lines.size());
         assertTrue(elapsedSecs < 3.1); // 3.7 with single-off writing
+        PersistenceHub.clearAll();
     }
 }

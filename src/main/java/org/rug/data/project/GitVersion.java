@@ -30,6 +30,7 @@ public class GitVersion extends AbstractVersion {
             checkoutCommand.setName(commitName);
             try {
                 checkoutCommand.call();
+                isCheckedOut = true;
             } catch (GitAPIException e) {
                 throw new IllegalArgumentException("Could not checkout the given commit: " + getVersionString());
             }
