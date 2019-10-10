@@ -41,7 +41,7 @@ public class TrackASRunner extends ToolRunner {
             logger.info("Tracking version {} (n. {} of {})", version.getVersionString(), version.getVersionPosition(), project.numberOfVersions());
             List<ArchitecturalSmell> smells = project.getArchitecturalSmellsIn(version);
 
-            componentCharacteristics.parallelStream().forEach(c -> c.calculate(version));
+            componentCharacteristics.forEach(c -> c.calculate(version));
             smells.forEach(ArchitecturalSmell::calculateCharacteristics);
 
             tracker.track(smells, version);

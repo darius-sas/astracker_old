@@ -11,7 +11,7 @@ import java.nio.file.Path;
 public class GitVersion extends AbstractVersion {
 
     private Repository repository;
-    private CheckoutCommand checkoutCommand;
+    private final CheckoutCommand checkoutCommand;
     private String versionDate;
     private String commitName;
     private boolean isCheckedOut;
@@ -25,15 +25,15 @@ public class GitVersion extends AbstractVersion {
 
 
     @Override
-    public SourceCodeRetriever getSourceCodeRetriever() {
+    public synchronized SourceCodeRetriever getSourceCodeRetriever() {
         if (!isCheckedOut) {
-            checkoutCommand.setName(commitName);
-            try {
-                checkoutCommand.call();
-                isCheckedOut = true;
-            } catch (GitAPIException e) {
-                throw new IllegalArgumentException("Could not checkout the given commit: " + getVersionString());
-            }
+                checkoutCommand.setName(commitName);
+                try {
+                    checkoutCommand.call();
+                    isCheckedOut = true;
+                } catch (GitAPIException e) {
+                    throw new IllegalArgumentException("Could not checkout the given commit: " + getVersionString());
+                }
         }
         return super.getSourceCodeRetriever();
     }

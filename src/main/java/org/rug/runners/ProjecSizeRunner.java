@@ -1,5 +1,6 @@
 package org.rug.runners;
 
+import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.rug.data.labels.VertexLabel;
 import org.rug.data.project.IProject;
 import org.rug.persistence.PersistenceHub;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * Calculates the sizes of a project in terms of classes and packages.
@@ -33,14 +35,16 @@ public class ProjecSizeRunner extends ToolRunner {
     public int run() {
         int exitCode;
         if (project.versions().size() <= 0){
-            logger.error("Cannot analyse a project of size 0.");
+            logger.error("Cannot measure size of a project with no versions.");
             exitCode = -1;
         }else {
             project.forEach(version -> {
                 logger.info("Measuring size of {} in version {}", project.getName(), version.getVersionString());
                 var graph = version.getGraph();
-                var nP = graph.traversal().V().hasLabel(VertexLabel.PACKAGE.toString()).count().tryNext().orElse(0L);
-                var nC = graph.traversal().V().hasLabel(VertexLabel.CLASS.toString()).count().tryNext().orElse(0L);
+                var nPlabels = VertexLabel.allComponents().stream().map(VertexLabel::toString).collect(Collectors.toSet());
+                var nClabels = VertexLabel.allFiles().stream().map(VertexLabel::toString).collect(Collectors.toSet());
+                var nP = graph.traversal().V().hasLabel(P.within(nPlabels)).count().tryNext().orElse(0L);
+                var nC = graph.traversal().V().hasLabel(P.within(nClabels)).count().tryNext().orElse(0L);
                 var record = new ArrayList<String>();
                 record.add(project.getName());
                 record.add(version.getVersionString());

@@ -1,6 +1,7 @@
 package org.rug.data.project;
 
 import org.apache.tinkerpop.gremlin.process.traversal.IO;
+import org.apache.tinkerpop.gremlin.process.traversal.TextP;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.rug.data.characteristics.comps.SourceCodeRetriever;
@@ -94,7 +95,7 @@ public abstract class AbstractVersion implements IVersion {
      * @return the dependency graph of this version.
      */
     @Override
-    public Graph getGraph() {
+    public synchronized Graph getGraph() {
         if (graph == null) {
             graph = TinkerGraph.open();
             try {
@@ -102,7 +103,7 @@ public abstract class AbstractVersion implements IVersion {
                 if (graphMLfile.isFile() && graphMLfile.canRead()) {
                     this.graph.traversal().io(graphMLPath.toAbsolutePath().toString())
                             .read().with(IO.reader, IO.graphml).iterate();
-                    // This statement ensures compatibility between graphml files produced
+                    // These statements ensures compatibility between graphml files produced
                     // with Arcan and Arcan for C/C++
                     this.graph.traversal().E()
                             .hasLabel(EdgeLabel.DEPENDSON.toString())
@@ -111,6 +112,15 @@ public abstract class AbstractVersion implements IVersion {
                                 e.property("Weight", e.value("weight"));
                                 e.property("weight").remove();
                             });
+                    this.graph.traversal().V()
+                            .has("Type", TextP.containing("retrieved"))
+                            .drop().iterate();
+                    this.graph.traversal().V()
+                            .has("PackageType", TextP.containing("retrieved"))
+                            .drop().iterate();
+                    this.graph.traversal().V()
+                            .has("ClassType", TextP.containing("retrieved"))
+                            .drop().iterate();
                 }else {
                     throw new IOException("");
                 }
