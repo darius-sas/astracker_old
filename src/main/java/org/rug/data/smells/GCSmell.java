@@ -4,6 +4,7 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.SmellVisitor;
 import org.rug.data.labels.EdgeLabel;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class GCSmell extends SingleElementSmell {
@@ -17,13 +18,20 @@ public class GCSmell extends SingleElementSmell {
     }
 
     @Override
-    protected void setAffectedElements(Vertex smell) {
+    protected void setLevel(Vertex vertex) {
+        super.setLevel(Level.PACKAGE);
+    }
 
+    @Override
+    protected void setAffectedElements(Vertex smell) {
+        affectedElements = new HashSet<>();
+        var centre = smell.graph().traversal().V(smell).out(EdgeLabel.GCAFFECTEDPACKAGE.toString()).next();
+        affectedElements.add(centre);
     }
 
     @Override
     public <T> T accept(SmellVisitor<T> visitor) {
-        return null;
+        return visitor.visit(this);
     }
 
     /**

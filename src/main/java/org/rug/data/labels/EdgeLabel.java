@@ -22,7 +22,8 @@ public enum EdgeLabel {
     HLIN("isHLin"),
     HLOUT("isHLout"),
     UDBADDEP("badDep"),
-    STARTOFCYCLE("startOfCycle")
+    STARTOFCYCLE("startOfCycle"),
+    GCAFFECTEDPACKAGE("GCAffectedPackage"),
     ;
 
     private final String value;
