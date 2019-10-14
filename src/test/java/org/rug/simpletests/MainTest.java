@@ -86,4 +86,12 @@ class MainTest {
         Main.main(new String[]{"-p", projectName, "-i", "../test-output/", "-gitRepo", "../pyne", "-o", "../test-output", "-pC", "-rS"});
         PersistenceHub.clearAll();
     }
+
+    @Test
+    void systemTestTics(){
+        var projectName = "tics";
+        PersistenceHub.clearAll();
+        Main.main(new String[]{"-p", projectName, "-i", "../projects-analyses/arcanOutput", "-o", "../projects-analyses", "-pC", "-rS"});
+        PersistenceHub.clearAll();
+    }
 }

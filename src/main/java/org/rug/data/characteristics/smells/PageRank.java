@@ -10,14 +10,12 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.rug.data.labels.EdgeLabel;
 import org.rug.data.labels.VertexLabel;
+import org.rug.data.project.AbstractProject;
 import org.rug.data.smells.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Function;
@@ -117,7 +115,7 @@ public class PageRank extends AbstractSmellCharacteristic {
      * @param src the graph to clone
      * @return the clone
      */
-    private static Graph clone(Graph src, List<String> vLabels, List<String> eLabels){
+    private static Graph clone(Graph src, Set<String> vLabels, Set<String> eLabels){
         Graph des = TinkerGraph.open();
         Map<Object, Object> mapId = new HashMap<>();
 
@@ -150,6 +148,7 @@ public class PageRank extends AbstractSmellCharacteristic {
     private static Graph getPageRankGraph(ArchitecturalSmell smell){
         Graph smellGraph = smell.getAffectedGraph();
         if (!cachedPageRankGraphs.containsKey(smellGraph)){
+            cachedPageRankGraphs.clear(); // keep only the graphs of a single version (memory optimization)
             var innerMap = new HashMap<AffectedDesign.Level, Graph>();
 
             Graph explodedGraph = explodeGraph(smellGraph);
@@ -159,7 +158,7 @@ public class PageRank extends AbstractSmellCharacteristic {
                     .edges(__.outE(EdgeLabel.DEPENDSON.toString()).asAdmin()).create(explodedGraph);
             var programPackage = PageRankVertexProgram
                     .build().property("centrality")
-                    .edges(__.outE(EdgeLabel.AFFERENT.toString()).asAdmin()).create(explodedGraph);
+                    .edges(__.outE(EdgeLabel.PACKAGEISAFFERENTOF.toString()).asAdmin()).create(explodedGraph);
 
             try {
                 Future<ComputerResult> futureClasses = explodedGraph
@@ -188,6 +187,7 @@ public class PageRank extends AbstractSmellCharacteristic {
         return cachedPageRankGraphs.get(smellGraph).get(smell.getLevel().isDesignLevel() ? AffectedDesign.Level.DESIGN : AffectedDesign.Level.ARCHITECTURAL);
     }
 
+
     /**
      * Expands the dependsOn edges using the Weight property. For every dependsOn/packageIsAfferentOf edge e with Weight = n, n new edges
      * will be added to the graph between the nodes connected by e. The original graph is not modified.
@@ -195,8 +195,8 @@ public class PageRank extends AbstractSmellCharacteristic {
      * @return a new graph containing the exploded edges.
      */
     private static Graph explodeGraph(Graph src){
-        Graph dst = clone(src, List.of(VertexLabel.CFILE.toString(), VertexLabel.COMPONENT.toString(), VertexLabel.HFILE.toString()),
-                List.of(EdgeLabel.DEPENDSON.toString(), EdgeLabel.AFFERENT.toString()));
+
+        Graph dst = clone(src, VertexLabel.getTypesStrings(), EdgeLabel.getAllDependencyStrings());
 
         dst.traversal().E().has("Weight").toSet().forEach(edge -> {
             int weight = edge.value("Weight");

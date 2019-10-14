@@ -187,7 +187,7 @@ public class ASmellTracker implements Serializable {
                     .repeat(__.in(EVOLVED_FROM, REAPPEARED, END))
                     .until(__.hasLabel(END))
                     .path().toSet();
-            dynasties.parallelStream().forEach(p -> {
+            dynasties.forEach(p -> {
                 Vertex smellVertex = gs.addV(SMELL).next();
                 int age = 0;
                 for (Object o : p) { // beware: the path unfolds the visited vertices backwards

@@ -103,24 +103,7 @@ public abstract class AbstractVersion implements IVersion {
                 if (graphMLfile.isFile() && graphMLfile.canRead()) {
                     this.graph.traversal().io(graphMLPath.toAbsolutePath().toString())
                             .read().with(IO.reader, IO.graphml).iterate();
-                    // These statements ensures compatibility between graphml files produced
-                    // with Arcan and Arcan for C/C++
-                    this.graph.traversal().E()
-                            .hasLabel(EdgeLabel.DEPENDSON.toString())
-                            .has("weight")
-                            .forEachRemaining(e -> {
-                                e.property("Weight", e.value("weight"));
-                                e.property("weight").remove();
-                            });
-                    this.graph.traversal().V()
-                            .has("Type", TextP.containing("retrieved"))
-                            .drop().iterate();
-                    this.graph.traversal().V()
-                            .has("PackageType", TextP.containing("retrieved"))
-                            .drop().iterate();
-                    this.graph.traversal().V()
-                            .has("ClassType", TextP.containing("retrieved"))
-                            .drop().iterate();
+                    ensureCompatibility();
                 }else {
                     throw new IOException("");
                 }
@@ -129,6 +112,39 @@ public abstract class AbstractVersion implements IVersion {
             }
         }
         return graph;
+    }
+
+    /**
+     * Renames labels and properties to fit the graph model adopted by AStracker.
+     */
+    private void ensureCompatibility(){
+        this.graph.traversal().E()
+                .hasLabel(EdgeLabel.DEPENDSON.toString())
+                .has("weight")
+                .forEachRemaining(e -> {
+                    e.property("Weight", e.value("weight"));
+                    e.property("weight").remove();
+                });
+
+        switchEdgeLabel("isPartOfComponent", EdgeLabel.BELONGSTO.toString());
+        switchEdgeLabel("afferent", EdgeLabel.PACKAGEISAFFERENTOF.toString());
+        this.graph.traversal().V()
+                .has("Type", TextP.containing("retrieved"))
+                .drop().iterate();
+        this.graph.traversal().V()
+                .has("PackageType", TextP.containing("Retrieved"))
+                .drop().iterate();
+        this.graph.traversal().V()
+                .has("ClassType", TextP.containing("Retrieved"))
+                .drop().iterate();
+    }
+
+    private void switchEdgeLabel(String oldLabel, String newLabel){
+        this.graph.traversal().E().hasLabel(oldLabel).forEachRemaining(edge -> {
+            var newEdge = this.graph.traversal().addE(newLabel).from(edge.outVertex()).to(edge.inVertex()).next();
+            edge.properties().forEachRemaining(p -> newEdge.property(p.key(), p.value()));
+        });
+        this.graph.traversal().E().hasLabel(oldLabel).drop().iterate();
     }
 
     @Override

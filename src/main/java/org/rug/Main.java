@@ -6,6 +6,12 @@ import org.rug.persistence.PersistenceHub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Timer;
+
 /**
  * Main entry point of the system.
  */
@@ -37,6 +43,7 @@ public class Main {
 
             boolean errorsOccurred = false;
             String errorRunnerName = "";
+            long start = System.nanoTime();
             for (var r : analysis.getRunners()) {
                 int exitCode = r.run();
                 errorsOccurred = exitCode != 0;
@@ -45,17 +52,31 @@ public class Main {
                     break;
                 }
             }
+            long end = System.nanoTime();
             if (errorsOccurred) {
                 logger.error("Unexpected errors have occurred while running runner: {}", errorRunnerName);
                 System.exit(-1);
             }
+
             logger.info("Writing to output directory...");
             PersistenceHub.closeAll();
-
+            logger.info("Elapsed time: {}s", toElapsedString(end - start));
         }catch (Exception e){
             logger.error("Unhandled error: {}", e.getMessage());
             e.printStackTrace();
             System.exit(-1);
         }
+    }
+
+    /**
+     * Returns a formatted string of minutes and seconds elapsed.
+     * @param elapsedNanoSeconds the nano seconds elapsed
+     * @return a formatted string representing elapsed time as mm:s.
+     */
+    private static String toElapsedString(long elapsedNanoSeconds){
+        double elapsedMinutes = (elapsedNanoSeconds * 1e-9) / 60d;
+        long minutes = Math.round(Math.floor(elapsedMinutes));
+        long seconds = Math.abs(Math.round((elapsedMinutes - minutes) * 100 * 0.6d));
+        return String.format("%d:%d minutes", minutes, seconds);
     }
 }
