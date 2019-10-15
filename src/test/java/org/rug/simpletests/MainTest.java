@@ -76,14 +76,14 @@ class MainTest {
             return ()-> String.format("Error %s for project %s.", cause, projectName);
     }
 
-    @Test
+
     void systemTestPyne(){
         var projectName = "pyne";
         try {
             Files.delete(Paths.get(outputDir, "trackASOutput", projectName));
         } catch (IOException e) {}
         PersistenceHub.clearAll();
-        Main.main(new String[]{"-p", projectName, "-i", "../test-output/", "-gitRepo", "../pyne", "-o", "../test-output", "-pC", "-rS"});
+        Main.main(new String[]{"-p", projectName, "-i", "./test-output/", "-gitRepo", "./pyne", "-o", "../test-output", "-pC", "-rS"});
         PersistenceHub.clearAll();
     }
 
