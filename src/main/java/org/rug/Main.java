@@ -60,7 +60,7 @@ public class Main {
 
             logger.info("Writing to output directory...");
             PersistenceHub.closeAll();
-            logger.info("Elapsed time: {}s", toElapsedString(end - start));
+            logger.info("Elapsed time: {}", toElapsedString(end - start));
         }catch (Exception e){
             logger.error("Unhandled error: {}", e.getMessage());
             e.printStackTrace();

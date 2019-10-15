@@ -87,7 +87,6 @@ class MainTest {
         PersistenceHub.clearAll();
     }
 
-    @Test
     void systemTestTics(){
         var projectName = "tics";
         PersistenceHub.clearAll();
