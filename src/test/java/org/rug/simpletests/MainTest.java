@@ -63,7 +63,7 @@ class MainTest {
 
         PersistenceHub.clearAll();
 
-        Main.main(new String[]{"-p", projectName, "-i", inputDirGraphMLs, "-o", outputDir, "-pC", "-pS", isCPPproject ? "-cppP" : "-jP" });
+        Main.main(new String[]{"-p", projectName, "-i", inputDirGraphMLs+"/"+projectName, "-o", outputDir, "-pC", "-pS", isCPPproject ? "-cppP" : "-jP" });
 
         assertTrue(Files.exists(Paths.get(outputDir, "trackASOutput", projectName, "smell-characteristics-consecOnly.csv")),
                 error(projectName, "checking existence of smell characteristics file"));

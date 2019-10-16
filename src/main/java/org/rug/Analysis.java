@@ -72,6 +72,10 @@ public class Analysis {
                     PersistenceHub.register(new ComponentAffectedByGenerator(args.getAffectedComponentsFile()));
                 }
 
+                if (args.componentCharacteristics){
+                    PersistenceHub.register(new ComponentMetricGenerator(args.getComponentCharacteristicsFile()));
+                }
+
                 PersistenceHub.register(new CondensedGraphGenerator(args.getCondensedGraphFile()));
                 PersistenceHub.register(new TrackGraphGenerator(args.getTrackGraphFileName()));
             }
