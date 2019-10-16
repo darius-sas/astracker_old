@@ -1,5 +1,6 @@
 package org.rug.data.characteristics.smells;
 
+import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.rug.data.labels.EdgeLabel;
 import org.rug.data.labels.VertexLabel;
@@ -37,7 +38,7 @@ public class AffectedDesign extends AbstractSmellCharacteristic{
                     .filter(s ->
                         g.V(s.getAffectedElements())
                                 .out(EdgeLabel.BELONGSTO.toString())
-                                .hasLabel(VertexLabel.COMPONENT.toString())
+                                .hasLabel(P.within(VertexLabel.getComponentStrings()))
                                 .toSet().equals(smell.getAffectedElements()))
                     .collect(Collectors.toSet());
 

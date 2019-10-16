@@ -28,7 +28,7 @@ public class AverageInternalPathLength extends AbstractSmellCharacteristic {
     public String visit(HLSmell smell) {
         var g = smell.getAffectedGraph().traversal();
         var affectedPackage = smell.getAffectedElements().iterator().next();
-        if (!affectedPackage.label().equals(VertexLabel.PACKAGE.toString())) {
+        if (!VertexLabel.getComponentStrings().contains(affectedPackage.label())) {
             return "-1";
         }
 

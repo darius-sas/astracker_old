@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.rug.data.smells.ArchitecturalSmell;
+import org.rug.persistence.CondensedGraphGenerator;
 import org.rug.persistence.PersistenceHub;
 import org.rug.persistence.SmellCharacteristicsGenerator;
 import org.rug.persistence.TrackGraphGenerator;
@@ -36,14 +37,24 @@ public class PersistenceHubTest {
     @Test
     void testSendTo() throws IOException {
         PersistenceHub.clearAll();
-        var outfile = Paths.get(trackASOutputDir,antlr.getName(), "smells-characteristics.csv");
+        var outfile = Paths.get(trackASOutputDir,antlr.getName(), "smells-characteristics-new.csv");
+        var condensedGraph = Paths.get(trackASOutputDir,antlr.getName(), "condesedGraph-new.graphml");
         PersistenceHub.register(new SmellCharacteristicsGenerator(outfile.toString(), antlr));
+        PersistenceHub.register(new CondensedGraphGenerator(condensedGraph.toString()));
         var tracker = new ASmellTracker();
         var v1 = antlr.getVersionWith(1);
         var v2 = antlr.getVersionWith(2);
+
+        var smells = antlr.getArchitecturalSmellsIn(v1);
+        smells.forEach(ArchitecturalSmell::calculateCharacteristics);
         tracker.track(antlr.getArchitecturalSmellsIn(v1), v1);
+
+        smells = antlr.getArchitecturalSmellsIn(v2);
+        smells.forEach(ArchitecturalSmell::calculateCharacteristics);
         tracker.track(antlr.getArchitecturalSmellsIn(v2), v2);
+
         PersistenceHub.sendToAndWrite(SmellCharacteristicsGenerator.class, tracker);
+        PersistenceHub.sendToAndWrite(CondensedGraphGenerator.class, tracker);
         PersistenceHub.closeAll();
         var lines = Files.readAllLines(outfile);
         assertEquals(7, lines.size());

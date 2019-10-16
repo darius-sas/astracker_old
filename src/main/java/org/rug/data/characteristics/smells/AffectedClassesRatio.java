@@ -26,7 +26,7 @@ public class AffectedClassesRatio extends AbstractSmellCharacteristic {
     @Override
     public String visit(HLSmell smell) {
         var affectedPackage = smell.getCentre();
-        if (!affectedPackage.label().equals(VertexLabel.PACKAGE.toString())) {
+        if (!VertexLabel.getComponentStrings().contains(affectedPackage.label())) {
             return "-1";
         }
         var inDep = smell.getClassesDependedUponByAfferentPackages();

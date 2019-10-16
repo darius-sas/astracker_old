@@ -182,10 +182,15 @@ public class ASmellTracker implements Serializable {
         GraphTraversalSource gt = trackGraph.traversal();
         GraphTraversalSource gs = condensedGraph.traversal();
 
-        GraphTraversal<Vertex, Vertex> smellsInVersion = gt.V().hasLabel(END, TAIL).out().hasNot(SMELL_STATUS);
+        Set<Vertex> smellsInVersion = gt.V().hasLabel(END, TAIL).out().hasNot(SMELL_STATUS).toSet();
 
-        smellsInVersion.forEachRemaining(smellVertex -> {
-            var head = gt.V(smellVertex).choose(out(), repeat(out())).in(STARTED_IN).next();
+        for(var smellVertex : smellsInVersion){
+            var head = gt.V(smellVertex)
+                    .choose(out(),
+                            repeat(out()).until(in(STARTED_IN)).in(STARTED_IN),
+                            in(STARTED_IN))
+                    .hasLabel(HEAD)
+                    .tryNext().orElseThrow(); // this should never throw an exception
             var smellUID = head.value(UNIQUE_SMELL_ID);
             var condensedSmell = gs.V()
                     .hasLabel(SMELL)
@@ -199,6 +204,7 @@ public class ASmellTracker implements Serializable {
             }
             Vertex characteristics = gs.addV(CHARACTERISTIC).next();
             smellObject.getCharacteristicsMap().forEach(characteristics::property);
+
             gs.addE(HAS_CHARACTERISTIC).from(condensedSmell).to(characteristics)
                     .property(VERSION, smellVertex.value(VERSION))
                     .property(SMELL_ID, smellObject.getId()).next();
@@ -229,7 +235,7 @@ public class ASmellTracker implements Serializable {
             condensedSmell.property(AGE, ++age);
             condensedSmell.property("lastDetected", smellVertex.value(VERSION));
             smellVertex.property(SMELL_STATUS, "processed");
-        });
+        }
     }
 
     /**
