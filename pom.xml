@@ -6,7 +6,7 @@
 
     <groupId>org.rug</groupId>
     <artifactId>astracker</artifactId>
-    <version>0.8.5</version>
+    <version>0.9.0</version>
     <dependencies>
         <dependency>
             <groupId>org.apache.tinkerpop</groupId>

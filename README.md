@@ -37,9 +37,10 @@ java -jar target/astracker-0.7-jar-with-dependencies.jar -i sample-data -p antlr
 
 Optionally, you can execute tests by running
 ```
+./test-data/git-projects/clone-repos.sh       # Clone test repositories on locally
 mvn clean compile test
 ```
-though ensure you have `test-data` in the root directory of the project.
+though ensure you have `test-data` in the root directory of the project and that you clone all the necessary git repositories (using the handy script).
 Test reports on coverage are available in `target/site` and output logs are available in `target/surefire`.
 
 ## Input formats
