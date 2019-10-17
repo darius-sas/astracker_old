@@ -3,6 +3,8 @@ package org.rug.tracker;
 import org.rug.data.SmellVisitor;
 import org.rug.data.smells.*;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.*;
 
 /**
@@ -19,8 +21,8 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
     private final double fewElementsThreshold;
     private final double moreElementsThreshold;
     private final int fewElements;
-    private List<LinkScoreTriple> unlinkedMatchScores;
-    private Set<LinkScoreTriple> bestMatch;
+    private transient List<LinkScoreTriple> unlinkedMatchScores;
+    private transient Set<LinkScoreTriple> bestMatch;
     /**
      * Builds this linker with the given threshold.
      * @param fewElementsThreshold the threshold value to use for discarding couples with not enough similarity. This
@@ -149,5 +151,12 @@ public class JaccardSimilarityLinker implements ISimilarityLinker, SmellVisitor<
     @Override
     public Set<String> visit(GCSmell smell) {
         return smell.getAffectedElementsNames();
+    }
+
+
+    private void readObject(ObjectInputStream os) throws IOException, ClassNotFoundException{
+        os.defaultReadObject();
+        unlinkedMatchScores = new ArrayList<>();
+        bestMatch = new HashSet<>();
     }
 }

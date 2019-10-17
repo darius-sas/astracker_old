@@ -26,14 +26,14 @@ import static org.rug.simpletests.TestData.*;
 @Tag("unitTests")
 public class ASmellTrackerTest {
 
-    private Map<String, Integer> antlrOracle;
-    private Map<String, Integer> pureOracle;
+    protected Map<String, Long> antlrOracle;
+    protected Map<String, Long> pureOracle;
 //    private Map<String, Integer> antOracle;
 
     @BeforeAll
     void init(){
         antlrOracle = new HashMap<>();
-        var oracle = new int[]{0, 3, 3, 4, 5, 3, 26, 61, 61, 26, 35, 0, 113, 36, 183, 24, 44,
+        var oracle = new long[]{0, 3, 3, 4, 5, 3, 26, 61, 61, 26, 35, 0, 113, 36, 183, 24, 44,
                                95, 125, 117, 151, 29};
         int i = 0;
         for(var v : antlr){
@@ -41,7 +41,7 @@ public class ASmellTrackerTest {
         }
 
         pureOracle = new HashMap<>();
-        oracle = new int[]{ 0, 132, 132, 132, 132};
+        oracle = new long[]{ 0, 132, 132, 132, 132};
         i = 0;
         for (var v : pure){
             pureOracle.put(v.getVersionString(), oracle[i++]);
@@ -65,7 +65,7 @@ public class ASmellTrackerTest {
         trackTestProject(pure, pureOracle);
     }
 
-    private void trackTestProject(IProject project, Map<String, Integer> oracle) {
+    private void trackTestProject(IProject project, Map<String, Long> oracle) {
 
         ISimilarityLinker scorer = new SimpleNameJaccardSimilarityLinker();
         ASmellTracker tracker = new ASmellTracker(scorer, false);
@@ -78,7 +78,7 @@ public class ASmellTrackerTest {
             List<ArchitecturalSmell> smells = project.getArchitecturalSmellsIn(version);
             smells.forEach(ArchitecturalSmell::calculateCharacteristics);
             tracker.track(smells, version);
-            assertEquals(Long.valueOf(oracle.get(version.getVersionString())), tracker.smellsLinked());
+            assertEquals(oracle.get(version.getVersionString()), tracker.smellsLinked());
             PersistenceHub.sendToAndWrite(SmellSimilarityDataGenerator.class, tracker);
         }
         gen.accept(tracker);

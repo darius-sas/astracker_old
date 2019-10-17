@@ -10,6 +10,8 @@ import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.rug.data.project.IVersion;
 import org.rug.data.smells.ArchitecturalSmell;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -21,7 +23,7 @@ import java.util.stream.Collectors;
 /**
  * Tracks incrementally the architectural smells and saves them internally.
  */
-public class ASmellTracker implements Serializable {
+public class ASmellTracker implements Serializable{
 
     public static final String NAME = "name";
     public static final String SMELL = "smell";
@@ -48,15 +50,16 @@ public class ASmellTracker implements Serializable {
     public static final String COMPONENT_TYPE = "componentType";
     public static final String TAIL = "tail";
     public static final String SMELL_STATUS = "status";
+    public static final String COMPONENT_CHARACTERISTIC = "componentCharacteristic";
 
-    private Graph trackGraph;
-    private Graph condensedGraph;
-    private Vertex tail;
+    private transient Graph trackGraph;
+    private transient Graph condensedGraph;
+    private transient Vertex tail;
     private long uniqueSmellID;
     private ISimilarityLinker scorer;
     private DecimalFormat decimal;
 
-    private final boolean trackNonConsecutiveVersions;
+    private boolean trackNonConsecutiveVersions;
 
     /**
      * Builds an instance of this tracker.
@@ -71,8 +74,8 @@ public class ASmellTracker implements Serializable {
         this.trackNonConsecutiveVersions = trackNonConsecutiveVersions;
         this.scorer = scorer;
         this.decimal = new DecimalFormat("0.0#");
-
     }
+
 
     /**
      * Builds an instance of this tracker that does not tracks smells through non-consecutive versions.
@@ -128,7 +131,6 @@ public class ASmellTracker implements Serializable {
         updateCondensedGraph();
         clearSmellObjects();
     }
-
 
     /**
      * Begins a new dynasty for the given AS at the given starting version
@@ -223,8 +225,8 @@ public class ASmellTracker implements Serializable {
                         .has(VERSION, smellVertex.value(VERSION).toString())
                         .tryNext();
                 if (cce.isEmpty()){
-                    final var componentCharacteristics = gs.addV("componentCharacteristic").next();
-                    affectedComp.keys().stream().filter(k -> !k.equals("name")).forEach(k->
+                    final var componentCharacteristics = gs.addV(COMPONENT_CHARACTERISTIC).next();
+                    affectedComp.keys().stream().filter(k -> !k.equals(NAME)).forEach(k->
                             componentCharacteristics.property(k, affectedComp.value(k))
                     );
                     gs.addE(HAS_CHARACTERISTIC).from(component).to(componentCharacteristics)
@@ -290,6 +292,11 @@ public class ASmellTracker implements Serializable {
              vertex.property("affectedElements", affectedElements.toString());
          });
         return trackGraph;
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        //todo Add read graphs
     }
 
 }
