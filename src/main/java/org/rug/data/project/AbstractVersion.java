@@ -6,11 +6,13 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.rug.data.characteristics.comps.SourceCodeRetriever;
 import org.rug.data.labels.EdgeLabel;
+import org.rug.data.smells.ArchitecturalSmell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 
 public abstract class AbstractVersion implements IVersion {
 

@@ -10,8 +10,6 @@ import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.rug.data.project.IVersion;
 import org.rug.data.smells.ArchitecturalSmell;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -112,6 +110,7 @@ public class ASmellTracker implements Serializable{
                 Vertex predecessor = g1.V(tail).out().has(SMELL_OBJECT, t.getA()).next();
                 Vertex successor = g1.addV(SMELL)
                         .property(VERSION, version.getVersionString())
+                        .property(SMELL_ID, t.getB().getId())
                         .property(SMELL_OBJECT, t.getB()).next();
 
                 g1.V(tail).outE().where(otherV().is(predecessor)).drop().iterate();
@@ -294,9 +293,15 @@ public class ASmellTracker implements Serializable{
         return trackGraph;
     }
 
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        //todo Add read graphs
+    public void setTrackGraph(Graph trackGraph) {
+        this.trackGraph = trackGraph;
     }
 
+    public void setCondensedGraph(Graph condensedGraph) {
+        this.condensedGraph = condensedGraph;
+    }
+
+    public void setTail(Vertex tail) {
+        this.tail = tail;
+    }
 }
