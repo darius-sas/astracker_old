@@ -140,6 +140,7 @@ public class ASmellTracker implements Serializable{
         GraphTraversalSource g = trackGraph.traversal();
         Vertex successor = g.addV(SMELL)
                 .property(VERSION, startingVersion)
+                .property(SMELL_ID, s.getId())
                 .property(SMELL_OBJECT, s).next();
         Vertex head = g.addV(HEAD)
                 .property(VERSION, startingVersion)
