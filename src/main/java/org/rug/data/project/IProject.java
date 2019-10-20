@@ -3,13 +3,15 @@ package org.rug.data.project;
 import org.rug.data.smells.ArchitecturalSmell;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
+import java.util.SortedMap;
 import java.util.SortedSet;
 
 /**
  * Represents a project that can be analysed.
  */
-public interface IProject extends Iterable<IVersion> {
+public interface IProject extends Iterable<IVersion>, Serializable {
 
     /**
      * Gets the name of the project as set up at instantiation time.
@@ -82,4 +84,19 @@ public interface IProject extends Iterable<IVersion> {
      * @return the version object for which {@link IVersion#getVersionPosition()} equals the given value.
      */
     IVersion getVersionWith(long versionPosition);
+
+    /**
+     * Returns a sorted map where keys are versions of the system and values are triples
+     * where the first element is the directory, or jar file, corresponding to the graphml file, saved as the second
+     * element, and also to corresponding system graph, saved as third element.
+     * @return a sorted map as described above.
+     */
+    SortedMap<String, IVersion> getVersionedSystem();
+
+    /**
+     * Set the sorted map representing the versions of this project.
+     * @param versionedSystem the map.
+     * @see #getVersionedSystem()
+     */
+    void setVersionedSystem(SortedMap<String, IVersion> versionedSystem);
 }

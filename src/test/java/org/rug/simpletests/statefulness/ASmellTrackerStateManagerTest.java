@@ -2,7 +2,6 @@ package org.rug.simpletests.statefulness;
 
 import org.junit.jupiter.api.Test;
 import org.rug.data.project.IProject;
-import org.rug.data.project.IVersion;
 import org.rug.simpletests.tracker.ASmellTrackerTest;
 import org.rug.statefulness.ASmellTrackerStateManager;
 import org.rug.tracker.ASmellTracker;
@@ -10,8 +9,6 @@ import org.rug.tracker.SimpleNameJaccardSimilarityLinker;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,8 +32,8 @@ public class ASmellTrackerStateManagerTest extends ASmellTrackerTest {
         tracker.track(antlr.getArchitecturalSmellsIn(v2), v2);
         assertEquals(antlrOracle.get(v2.getVersionString()), tracker.smellsLinked());
 
-        stateManager.save(tracker);
-        tracker = stateManager.load(antlr, v2);
+        stateManager.saveState(tracker);
+        tracker = stateManager.loadState(antlr, v2);
 
         tracker.track(antlr.getArchitecturalSmellsIn(v3), v3);
         tracker.track(antlr.getArchitecturalSmellsIn(v4), v4);
@@ -64,8 +61,8 @@ public class ASmellTrackerStateManagerTest extends ASmellTrackerTest {
         });
 
         var stateManager = new ASmellTrackerStateManager("test-data/output/states");
-        stateManager.save(tracker);
-        var recoveredTracker = stateManager.load(project, project.getVersionWith(nVersions/2 - 1));
+        stateManager.saveState(tracker);
+        var recoveredTracker = stateManager.loadState(project, project.getVersionWith(nVersions/2 - 1));
 
         IntStream.range(nVersions/2, nVersions).forEach(i -> {
             var version = project.getVersionWith(i);

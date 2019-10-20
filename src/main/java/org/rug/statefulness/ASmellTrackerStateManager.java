@@ -23,7 +23,7 @@ public class ASmellTrackerStateManager {
 
     public ASmellTrackerStateManager(File dir){
         if (!dir.isDirectory()){
-            throw new IllegalArgumentException("State directory argument must be a directory.");
+            throw new IllegalArgumentException("Tracker state directory argument must be a directory.");
         }
         if (!dir.exists()){
             dir.mkdirs();
@@ -33,7 +33,7 @@ public class ASmellTrackerStateManager {
         this.trackerFile = Paths.get(dir.getAbsolutePath(), "tracker.seo").toFile();
     }
 
-    public void save(ASmellTracker tracker) throws IOException {
+    public void saveState(ASmellTracker tracker) throws IOException {
         var outStream = new ObjectOutputStream(new FileOutputStream(trackerFile));
         outStream.writeObject(tracker);
         tracker.getTrackGraph().traversal().V().properties(ASmellTracker.SMELL_OBJECT).drop().iterate();
@@ -44,7 +44,7 @@ public class ASmellTrackerStateManager {
     }
 
 
-    public ASmellTracker load(IProject project, IVersion version) throws IOException, ClassNotFoundException {
+    public ASmellTracker loadState(IProject project, IVersion version) throws IOException, ClassNotFoundException {
         var inpStream = new ObjectInputStream(new FileInputStream(trackerFile));
         ASmellTracker tracker = (ASmellTracker)inpStream.readObject();
         tracker.setCondensedGraph(TinkerGraph.open());

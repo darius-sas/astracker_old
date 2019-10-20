@@ -11,7 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 public abstract class AbstractVersion implements IVersion {
@@ -20,9 +23,9 @@ public abstract class AbstractVersion implements IVersion {
 
     private String versionString;
     protected long versionPosition;
-    private Path sourcePath;
-    private Path graphMLPath;
-    protected Graph graph;
+    private transient Path sourcePath;
+    private transient Path graphMLPath;
+    protected transient Graph graph;
     private SourceCodeRetriever sourceCodeRetrieval;
 
     /**
