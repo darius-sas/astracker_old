@@ -56,7 +56,7 @@ public class GitVersion extends AbstractVersion {
         int endIndex = f.toFile().isDirectory() ? fileName.length() : fileName.lastIndexOf('.');
         var splits = fileName.substring(0, endIndex).split("-");
         setVersionPosition(Long.parseLong(splits[1]));
-        versionDate = String.join("-", splits[2]);
+        versionDate = String.join("-", splits[2].split("_"));
         commitName = splits[3];
         return String.join("-", String.valueOf(versionPosition), commitName);
     }

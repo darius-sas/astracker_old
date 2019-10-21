@@ -15,7 +15,7 @@ public class ProjectSizeGenerator extends CSVDataGenerator<List<String>> {
      */
     @Override
     public String[] getHeader() {
-        return new String[]{"project", "version", "versionPosition", "nPackages", "nClasses"};
+        return new String[]{"project", "version", "versionDate", "versionPosition", "nPackages", "nClasses"};
     }
 
     /**

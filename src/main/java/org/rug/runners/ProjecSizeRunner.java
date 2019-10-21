@@ -50,6 +50,7 @@ public class ProjecSizeRunner extends ToolRunner {
                 var record = new ArrayList<String>();
                 record.add(project.getName());
                 record.add(version.getVersionString());
+                record.add(version.getVersionDate());
                 record.add(String.valueOf(version.getVersionPosition()));
                 record.add(String.valueOf(nP));
                 record.add(String.valueOf(nC));

@@ -58,6 +58,7 @@ public class SmellCharacteristicsGenerator extends CSVDataGenerator<ASmellTracke
         GraphTraversalSource g = simplifiedGraph.traversal();
 
         Set<String> smellKeys = new TreeSet<>(g.V().hasLabel("smell").propertyMap().tryNext().orElse(Collections.emptyMap()).keySet());
+        header.add("project");
         header.addAll(smellKeys);
         Set<String> characteristicKeys = new TreeSet<>();
         g.V().hasLabel("characteristic").forEachRemaining(v -> characteristicKeys.addAll(v.keys()));
@@ -71,6 +72,7 @@ public class SmellCharacteristicsGenerator extends CSVDataGenerator<ASmellTracke
         Set<Vertex> smells = g.V().hasLabel(SMELL).toSet();
         smells.forEach(smell -> {
             List<String> commonRecord = new ArrayList<>();
+            commonRecord.add(project.getName());
             smellKeys.forEach(k -> commonRecord.add(smell.value(k).toString()));
 
             var affects = g.V(smell).outE(AFFECTS).toSet();

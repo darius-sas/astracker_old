@@ -91,7 +91,7 @@ public class ProjectTest {
         var f = new File("./graph-1-25_5_2019-16e03e9ea1d416c8f3cd3ab79273245ce631ac92.graphml");
         var version = new GitVersion(f.toPath(), null, null, null);
         assertEquals("1-16e03e9ea1d416c8f3cd3ab79273245ce631ac92", version.getVersionString());
-        assertEquals("25_5_2019", version.getVersionDate());
+        assertEquals("25-5-2019", version.getVersionDate());
         assertEquals(1L, version.getVersionPosition());
         assertEquals("16e03e9ea1d416c8f3cd3ab79273245ce631ac92", version.getCommitName());
     }

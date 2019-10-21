@@ -37,7 +37,6 @@ public abstract class AbstractVersion implements IVersion {
     public AbstractVersion(Path path, SourceCodeRetriever sourceCodeRetrieval){
         this.versionString = parseVersionString(path);
         this.sourceCodeRetrieval = sourceCodeRetrieval;
-        this.versionDate = "";
     }
 
     /**
@@ -203,10 +202,18 @@ public abstract class AbstractVersion implements IVersion {
      * @return the string version of the version
      */
     public String parseVersionString(Path f){
-        int endIndex = f.toFile().isDirectory() ? f.toString().length() : f.toString().lastIndexOf('.');
-        String version = f.toString().substring(
-                f.toString().lastIndexOf('-') + 1,
-                endIndex);
+        var fileName = f.getFileName().toString();
+        int endIndex = f.toFile().isDirectory() ? fileName.length() : fileName.lastIndexOf('.');
+
+        var splits = fileName.substring(0, endIndex).split("-");
+        String version;
+        if (splits.length == 4){
+            setVersionPosition(Long.parseLong(splits[1]));
+            versionDate = String.join("-", splits[2].split("_"));
+            version = splits[3];
+        } else {
+            version = splits[1];
+        }
         return version;
     }
 
