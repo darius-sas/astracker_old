@@ -72,4 +72,10 @@ public interface IVersion extends Comparable<IVersion> {
      * This method is supposed to be used to save memory.
      */
     void clearGraph();
+
+    /**
+     * The date of this version.
+     * @return the date of this version as a string
+     */
+    String getVersionDate();
 }

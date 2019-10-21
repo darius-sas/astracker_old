@@ -20,6 +20,7 @@ import java.util.List;
 public abstract class AbstractVersion implements IVersion {
 
     private final static Logger logger = LoggerFactory.getLogger(Version.class);
+    protected String versionDate;
 
     private String versionString;
     protected long versionPosition;
@@ -36,6 +37,7 @@ public abstract class AbstractVersion implements IVersion {
     public AbstractVersion(Path path, SourceCodeRetriever sourceCodeRetrieval){
         this.versionString = parseVersionString(path);
         this.sourceCodeRetrieval = sourceCodeRetrieval;
+        this.versionDate = "";
     }
 
     /**
@@ -161,6 +163,14 @@ public abstract class AbstractVersion implements IVersion {
     @Override
     public SourceCodeRetriever getSourceCodeRetriever() {
         return sourceCodeRetrieval;
+    }
+
+    /**
+     * Returns the date string of this version.
+     * @return a date in the format %dd-%mm-%yyyy. If no date was assigned to this version, an empty string is returned.
+     */
+    public String getVersionDate() {
+        return versionDate;
     }
 
     @Override

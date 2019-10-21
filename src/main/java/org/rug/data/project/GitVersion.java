@@ -17,7 +17,6 @@ public class GitVersion extends AbstractVersion {
 
     private transient Repository repository;
     private transient CheckoutCommand checkoutCommand;
-    private String versionDate;
     private String commitName;
     private boolean isCheckedOut;
 
@@ -60,14 +59,6 @@ public class GitVersion extends AbstractVersion {
         versionDate = String.join("-", splits[2]);
         commitName = splits[3];
         return String.join("-", String.valueOf(versionPosition), commitName);
-    }
-
-    /**
-     * Returns the date string of this version.
-     * @return a date in the format %dd-%mm-%yyyy.
-     */
-    public String getVersionDate() {
-        return versionDate;
     }
 
     /**
