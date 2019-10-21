@@ -100,7 +100,7 @@ public class SmellCharacteristicsSetTest {
         var as = antlr.getArchitecturalSmellsIn("3.1");
         hl = (HLSmell)as.stream().filter(s -> s.getId() == 17174).findFirst().orElse(null);
         assertNotNull(hl);
-        assertEquals(3.26, Double.parseDouble(avrgPathLength.visit(hl)));
+        assertEquals(3.31, Double.parseDouble(avrgPathLength.visit(hl)));
     }
 
     @Test
@@ -111,7 +111,7 @@ public class SmellCharacteristicsSetTest {
         var as = antlr.getArchitecturalSmellsIn("3.1");
         hl = (HLSmell)as.stream().filter(s -> s.getId() == 17174).findFirst().orElse(null);
         assertNotNull(hl);
-        assertEquals(0.92, Double.parseDouble(affectedClassesRatio.visit(hl)));
+        assertEquals(0.58, Double.parseDouble(affectedClassesRatio.visit(hl)));
     }
 
     HLSmell createMockHL(){

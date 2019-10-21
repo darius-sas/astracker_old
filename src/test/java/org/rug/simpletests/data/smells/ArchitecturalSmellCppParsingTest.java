@@ -60,13 +60,4 @@ public class ArchitecturalSmellCppParsingTest {
             }
         });
     }
-
-    @Test
-    void testCDParsing2(){
-        var graph = TinkerGraph.open();
-        graph.traversal().io("/home/fenn/Downloads/gitRepos/output/arcanOutput/CoffeeConTroll/graph-16-12_6_2016-620236ec438d3c92360146a41dca1f46f459a7b4.graphml").read().with(IO.reader, IO.graphml).iterate();
-        g = graph.traversal();
-        testParsing(ArchitecturalSmell.Type.CD, CDSmellCPP::new);
-    }
-
 }

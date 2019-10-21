@@ -63,7 +63,7 @@ class MainTest {
 
         PersistenceHub.clearAll();
 
-        Main.main(new String[]{"-p", projectName, "-i", inputDirGraphMLs, "-o", outputDir, "-pC", "-pS", isCPPproject ? "-cppP" : "-jP" });
+        Main.main(new String[]{"-p", projectName, "-i", inputDirGraphMLs+"/"+projectName, "-o", outputDir, "-pC", "-pS", isCPPproject ? "-cppP" : "-jP" });
 
         assertTrue(Files.exists(Paths.get(outputDir, "trackASOutput", projectName, "smell-characteristics-consecOnly.csv")),
                 error(projectName, "checking existence of smell characteristics file"));
@@ -76,14 +76,21 @@ class MainTest {
             return ()-> String.format("Error %s for project %s.", cause, projectName);
     }
 
-    @Test
+
     void systemTestPyne(){
         var projectName = "pyne";
         try {
             Files.delete(Paths.get(outputDir, "trackASOutput", projectName));
         } catch (IOException e) {}
         PersistenceHub.clearAll();
-        Main.main(new String[]{"-p", projectName, "-i", "../test-output/", "-gitRepo", "../pyne", "-o", "../test-output", "-pC", "-rS"});
+        Main.main(new String[]{"-p", projectName, "-i", "./test-output/", "-gitRepo", "./pyne", "-o", "../test-output", "-pC", "-rS"});
+        PersistenceHub.clearAll();
+    }
+
+    void systemTestTics(){
+        var projectName = "tics";
+        PersistenceHub.clearAll();
+        Main.main(new String[]{"-p", projectName, "-i", "../projects-analyses/arcanOutput", "-o", "../projects-analyses", "-pC", "-rS"});
         PersistenceHub.clearAll();
     }
 }

@@ -1,17 +1,22 @@
 package org.rug.data.project;
 
 import org.eclipse.jgit.api.CheckoutCommand;
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.rug.data.characteristics.comps.SourceCodeRetriever;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.file.Path;
 
 public class GitVersion extends AbstractVersion {
 
-    private Repository repository;
-    private final CheckoutCommand checkoutCommand;
+    private transient Repository repository;
+    private transient CheckoutCommand checkoutCommand;
     private String versionDate;
     private String commitName;
     private boolean isCheckedOut;
@@ -89,4 +94,5 @@ public class GitVersion extends AbstractVersion {
     public String toString() {
         return String.format("%s: %s", getVersionString(), getGraphMLPath().toString());
     }
+
 }

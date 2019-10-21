@@ -66,7 +66,7 @@ public class SmellCharacteristicsGenerator extends CSVDataGenerator<ASmellTracke
         header.addAll(characteristicKeys);
         header.add("affectedElements");
 
-        Set<Vertex> smells = g.V().hasLabel("smell").toSet();
+        Set<Vertex> smells = g.V().hasLabel(SMELL).toSet();
         smells.forEach(smell -> {
             List<String> commonRecord = new ArrayList<>();
             smellKeys.forEach(k -> commonRecord.add(smell.value(k).toString()));
@@ -118,8 +118,12 @@ public class SmellCharacteristicsGenerator extends CSVDataGenerator<ASmellTracke
     @Override
     public void close() {
         try {
-            printer.close();
-            fileWriter.close();
+            if (printer != null) {
+                printer.close();
+            }
+            if (fileWriter != null){
+                fileWriter.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

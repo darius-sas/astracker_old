@@ -47,12 +47,9 @@ public class NumberOfLinesOfCode extends AbstractComponentCharacteristic {
             return;
 
         long loc;
-        if (vertex.label().equals(VertexLabel.CLASS.toString()) ||
-                vertex.label().equals(VertexLabel.CFILE.toString()) ||
-                vertex.label().equals(VertexLabel.HFILE.toString())){
+        if (VertexLabel.getFilesStrings().contains(vertex.label())){
             loc = countLOC(vertex);
-        }else if ((vertex.label().equals(VertexLabel.PACKAGE.toString()) ||
-                   vertex.label().equals(VertexLabel.COMPONENT.toString())) &&
+        }else if (VertexLabel.getComponentStrings().contains(vertex.label()) &&
                    vertex.edges(Direction.IN, EdgeLabel.BELONGSTO.toString()).hasNext()) {
             vertex.graph().traversal().V(vertex)
                     .in(EdgeLabel.BELONGSTO.toString())

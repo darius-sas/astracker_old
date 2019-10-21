@@ -1,6 +1,8 @@
 package org.rug.runners;
 
 import org.apache.tinkerpop.gremlin.process.traversal.P;
+import org.apache.tinkerpop.gremlin.process.traversal.TextP;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.rug.data.labels.VertexLabel;
 import org.rug.data.project.IProject;
 import org.rug.persistence.PersistenceHub;

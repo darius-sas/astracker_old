@@ -18,7 +18,7 @@ public class Strength extends AbstractSmellCharacteristic {
     @Override
     public String visit(UDSmell smell) {
         Vertex smellNode = smell.getSmellNodes().iterator().next();
-        double dud = Double.valueOf(smellNode.value("DUD").toString()) / 100d;
+        double dud = Double.parseDouble(smellNode.value("DUD").toString()) / 100d;
         return String.valueOf(dud);
     }
 }

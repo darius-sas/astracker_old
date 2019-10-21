@@ -133,6 +133,11 @@ public abstract class AbstractProject implements IProject {
         return versionedSystem;
     }
 
+    @Override
+    public void setVersionedSystem(SortedMap<String, IVersion> versionedSystem) {
+        this.versionedSystem = versionedSystem;
+    }
+
     /**
      * Initializes the version positions.
      */

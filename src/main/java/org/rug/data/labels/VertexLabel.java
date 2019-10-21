@@ -3,6 +3,8 @@ package org.rug.data.labels;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public enum VertexLabel {
     PACKAGE("package"),
@@ -20,12 +22,20 @@ public enum VertexLabel {
         this.value = s;
     }
 
+    private static final EnumSet<VertexLabel> components = EnumSet.of(COMPONENT, PACKAGE);
+    private static final EnumSet<VertexLabel> types = EnumSet.of(CLASS, PACKAGE, CFILE, HFILE, COMPONENT);
+    private static final EnumSet<VertexLabel> files = EnumSet.of(CLASS, CFILE, HFILE);
+
+    private static final Set<String> componentStrings = components.stream().map(VertexLabel::toString).collect(Collectors.toSet());
+    private static final Set<String> typesStrings = types.stream().map(VertexLabel::toString).collect(Collectors.toSet());
+    private static final Set<String> filesStrings = files.stream().map(VertexLabel::toString).collect(Collectors.toSet());
+
     /**
      * Creates a enumset of all grouping elements.
      * @return a enumset of grouping elements (e.g. packages, components, etc.).
      */
     public static EnumSet<VertexLabel> allComponents(){
-        return EnumSet.of(COMPONENT, PACKAGE);
+        return components;
     }
 
     /**
@@ -33,7 +43,7 @@ public enum VertexLabel {
      * @return a new enumset of the type labels (classes, packages, cfiles, etc.).
      */
     public static EnumSet<VertexLabel> allTypes(){
-        return EnumSet.of(CLASS, PACKAGE, CFILE, HFILE, COMPONENT);
+        return types;
     }
 
     /**
@@ -41,7 +51,19 @@ public enum VertexLabel {
      * @return enum set of file-types.
      */
     public static EnumSet<VertexLabel> allFiles(){
-        return EnumSet.of(CLASS, CFILE, HFILE);
+        return files;
+    }
+
+    public static Set<String> getComponentStrings() {
+        return componentStrings;
+    }
+
+    public static Set<String> getTypesStrings() {
+        return typesStrings;
+    }
+
+    public static Set<String> getFilesStrings() {
+        return filesStrings;
     }
 
     @Override
