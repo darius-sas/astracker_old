@@ -1,7 +1,9 @@
 package org.rug.data.characteristics;
 
 import org.rug.data.characteristics.smells.AffectedClassesRatio;
+import org.rug.data.characteristics.smells.AfferentAffectedRatio;
 import org.rug.data.characteristics.smells.AverageInternalPathLength;
+import org.rug.data.characteristics.smells.EfferentAffectedRatio;
 
 import java.util.Set;
 
@@ -20,5 +22,7 @@ public class HLCharacteristicsSet extends SmellCharacteristicsSet {
     protected void addSmellSpecificCharacteristics(Set<ISmellCharacteristic> characteristics) {
         characteristics.add(new AverageInternalPathLength());
         characteristics.add(new AffectedClassesRatio());
+        characteristics.add(new EfferentAffectedRatio());
+        characteristics.add(new AfferentAffectedRatio());
     }
 }
