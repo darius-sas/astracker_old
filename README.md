@@ -109,3 +109,6 @@ Explanation:
     * The *Project* sub-module contains key components that abstract the project under analysis as versions and allow a client to retrieve the source code of a class/package/file of the analysed project starting from its `Vertex` in the dependency graph.
       Different project types require different implementations of the `Project` and `Version` interfaces, though most of the functionality is common and dedicated abstract classes handled those aspect.
       These interfaces are mostly responsible of representing in-memory the project on the file system.
+
+# Notes
+If you are here because you are looking for the dataset (and scripts) of our paper at ICSME'19 `Investigating instability architectural smells evolution: an exploratory case study`, you can find it [here](https://github.com/darius-sas/data-analysis-scripts/blob/master/data/smells.csv). Scripts to read and plot the data are instead [here](https://github.com/darius-sas/data-analysis-scripts).
