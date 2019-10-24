@@ -41,20 +41,22 @@ public class Project extends AbstractProject {
         this.isFolderOfFolderOfJars = !containsJars(jarDirPath);
 
         if (!isFolderOfFolderOfJars){
-            Files.list(jarDirPath)
-                    .filter(Files::isRegularFile)
-                    .filter(projectType::sourcesMatch)
-                    .forEach(j -> {
-                        var version = addVersion(j);
-                        version.setSourceCodePath(j);
-                    });
+            try(var files = Files.list(jarDirPath)) {
+                    files.filter(Files::isRegularFile)
+                        .filter(projectType::sourcesMatch)
+                        .forEach(j -> {
+                            var version = addVersion(j);
+                            version.setSourceCodePath(j);
+                        });
+            }
         }else{
-            Files.list(jarDirPath)
-                    .filter(Files::isDirectory)
-                    .forEach(j -> {
-                        var version = addVersion(j);
-                        version.setSourceCodePath(j);
-                    });
+            try(var files = Files.list(jarDirPath)) {
+                files.filter(Files::isDirectory)
+                        .forEach(j -> {
+                            var version = addVersion(j);
+                            version.setSourceCodePath(j);
+                        });
+            }
         }
 
         initVersionPositions();
@@ -74,7 +76,9 @@ public class Project extends AbstractProject {
     }
 
     private boolean containsJars(Path dir) throws IOException{
-        return Files.list(dir).anyMatch(f -> Files.isRegularFile(f) && Type.JAVA.sourcesMatch(f));
+        try(var files = Files.list(dir)) {
+            return files.anyMatch(f -> Files.isRegularFile(f) && Type.JAVA.sourcesMatch(f));
+        }
     }
 
 

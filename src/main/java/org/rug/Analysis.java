@@ -2,6 +2,7 @@ package org.rug;
 
 import org.rug.args.Args;
 import org.rug.data.project.*;
+import org.rug.data.project.AbstractProject.Type;
 import org.rug.persistence.*;
 import org.rug.runners.ArcanRunner;
 import org.rug.runners.ProjecSizeRunner;
@@ -30,13 +31,13 @@ public class Analysis {
     private final List<ToolRunner> runners;
 
 
-    public Analysis(Args args) throws IOException, IllegalArgumentException {
+    public Analysis(Args args) throws IOException {
         this.args = args;
         this.runners = new ArrayList<>();
         init();
     }
 
-    private void init() throws IllegalArgumentException, IOException{
+    private void init() throws IOException{
         if (project == null){
             project = getProject();
             if (isJarProject()){
@@ -89,13 +90,13 @@ public class Analysis {
 
     public IProject getProject() throws IOException {
         if (project == null) {
-            Project.Type pType;
+            Type pType;
             if (args.isCPPproject) {
-                pType = AbstractProject.Type.CPP;
+                pType = Type.CPP;
             } else if (args.isCProject) {
-                pType = AbstractProject.Type.C;
+                pType = Type.C;
             } else {
-                pType = AbstractProject.Type.JAVA;
+                pType = Type.JAVA;
             }
 
             if (args.isGitProject()) {
@@ -114,11 +115,15 @@ public class Analysis {
     }
 
     private boolean isJarProject() throws IOException {
-        return Files.walk(args.inputDirectory.toPath()).anyMatch(Project.Type.JAVA::sourcesMatch);
+        try(var files = Files.walk(args.inputDirectory.toPath())){
+            return files.anyMatch(Type.JAVA::sourcesMatch);
+        }
     }
 
     private boolean isGraphMLProject() throws IOException{
-        return Files.walk(args.inputDirectory.toPath()).anyMatch(path -> path.getFileName().toString().matches(".*\\.graphml"));
+        try(var files = Files.walk(args.inputDirectory.toPath())){
+            return files.anyMatch(path -> path.getFileName().toString().matches(".*\\.graphml"));
+        }
     }
 
 }

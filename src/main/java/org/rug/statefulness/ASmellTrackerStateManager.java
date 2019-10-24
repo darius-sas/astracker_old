@@ -5,6 +5,8 @@ import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.rug.data.project.IProject;
 import org.rug.data.project.IVersion;
 import org.rug.tracker.ASmellTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Paths;
@@ -12,6 +14,8 @@ import java.nio.file.Paths;
 import static org.rug.tracker.ASmellTracker.*;
 
 public class ASmellTrackerStateManager {
+
+    private final static Logger logger = LoggerFactory.getLogger(ASmellTrackerStateManager.class);
 
     private File condensedGraph;
     private File trackGraph;
@@ -34,19 +38,20 @@ public class ASmellTrackerStateManager {
     }
 
     public void saveState(ASmellTracker tracker) throws IOException {
-        var outStream = new ObjectOutputStream(new FileOutputStream(trackerFile));
-        outStream.writeObject(tracker);
-        tracker.getTrackGraph().traversal().V().properties(ASmellTracker.SMELL_OBJECT).drop().iterate();
-        tracker.getTrackGraph().traversal().io(trackGraph.getAbsolutePath()).with(IO.writer, IO.graphml).write().iterate();
-        tracker.getTrackGraph().traversal().io(condensedGraph.getAbsolutePath()).with(IO.writer, IO.graphml).write().iterate();
-        outStream.flush();
-        outStream.close();
+        try(var outStream = new ObjectOutputStream(new FileOutputStream(trackerFile))) {
+            outStream.writeObject(tracker);
+            tracker.getTrackGraph().traversal().V().properties(ASmellTracker.SMELL_OBJECT).drop().iterate();
+            tracker.getTrackGraph().traversal().io(trackGraph.getAbsolutePath()).with(IO.writer, IO.graphml).write().iterate();
+            tracker.getTrackGraph().traversal().io(condensedGraph.getAbsolutePath()).with(IO.writer, IO.graphml).write().iterate();
+        }
     }
 
 
     public ASmellTracker loadState(IProject project, IVersion version) throws IOException, ClassNotFoundException {
-        var inpStream = new ObjectInputStream(new FileInputStream(trackerFile));
-        ASmellTracker tracker = (ASmellTracker)inpStream.readObject();
+        ASmellTracker tracker;
+        try(var inpStream = new ObjectInputStream(new FileInputStream(trackerFile))) {
+           tracker = (ASmellTracker) inpStream.readObject();
+        }
         tracker.setCondensedGraph(TinkerGraph.open());
         tracker.getCondensedGraph().traversal().io(condensedGraph.getAbsolutePath()).with(IO.reader, IO.graphml).read().iterate();
 
@@ -61,8 +66,14 @@ public class ASmellTrackerStateManager {
         assert lastVersionSmells.size() == lastVersionSmellVertices.size();
 
         for (var smell : lastVersionSmells){
-            var smellVertex = lastVersionSmellVertices.stream().filter(v -> v.value(ASmellTracker.SMELL_ID).equals(smell.getId())).findFirst().get();
-            smellVertex.property(ASmellTracker.SMELL_OBJECT, smell);
+            var smellVertex = lastVersionSmellVertices.stream()
+                    .filter(v -> v.value(ASmellTracker.SMELL_ID).equals(smell.getId()))
+                    .findFirst();
+            if (smellVertex.isEmpty()){
+                logger.error("Unable to find a match for smell with ID: {}", smell.getId());
+                continue;
+            }
+            smellVertex.get().property(ASmellTracker.SMELL_OBJECT, smell);
         }
 
         return tracker;

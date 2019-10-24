@@ -30,47 +30,6 @@ public class ArcanDependencyGraphParser {
 
     private final static Map<Graph, List<ArchitecturalSmell>> cachedSmellLists = new HashMap<>();
 
-    /**
-     * Parses all the .graphml files in the given path and builds a sorted map with versions as keys and graphs as values.
-     * If path is a file a map with a single entry is returned.
-     * @param path the path to a directory of graphml files with names in the format '[projectname]-[version].graphml'.
-     * @return A sorted map as described above.
-     */
-    @Deprecated
-    public static SortedMap<String, Graph> parseGraphML(String path){
-        SortedMap<String, Graph> versionedSystem = new TreeMap<>();
-
-        Consumer<Path> addGraph = f -> {
-            String version = f.getFileName().toString().substring(
-                    f.getFileName().toString().lastIndexOf('-') + 1,
-                    f.getFileName().toString().lastIndexOf('.'));
-            Graph graph = TinkerGraph.open();
-            graph.traversal().io(f.toAbsolutePath().toString())
-                    .read().with(IO.reader, IO.graphml).iterate();
-            if (!graph.vertices().hasNext() && !graph.edges().hasNext())
-                logger.warn("Graph has no edges and no vertices.");
-
-            versionedSystem.put(version, graph);
-        };
-
-        Path f = Paths.get(path);
-
-        if (Files.isDirectory(f)) {
-            try {
-                Files.walk(Paths.get(path))
-                        .filter(Files::isRegularFile)
-                        .filter(ff -> ff.getFileName().toString().matches(".*\\.graphml"))
-                        .forEach(addGraph);
-            } catch (IOException e) {
-                logger.error("Unable to walk the given path: {}", path);
-            }
-        }else {
-            addGraph.accept(f);
-        }
-
-        return versionedSystem;
-    }
-
     public static List<ArchitecturalSmell> getArchitecturalSmellsIn(Graph graph, Project.Type projectType){
         PROJECT_TYPE = projectType;
         return getArchitecturalSmellsIn(graph);

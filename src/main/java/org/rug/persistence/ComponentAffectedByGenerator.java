@@ -29,7 +29,7 @@ public class ComponentAffectedByGenerator extends CSVDataGenerator<ASmellTracker
     @Override
     public void accept(ASmellTracker object) {
         GraphTraversalSource g = object.getCondensedGraph().traversal();
-        header.addAll(Arrays.asList("name", "type", "version", "affectedBy"));
+        header.addAll(Arrays.asList("name", "type", "version", "affectedByUniqueSmellId"));
 
         g.V().hasLabel(ASmellTracker.COMPONENT).forEachRemaining(c ->{
             var edges = c.edges(Direction.IN, ASmellTracker.AFFECTS);

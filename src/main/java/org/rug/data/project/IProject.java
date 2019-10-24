@@ -11,7 +11,7 @@ import java.util.SortedSet;
 /**
  * Represents a project that can be analysed.
  */
-public interface IProject extends Iterable<IVersion>, Serializable {
+public interface IProject extends Iterable<IVersion> {
 
     /**
      * Gets the name of the project as set up at instantiation time.

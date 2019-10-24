@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * have the same smell nodes ids, the same affected elements in two or more versions, this type of comparison is thus
  * necessary.
  */
-public abstract class ArchitecturalSmell implements Serializable {
+public abstract class ArchitecturalSmell {
 
     private long id;
     private String affectedVersion;
@@ -255,13 +255,6 @@ public abstract class ArchitecturalSmell implements Serializable {
         // this seems to be the preferred behaviour, because a smell is never equal to another one from the same
         // version or any other version. At least at this level of abstraction.
         return other == this;
-//        if (this == other)
-//            return true;
-//
-//        if (this.type != other.type || this.id != other.id)
-//            return false;
-//
-//        return this.smellNodes.equals(other.smellNodes) && this.affectedElements.equals(other.affectedElements);
     }
 
     private int hashCode;

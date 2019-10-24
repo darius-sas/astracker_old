@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ public abstract class CSVDataGenerator<T> implements ICSVGenerator<T>{
     private final Path outputFile;
     protected Writer fileWriter;
     protected CSVPrinter printer;
-    protected final static Charset CHARSET = Charset.forName("UTF-8");
+    protected final static Charset CHARSET = Charset.forName(StandardCharsets.UTF_8.toString());
     private CompletableFuture<Void> future;
 
     public CSVDataGenerator(String outputFile) {
@@ -92,13 +93,6 @@ public abstract class CSVDataGenerator<T> implements ICSVGenerator<T>{
     public Spliterator<List<String>> spliterator() {
         return records.spliterator();
     }
-
-    /**
-     * Returns the header of the underlying data.
-     * @return a array containing the headers.
-     */
-    public abstract String[] getHeader();
-
 
     /**
      * Returns the file where to write the records of this generator.

@@ -25,23 +25,23 @@ public class ProjectStateManager {
     }
 
     public void saveState(IProject project) throws IOException {
-       saveState(project, project.versions().last());
+       saveState(project.versions().last());
     }
 
-    public void saveState(IProject project, IVersion lastVersion) throws IOException {
-        var oos = new ObjectOutputStream(new FileOutputStream(this.lastVersion));
-        oos.writeObject(lastVersion.getVersionString()); // alternatively we can only serialize the versionString.
-        oos.writeObject(lastVersion.getVersionPosition());
-        oos.flush();
-        oos.close();
+    public void saveState(IVersion lastVersion) throws IOException {
+        try(var oos = new ObjectOutputStream(new FileOutputStream(this.lastVersion))) {
+            oos.writeObject(lastVersion.getVersionString()); // alternatively we can only serialize the versionString.
+            oos.writeObject(lastVersion.getVersionPosition());
+        }
     }
 
     public void loadState(IProject instance) throws IOException, ClassNotFoundException {
-        var ois = new ObjectInputStream(new FileInputStream(this.lastVersion));
-        var lastVersionString = (String)ois.readObject();
-        var lastVersionposition = (long)ois.readObject();
-        ois.close();
-
+        String lastVersionString;
+        long lastVersionposition;
+        try(var ois = new ObjectInputStream(new FileInputStream(this.lastVersion))) {
+            lastVersionString = (String) ois.readObject();
+            lastVersionposition = (long) ois.readObject();
+        }
         if (instance.getVersionedSystem().containsKey(lastVersionString)){
             instance.setVersionedSystem(instance.getVersionedSystem().tailMap(lastVersionString));
             for(var v : instance.getVersionedSystem().values()){
