@@ -6,6 +6,7 @@ import org.rug.persistence.PersistenceHub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -24,14 +25,14 @@ public class Main {
      * the tracking output.
      * @param argv args to parse
      */
-    public static void main(String[] argv)  {
+    public static void main(String... argv)  {
         try {
             Args args = new Args();
             JCommander jc = JCommander.newBuilder()
                     .addObject(args)
                     .build();
 
-            jc.setProgramName("java -jar trackas.jar");
+            jc.setProgramName("java -jar astracker.jar");
             jc.parse(argv);
 
             if (args.help) {
@@ -77,6 +78,6 @@ public class Main {
         double elapsedMinutes = (elapsedNanoSeconds * 1e-9) / 60d;
         long minutes = Math.round(Math.floor(elapsedMinutes));
         long seconds = Math.abs(Math.round((elapsedMinutes - minutes) * 100 * 0.6d));
-        return String.format("%d:%d minutes", minutes, seconds);
+        return String.format("%d minutes %s seconds", minutes, seconds);
     }
 }

@@ -17,7 +17,7 @@ public class Args {
     @Parameter(names = {"-input", "-i"}, description = "The input directory containing the input files (either sources/binaries or graphs).", required = true, converter = InputDirManager.class)
     public File inputDirectory;
 
-    @Parameter(names = {"-runArcan", "-rA"}, description = "Analyse files with Arcan. This parameter shall point to the command to the JAR containing Arcan, without any parameters. Ex. ./path/to/Arcan.jar.")
+    @Parameter(names = {"-runArcan", "-rA"}, description = "Analyse files with Arcan. This parameter shall point to the JAR containing Arcan, without any parameters. Ex. ./path/to/Arcan.jar.")
     private String runArcan = null;
 
     @Parameter(names = {"-doNotRunTracker", "-dRT"}, description = "Do not execute the tracking algorithm runner.")
@@ -32,11 +32,14 @@ public class Args {
     @Parameter(names = {"-cProject", "-cP"}, description = "Flag this project as C project (i.e. project analysed with Arcan for C/C++).")
     public boolean isCProject = false;
 
-    @Parameter(names = {"-gitRepo"}, description = "Enable history-related metrics by passing to the git repository where to read the sources from.", converter = InputDirManager.class)
+    @Parameter(names = {"-gitRepo"}, description = "Enable history-related metrics by passing the git repository where to read the sources from.", converter = InputDirManager.class)
     public File gitRepo;
 
     @Parameter(names = {"-javaProject", "-jP"}, description = "Flag this as a Java project (i.e. project analysed with Arcan for Java).")
     public boolean isJavaProject = true;
+
+    @Parameter(names = {"-jarProject", "-jar"}, description = "Flag to denote a project of JAR files (either directories of Jar files or Jar files only).")
+    public boolean isJarProject = false;
 
     @Parameter(names = {"-showArcanOutput", "-sAO"}, description = "Whether or not to show Arcan's output to the console.")
     public boolean showArcanOutput = false;
@@ -62,6 +65,10 @@ public class Args {
 
     public String getArcanJarFile(){
         return new File(runArcan).getAbsolutePath();
+    }
+
+    public boolean runArcan(){
+        return runArcan != null;
     }
 
     public String getSimilarityScoreFile(){

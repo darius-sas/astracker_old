@@ -4,10 +4,7 @@ import org.rug.args.Args;
 import org.rug.data.project.*;
 import org.rug.data.project.AbstractProject.Type;
 import org.rug.persistence.*;
-import org.rug.runners.ArcanRunner;
-import org.rug.runners.ProjecSizeRunner;
-import org.rug.runners.ToolRunner;
-import org.rug.runners.TrackASRunner;
+import org.rug.runners.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +37,12 @@ public class Analysis {
     private void init() throws IOException{
         if (project == null){
             project = getProject();
-            if (isJarProject()){
+            if (isGraphMLProject()){
+                project.addGraphMLfiles(args.getHomeProjectDirectory());
+            }else if (args.runArcan()) {
+                var arcan = GitArcanRunner.newGitRunner(project, args);
+                runners.add(arcan);
+            }else if (args.isJarProject) {
                 project.addSourceDirectory(args.getHomeProjectDirectory());
                 var outputDir = args.getArcanOutDir();
                 project.forEach(version -> {
@@ -55,9 +57,7 @@ public class Analysis {
                 });
                 args.adjustProjDirToArcanOutput();
                 project.addGraphMLfiles(args.getHomeProjectDirectory());
-            }else if (isGraphMLProject()){
-                project.addGraphMLfiles(args.getHomeProjectDirectory());
-            }else {
+            } else {
                 throw new IllegalArgumentException("Cannot parse project files.");
             }
 
@@ -112,12 +112,6 @@ public class Analysis {
 
     public List<ToolRunner> getRunners() {
         return runners;
-    }
-
-    private boolean isJarProject() throws IOException {
-        try(var files = Files.walk(args.inputDirectory.toPath())){
-            return files.anyMatch(Type.JAVA::sourcesMatch);
-        }
     }
 
     private boolean isGraphMLProject() throws IOException{

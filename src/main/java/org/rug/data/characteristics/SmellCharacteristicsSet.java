@@ -5,6 +5,7 @@ import org.rug.data.smells.ArchitecturalSmell;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -16,7 +17,7 @@ public abstract class SmellCharacteristicsSet {
     private final Set<ISmellCharacteristic> characteristics;
 
     public SmellCharacteristicsSet(){
-        Set<ISmellCharacteristic> characteristics = new HashSet<>();
+        Set<ISmellCharacteristic> characteristics = new LinkedHashSet<>();
         addSmellGenericCharacteristics(characteristics);
         addSmellSpecificCharacteristics(characteristics);
         this.characteristics = Collections.unmodifiableSet(characteristics);

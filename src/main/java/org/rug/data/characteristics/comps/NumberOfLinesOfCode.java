@@ -1,5 +1,6 @@
 package org.rug.data.characteristics.comps;
 
+import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -57,6 +58,7 @@ public class NumberOfLinesOfCode extends AbstractComponentCharacteristic {
                     .forEachRemaining(this::calculate);
             loc = vertex.graph().traversal().V(vertex)
                     .in(EdgeLabel.BELONGSTO.toString())
+                    .hasLabel(P.within(VertexLabel.getFilesStrings())) // only files in the container
                     .values(this.name)
                     .sum().next().longValue();
         }else {

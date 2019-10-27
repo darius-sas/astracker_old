@@ -46,6 +46,11 @@ class MainTest {
     }
 
     @Test
+    void executeMainProjectGitArcan(){
+        Main.main("-p", "pyneTest", "-i", "../pyne/", "-o", "../data/", "-rA", "../arcan/target/Arcan-1.4.0-SNAPSHOT/Arcan-1.4.0-SNAPSHOT.jar", "-gitRepo", "../pyne/", "-pC", "-pCC", "-sAO");
+    }
+
+    @Test
     void systemTestAnt(){
         executeMainProject("ant", false);
     }

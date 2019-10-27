@@ -45,7 +45,7 @@ public class ASmellTrackerStateManagerTest extends ASmellTrackerTest {
         testStatefulness(antlr, antlrOracle);
     }
 
-    @Test
+
     void testStatefulnessPure() throws IOException, ClassNotFoundException {
         testStatefulness(pure, pureOracle);
     }

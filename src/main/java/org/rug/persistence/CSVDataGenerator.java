@@ -131,8 +131,10 @@ public abstract class CSVDataGenerator<T> implements ICSVGenerator<T>{
             try {
                 future.thenRun(() -> {
                     try {
-                        fileWriter.close();
+                        printer.flush();
+                        fileWriter.flush();
                         printer.close();
+                        fileWriter.close();
                     } catch (IOException e) {
                         logger.error("Could not close properly data writing on file: {}", outputFile.toAbsolutePath());
                     }
