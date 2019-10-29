@@ -29,7 +29,7 @@ public class GitArcanRunner extends ToolRunner {
                 "master",
                 "1-1-1",
                 2);
-        var arcanCommand = "java -Xmx16G -jar " + args.getArcanJarFile();
+        var arcanCommand = "java -jar " + args.getArcanJarFile();
         GitArcanRunner arcan = new GitArcanRunner("arcan", project, args, arcanCommand);
         arcan.setArgs(arcanArgs.split(" "));
         arcan.inheritOutput(args.showArcanOutput);

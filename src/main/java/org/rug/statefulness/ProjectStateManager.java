@@ -15,11 +15,12 @@ public class ProjectStateManager {
     }
 
     public ProjectStateManager(File dir){
-        if (!dir.isDirectory()){
-            throw new IllegalArgumentException("Project state directory must not be a file.");
-        }
         if (!dir.exists()){
             dir.mkdirs();
+        }
+        if (!dir.isDirectory()){
+            dir.delete();
+            throw new IllegalArgumentException("Project state directory must not be a file.");
         }
         this.lastVersion = Paths.get(dir.getAbsolutePath(), "version.seo").toFile();
     }

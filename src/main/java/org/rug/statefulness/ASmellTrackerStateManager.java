@@ -26,11 +26,12 @@ public class ASmellTrackerStateManager {
     }
 
     public ASmellTrackerStateManager(File dir){
-        if (!dir.isDirectory()){
-            throw new IllegalArgumentException("Tracker state directory argument must be a directory.");
-        }
         if (!dir.exists()){
             dir.mkdirs();
+        }
+        if (!dir.isDirectory()){
+            dir.delete();
+            throw new IllegalArgumentException("Tracker state directory argument must be a directory.");
         }
         this.condensedGraph = Paths.get(dir.getAbsolutePath(), "condensed.graphml").toFile();
         this.trackGraph = Paths.get(dir.getAbsolutePath(), "track.graphml").toFile();

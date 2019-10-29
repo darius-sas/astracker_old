@@ -184,7 +184,9 @@ public abstract class AbstractProject implements IProject {
      * @throws IOException
      */
     protected List<Path> getGraphMls(Path dir) throws IOException{
-        return Files.list(dir).filter(f -> Files.isRegularFile(f) && f.getFileName().toString().matches(".*\\.graphml")).collect(Collectors.toList());
+        try(var list = Files.list(dir)){
+            return list.filter(f -> Files.isRegularFile(f) && f.getFileName().toString().matches(".*\\.graphml")).collect(Collectors.toList());
+        }
     }
 
     /**
