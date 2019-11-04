@@ -1,5 +1,6 @@
 package org.rug.data.characteristics.smells;
 
+import org.rug.data.characteristics.comps.ChangeMetrics;
 import org.rug.data.characteristics.comps.PCCCMetric;
 import org.rug.data.smells.ArchitecturalSmell;
 import org.rug.data.smells.CDSmell;
@@ -48,6 +49,6 @@ public class AverageNumOfChanges extends AbstractSmellCharacteristic {
      */
     private String visitInternal(ArchitecturalSmell smell){
         var vertices = smell.getTraversalSource().V(smell.getAffectedElements());
-        return String.valueOf(vertices.values(PCCCMetric.PCCCMetricName).mean().tryNext().orElse(0));
+        return String.valueOf(vertices.values(PCCCMetric.NAME).mean().tryNext().orElse(0));
     }
 }
