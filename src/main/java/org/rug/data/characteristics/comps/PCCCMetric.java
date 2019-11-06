@@ -25,13 +25,15 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
 
     @Override
     public void calculate(IVersion version) {
+        if (version.getVersionPosition() == 1)
+            return;
         super.calculate(version);
         totalCommits++;
     }
 
     @Override
     protected void calculate(Vertex vertex) {
-        long fcrh = vertex.<Long>value(frchMetricName);
+        long fcrh = Long.valueOf(vertex.value(frchMetricName).toString());
         vertex.property(this.name, (fcrh * 100d) / totalCommits);
     }
 

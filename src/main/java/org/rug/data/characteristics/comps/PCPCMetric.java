@@ -13,18 +13,20 @@ import java.util.Map;
 /**
  * Calculates the PCPC (Percentage of Commits Package has Changed) metric.
  */
-class PCPCMetric extends AbstractComponentCharacteristic {
+public class PCPCMetric extends AbstractComponentCharacteristic {
 
     private long totalCommits = 2;
     private Map<String, Long> packageChanges;
 
-    PCPCMetric() {
+    public PCPCMetric() {
         super("percCommitsPackChanged", VertexLabel.allComponents(), EnumSet.noneOf(EdgeLabel.class));
         packageChanges = new HashMap<>(1000);
     }
 
     @Override
     public void calculate(IVersion version) {
+        if (version.getVersionPosition() == 1)
+            return;
         super.calculate(version);
         totalCommits++;
     }
@@ -35,7 +37,7 @@ class PCPCMetric extends AbstractComponentCharacteristic {
         if (vertex.value(CHOMetricPackage.NAME)){
             packageChanges.compute(name, (k, v) -> v == null ? 1L : v + 1);
         }
-        vertex.property(this.name, (packageChanges.get(name)* 100d) / totalCommits);
+        vertex.property(this.name, (packageChanges.getOrDefault(name, 0L) * 100d) / totalCommits);
     }
 
     @Override

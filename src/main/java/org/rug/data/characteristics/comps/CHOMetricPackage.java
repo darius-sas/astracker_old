@@ -5,6 +5,7 @@ import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.rug.data.labels.EdgeLabel;
 import org.rug.data.labels.VertexLabel;
+import org.rug.data.project.IVersion;
 
 import java.util.EnumSet;
 
@@ -12,7 +13,7 @@ import java.util.EnumSet;
  * Calculates the "Change has occurred metric" for packages for both classes and packages.
  * For packages, the value is true every time any direct contained class has a changed.
  */
-class CHOMetricPackage extends AbstractComponentCharacteristic {
+public class CHOMetricPackage extends AbstractComponentCharacteristic {
 
     public final static String NAME = "changeHasOccurredMetric";
 
@@ -22,6 +23,18 @@ class CHOMetricPackage extends AbstractComponentCharacteristic {
 
     public CHOMetricPackage(){
         this(NAME);
+    }
+
+    /**
+     * Calculate the characteristic on the graph of this version and save it as a node, vertex or graph property.
+     *
+     * @param version the version from which to retrieve the components
+     */
+    @Override
+    public void calculate(IVersion version) {
+        if (version.getVersionPosition() == 1)
+            return;
+        super.calculate(version);
     }
 
     /**

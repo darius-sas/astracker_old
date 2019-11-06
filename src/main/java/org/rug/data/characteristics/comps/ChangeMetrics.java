@@ -31,6 +31,8 @@ import java.util.*;
  */
 public class ChangeMetrics extends AbstractComponentCharacteristic {
 
+    public static final String NAME = "freqOfChanges";
+
     private final static Logger logger = LoggerFactory.getLogger(ChangeMetrics.class);
     /**
      * The similarity measured as a percentage of the bytes between two files to count them as a rename.
@@ -51,18 +53,12 @@ public class ChangeMetrics extends AbstractComponentCharacteristic {
 
     private DiffFormatter diffFormatter;
     private List<DiffEntry> entries;
-    private List<IComponentCharacteristic> changeMetrics;
 
-    public ChangeMetrics() {
-        super("freqOfChanges",
+    public ChangeMetrics(String name) {
+        super(name,
                 VertexLabel.allFiles(),
                 EnumSet.noneOf(EdgeLabel.class));
         this.changeHistory = new HashMap<>(1000);
-        this.changeMetrics = new ArrayList<>();
-        this.changeMetrics.add(new PCCCMetric(this.name));
-        this.changeMetrics.add(new CHOMetricPackage());
-        this.changeMetrics.add(new PCPCMetric());
-        this.changeMetrics.add(new TACHMetricPackage());
     }
 
     /**
@@ -80,7 +76,6 @@ public class ChangeMetrics extends AbstractComponentCharacteristic {
                         previousVersion.getCommitObjectId(),
                         currentVersion.getCommitObjectId());
                 super.calculate(version);
-                this.changeMetrics.forEach(m -> m.calculate(version));
             }
             previousVersion = currentVersion;
         }
@@ -90,18 +85,20 @@ public class ChangeMetrics extends AbstractComponentCharacteristic {
     protected void calculate(Vertex vertex) {
         var pathFile = retriever.relativize(retriever.getPathOf(vertex));
         if (pathFile.isEmpty()){
-            vertex.property(this.name, 0d);
+            vertex.property(this.name, 0L);
+            vertex.property(TACHMetricPackage.NAME, 0L);
+            vertex.property(CHOMetricPackage.NAME, false);
             return;
         }
         var pathFileStr = pathFile.get().toString();
         var changeOpt = getDiffOf(pathFileStr);
 
+        var hasChanged = false;
         String key;
         if (changeOpt.isPresent()){
             var change = changeOpt.get();
             Long oldValue;
             key = String.format("%s#%s", change.getNewPath(), vertex.value("name"));
-            var hasChanged = false;
             switch (change.getChangeType()) {
                 case ADD:
                 case MODIFY:
@@ -120,11 +117,11 @@ public class ChangeMetrics extends AbstractComponentCharacteristic {
                 default:
                     break;
             }
-            vertex.property(TACHMetricPackage.NAME, countTotalAmountOfChanges(change));
-            vertex.property(CHOMetricPackage.NAME, hasChanged);
         }else {
             key = String.format("%s#%s", pathFileStr, vertex.value("name"));
         }
+        vertex.property(TACHMetricPackage.NAME, countTotalAmountOfChanges(changeOpt));
+        vertex.property(CHOMetricPackage.NAME, hasChanged);
         vertex.property(this.name, changeHistory.getOrDefault(key, 0L));
     }
 
@@ -159,27 +156,31 @@ public class ChangeMetrics extends AbstractComponentCharacteristic {
         diffFormatter.close();
     }
 
-    private long countTotalAmountOfChanges(DiffEntry entry){
+    private long countTotalAmountOfChanges(Optional<DiffEntry> entry) {
         int linesDeleted = 0, linesAdded = 0, linesModified = 0;
-        try {
-            FileHeader fileHeader = diffFormatter.toFileHeader(entry);
-            for (Edit edit : fileHeader.toEditList()) {
-                switch (edit.getType()){
-                    case INSERT:
-                        linesAdded += edit.getEndB() - edit.getBeginB();
-                        break;
-                    case DELETE:
-                        linesDeleted += edit.getEndA() - edit.getBeginA();
-                        break;
-                    case REPLACE:
-                        linesModified += edit.getEndA() - edit.getBeginA();
-                        break;
-                    case EMPTY:
-                        break;
+        if (entry.isPresent()){
+            try {
+                FileHeader fileHeader = diffFormatter.toFileHeader(entry.get());
+                for (Edit edit : fileHeader.toEditList()) {
+                    switch (edit.getType()) {
+                        case INSERT:
+                            linesAdded += edit.getEndB() - edit.getBeginB();
+                            break;
+                        case DELETE:
+                            linesDeleted += edit.getEndA() - edit.getBeginA();
+                            break;
+                        case REPLACE:
+                            linesModified += edit.getEndA() - edit.getBeginA();
+                            break;
+                        case EMPTY:
+                            break;
+                    }
                 }
+            } catch (IOException e) {
+                logger.error("Cannot convert to file header: {}", entry.get().getNewPath());
             }
-        } catch (IOException e) {
-            logger.error("Cannot convert to file header: {}", entry.getNewPath());
+        }else {
+            return 0;
         }
         return linesAdded + linesDeleted + 2 * linesModified;
     }

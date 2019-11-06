@@ -81,14 +81,12 @@ class MainTest {
             return ()-> String.format("Error %s for project %s.", cause, projectName);
     }
 
-
+    @Test
     void systemTestPyne(){
-        var projectName = "pyne";
-        try {
-            Files.delete(Paths.get(outputDir, "trackASOutput", projectName));
-        } catch (IOException e) {}
+        var projectName = "chukwa";
         PersistenceHub.clearAll();
-        Main.main(new String[]{"-p", projectName, "-i", "./test-output/", "-gitRepo", "./pyne", "-o", "../test-output", "-pC", "-rS"});
+        Main.main("-p", projectName, "-i", "../data-techdebt2020/output/arcanOutput/chukwa", "-gitRepo", "../data-techdebt2020/repos/chukwa",
+                "-o", "../data-techdebt2020/output", "-pC", "-pCC");
         PersistenceHub.clearAll();
     }
 

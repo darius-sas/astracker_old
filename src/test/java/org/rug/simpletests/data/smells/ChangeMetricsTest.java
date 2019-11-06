@@ -26,7 +26,7 @@ public class ChangeMetricsTest {
         pyne.addSourceDirectory("/home/fenn/git/pyne");
         pyne.addGraphMLfiles("./test-data/output/arcanOutput/pyne");
 
-        var pccc = new ChangeMetrics();
+        var pccc = new ChangeMetrics("freqOfChanges");
 
         pyne.forEach(pccc::calculate);
 

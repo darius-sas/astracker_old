@@ -8,6 +8,8 @@ import org.rug.data.characteristics.*;
 import org.rug.data.characteristics.smells.AffectedDesign;
 import org.rug.data.labels.VertexLabel;
 import org.rug.data.project.AbstractProject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -28,6 +30,8 @@ import java.util.stream.Collectors;
  * necessary.
  */
 public abstract class ArchitecturalSmell {
+
+    private final static Logger logger = LoggerFactory.getLogger(ArchitecturalSmell.class);
 
     private long id;
     private String affectedVersion;
@@ -294,7 +298,13 @@ public abstract class ArchitecturalSmell {
         }
 
         public ArchitecturalSmell getInstance(Vertex vertex, AbstractProject.Type projectType){
-            return this.smellInstantiator.apply(vertex, projectType);
+            ArchitecturalSmell smell;
+            try {
+                smell = this.smellInstantiator.apply(vertex, projectType);
+            }catch (Exception e){
+                smell = null;
+            }
+            return smell;
         }
 
         /**

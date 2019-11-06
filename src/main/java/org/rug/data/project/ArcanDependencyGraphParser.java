@@ -55,7 +55,7 @@ public class ArcanDependencyGraphParser {
                                 if (as != null)
                                     architecturalSmells.add(as);
                                 else
-                                    logger.warn("AS type '{}' with id '{}' was ignored since no implementation exists for it.", smellVertex.value("smellType").toString(), smellVertex.id());
+                                    logger.warn("AS type '{}' with id '{}' was ignored.", smellVertex.value("smellType").toString(), smellVertex.id());
                             }
                         } else {
                             logger.warn("No 'smellType' property found for smell vertex {}.", smellVertex);
