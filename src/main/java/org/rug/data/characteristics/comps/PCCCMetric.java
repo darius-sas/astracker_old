@@ -33,8 +33,10 @@ public class PCCCMetric extends AbstractComponentCharacteristic {
 
     @Override
     protected void calculate(Vertex vertex) {
-        long fcrh = Long.valueOf(vertex.value(frchMetricName).toString());
-        vertex.property(this.name, (fcrh * 100d) / totalCommits);
+        if (vertex.property(frchMetricName).isPresent()) {
+            long fcrh = vertex.value(frchMetricName);
+            vertex.property(this.name, (fcrh * 100d) / totalCommits);
+        }
     }
 
     @Override

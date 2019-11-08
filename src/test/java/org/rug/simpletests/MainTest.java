@@ -81,7 +81,7 @@ class MainTest {
             return ()-> String.format("Error %s for project %s.", cause, projectName);
     }
 
-    @Test
+
     void systemTestPyne(){
         var projectName = "chukwa";
         PersistenceHub.clearAll();

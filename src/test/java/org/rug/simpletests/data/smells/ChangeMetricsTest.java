@@ -26,8 +26,10 @@ public class ChangeMetricsTest {
         pyne.addSourceDirectory("/home/fenn/git/pyne");
         pyne.addGraphMLfiles("./test-data/output/arcanOutput/pyne");
 
-        var pccc = new ChangeMetrics("freqOfChanges");
+        var changes = new ChangeMetrics("freqOfChanges");
+        var pccc = new PCCCMetric(changes.getName());
 
+        pyne.forEach(changes::calculate);
         pyne.forEach(pccc::calculate);
 
         var graph = pyne.getVersionWith(3).getGraph();
@@ -38,7 +40,7 @@ public class ChangeMetricsTest {
         double pcccValue = graph.traversal().V()
                 .has("name", "edu.rug.pyne.api.parser.analysisprocessor.ClassAnalysis")
                 .next().value(PCCCMetric.NAME);
-//        assertTrue(Math.abs(2/3d * 100 - pcccValue) < 1e-5);
+        assertTrue(Math.abs(2/3d * 100 - pcccValue) < 1e-5);
 
         pcccValue = graph.traversal().V()
                 .has("name", "edu.rug.pyne.api.parser.Parser")

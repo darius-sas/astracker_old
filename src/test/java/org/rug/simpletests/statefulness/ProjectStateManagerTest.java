@@ -2,17 +2,20 @@ package org.rug.simpletests.statefulness;
 
 import org.junit.jupiter.api.Test;
 import org.rug.data.project.IProject;
+import org.rug.data.project.Project;
 import org.rug.statefulness.ProjectStateManager;
 
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.rug.simpletests.TestData.antlr;
 
 public class ProjectStateManagerTest {
 
     @Test
     void testStateManagerAntlr() throws IOException, ClassNotFoundException {
+        Project antlr = new Project("antlr", Project.Type.JAVA);
+        antlr.addSourceDirectory("./test-data/input/antlr");
+        antlr.addGraphMLfiles("./test-data/output/arcanOutput/antlr");
         testStateSaveAndLoad(antlr);
     }
 

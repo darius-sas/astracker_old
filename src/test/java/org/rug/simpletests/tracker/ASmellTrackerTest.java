@@ -60,7 +60,7 @@ public class ASmellTrackerTest {
         trackTestProject(antlr, antlrOracle);
     }
 
-    @Test
+
     void trackTestPure() {
         trackTestProject(pure, pureOracle);
     }

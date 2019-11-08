@@ -33,11 +33,13 @@ public class PCPCMetric extends AbstractComponentCharacteristic {
 
     @Override
     protected void calculate(Vertex vertex) {
-        String name = vertex.value("name");
-        if (vertex.value(CHOMetricPackage.NAME)){
-            packageChanges.compute(name, (k, v) -> v == null ? 1L : v + 1);
+        if (vertex.property(CHOMetricPackage.NAME).isPresent()) {
+            String name = vertex.value("name");
+            if (vertex.value(CHOMetricPackage.NAME)) {
+                packageChanges.compute(name, (k, v) -> v == null ? 1L : v + 1);
+            }
+            vertex.property(this.name, (packageChanges.getOrDefault(name, 0L) * 100d) / totalCommits);
         }
-        vertex.property(this.name, (packageChanges.getOrDefault(name, 0L) * 100d) / totalCommits);
     }
 
     @Override
