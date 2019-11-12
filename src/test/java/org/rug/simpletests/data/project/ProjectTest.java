@@ -82,7 +82,8 @@ public class ProjectTest {
     @Test
     void parseTestCpp(){
         // Parsing for CPP projects should be the same, so we only do a quick test
-        var versions = new String[] {"1.0.0.0", "1.0.0.1", "1.0.0.2", "1.0.0.3", "1.0.0.4"};
+        var versions = new String[] {"43c838884b79116b40d6fb6b47ba14a7769a08ab", "84f6ad77c9addbd7eedce58c2d90d5a19abb3871",
+                "bc79547ebfd65dc87822da353e0e5a576e46d80f", "cacd671de28658a4efcb14dc61baae53075e1586"};
         assertEquals(Arrays.asList(versions), new ArrayList<>(pure.versions().stream().map(IVersion::getVersionString).collect(Collectors.toList())));
     }
 

@@ -35,7 +35,7 @@ class MainTest {
             Files.delete(Paths.get(outputDir, "arcanOutput", projectName));
         } catch (IOException e) {}
 
-        Main.main(new String[]{"-p", projectName, "-i", inputDirJars, "-o", outputDir, "-rA", arcanCommand, "-pC", "-pS"});
+        Main.main("-p", projectName, "-i", inputDirJars, "-o", outputDir, "-rA", arcanCommand, "-pC", "-pS");
 
         assertTrue(Files.exists(Paths.get(outputDir, "arcanOutput", projectName)),
                 error(projectName, "checking existence arcanOutput directory"));
@@ -47,7 +47,7 @@ class MainTest {
 
     @Test
     void executeMainProjectGitArcan(){
-        Main.main("-p", "pyneTest", "-i", "../pyne/", "-o", "../data/", "-rA", "../arcan/target/Arcan-1.4.0-SNAPSHOT/Arcan-1.4.0-SNAPSHOT.jar", "-gitRepo", "../pyne/", "-pC", "-pCC", "-sAO");
+        Main.main("-p", "pyne", "-i", "./test-data/output/arcanOutput/pyne", "-o", "./test-data/output/", "-gitRepo", "./test-data/git-projects/pyne", "-pC", "-pCC");
     }
 
     @Test
