@@ -1,6 +1,7 @@
 package org.rug.args;
 
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParametersDelegate;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -8,8 +9,8 @@ import java.nio.file.Paths;
 
 public class Args {
 
-    @Parameter(names = {"-projectName", "-p"}, description = "The name of the project being analyzed, this name will be used to build the path within the given output folder.", required = true)
-    public String projectName;
+    @ParametersDelegate
+    public ProjectArgsManager project;
 
     @Parameter(names = {"-outputDir", "-o"}, description = "This name will be used to generate an outputDir directory where the outputDir will be saved.", required = true, converter = OutputDirManager.class)
     public File outputDir;
@@ -25,21 +26,6 @@ public class Args {
 
     @Parameter(names = {"-runProjectSize", "-rS"}, description = "Whether to run the project size runner.")
     private boolean runProjectSizes = false;
-
-    @Parameter(names = {"-cppProject", "-cppP"}, description = "Flag this as a C++ project (i.e. project analysed with Arcan for C/C++).")
-    public boolean isCPPproject = false;
-
-    @Parameter(names = {"-cProject", "-cP"}, description = "Flag this project as C project (i.e. project analysed with Arcan for C/C++).")
-    public boolean isCProject = false;
-
-    @Parameter(names = {"-gitRepo"}, description = "Enable history-related metrics by passing the git repository where to read the sources from.", converter = InputDirManager.class)
-    public File gitRepo;
-
-    @Parameter(names = {"-javaProject", "-jP"}, description = "Flag this as a Java project (i.e. project analysed with Arcan for Java).")
-    public boolean isJavaProject = true;
-
-    @Parameter(names = {"-jarProject", "-jar"}, description = "Flag to denote a project of JAR files (either directories of Jar files or Jar files only).")
-    public boolean isJarProject = false;
 
     @Parameter(names = {"-showArcanOutput", "-sAO"}, description = "Whether or not to show Arcan's output to the console.")
     public boolean showArcanOutput = false;
@@ -107,27 +93,27 @@ public class Args {
     }
 
     public void adjustProjDirToArcanOutput(){
-        inputDirectory = new InputDirManager().convert(Paths.get(outputDir.getAbsolutePath(), "arcanOutput", projectName).toAbsolutePath().toString());
+        inputDirectory = new InputDirManager().convert(Paths.get(outputDir.getAbsolutePath(), "arcanOutput", project.name).toAbsolutePath().toString());
     }
 
     public String getArcanOutDir(){
-        Path p = Paths.get(outputDir.getAbsolutePath(), "arcanOutput", projectName);
+        Path p = Paths.get(outputDir.getAbsolutePath(), "arcanOutput", project.name);
         p.toFile().mkdirs();
         return p.toAbsolutePath().toString();
     }
 
     private String getTrackASOutDir(){
-        Path p = Paths.get(outputDir.getAbsolutePath(), "trackASOutput", projectName);
+        Path p = Paths.get(outputDir.getAbsolutePath(), "trackASOutput", project.name);
         p.toFile().mkdirs();
         return p.toAbsolutePath().toString();
     }
 
     public File getGitRepo() {
-        return gitRepo;
+        return project.gitRepo;
     }
 
     public boolean isGitProject(){
-        return gitRepo != null;
+        return project.gitRepo != null;
     }
 
 }

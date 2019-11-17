@@ -42,7 +42,7 @@ public class Analysis {
             }else if (args.runArcan()) {
                 var arcan = GitArcanRunner.newGitRunner(project, args);
                 runners.add(arcan);
-            }else if (args.isJarProject) {
+            }else if (args.project.isJar) {
                 project.addSourceDirectory(args.getHomeProjectDirectory());
                 var outputDir = args.getArcanOutDir();
                 project.forEach(version -> {
@@ -91,19 +91,19 @@ public class Analysis {
     public IProject getProject() throws IOException {
         if (project == null) {
             Type pType;
-            if (args.isCPPproject) {
+            if (args.project.isCPP) {
                 pType = Type.CPP;
-            } else if (args.isCProject) {
+            } else if (args.project.isC) {
                 pType = Type.C;
             } else {
                 pType = Type.JAVA;
             }
 
             if (args.isGitProject()) {
-                project = new GitProject(args.projectName, args.getGitRepo(), pType);
+                project = new GitProject(args.project.name, args.getGitRepo(), pType);
                 project.addSourceDirectory(args.getGitRepo().getAbsolutePath());
             } else {
-                project = new Project(args.projectName, pType);
+                project = new Project(args.project.name, pType);
             }
 
         }
