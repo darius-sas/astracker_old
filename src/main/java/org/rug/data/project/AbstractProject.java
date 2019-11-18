@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -70,6 +71,14 @@ public abstract class AbstractProject implements IProject {
     @Override
     public void forEach(Consumer<? super IVersion> action) {
         versionedSystem.values().forEach(action);
+    }
+
+    long counter = 1;
+    public void forEach(BiConsumer<? super IVersion, Long> action){
+        for (IVersion version : versionedSystem.values()) {
+            action.accept(version, counter++);
+        }
+        counter = 1;
     }
 
     @Override

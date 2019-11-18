@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.function.BiConsumer;
 
 /**
  * Represents a project that can be analysed.
@@ -99,4 +100,11 @@ public interface IProject extends Iterable<IVersion> {
      * @see #getVersionedSystem()
      */
     void setVersionedSystem(SortedMap<String, IVersion> versionedSystem);
+
+    /**
+     * Iterates over the versions of the system and returns an index of the version.
+     * Note that this index might differ from the versionPosition.
+     * @param action the function to execute.
+     */
+    void forEach(BiConsumer<? super IVersion, Long> action);
 }
