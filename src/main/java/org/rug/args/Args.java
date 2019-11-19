@@ -10,7 +10,7 @@ import java.nio.file.Paths;
 public class Args {
 
     @ParametersDelegate
-    public ProjectArgsManager project;
+    public ProjectArgsManager project = new ProjectArgsManager();
 
     @Parameter(names = {"-outputDir", "-o"}, description = "This name will be used to generate an outputDir directory where the outputDir will be saved.", required = true, converter = OutputDirManager.class)
     public File outputDir;

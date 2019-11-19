@@ -37,7 +37,7 @@ public class TrackASRunner extends ToolRunner {
 
         logger.info("Starting tracking architectural smells of {} for {} versions", project.getName(), project.numberOfVersions());
         logger.info("Tracking non consecutive versions: {}", trackNonConsecutiveVersions ? "yes" : "no");
-        
+
         project.forEach((version, index) -> {
             logger.info("Tracking version {} (n. {} of {})", version.getVersionString(), index, project.numberOfVersions());
             List<ArchitecturalSmell> smells = project.getArchitecturalSmellsIn(version);
