@@ -15,6 +15,7 @@ public class GCSmell extends SingleElementSmell {
      */
     public GCSmell(Vertex smell) {
         super(smell, Type.GC);
+        this.setCentre(smell.graph().traversal().V(smell).out(EdgeLabel.GCAFFECTEDPACKAGE.toString()).next());
     }
 
     @Override

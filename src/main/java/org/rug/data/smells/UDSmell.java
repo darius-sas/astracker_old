@@ -23,6 +23,7 @@ public class UDSmell extends SingleElementSmell {
     public UDSmell(Vertex smell) {
         super(smell, Type.UD);
         this.badDep = smell.graph().traversal().V(smell).out(EdgeLabel.UDBADDEP.toString()).toSet();
+        this.setCentre(smell.graph().traversal().V(smell).out(EdgeLabel.UDAFFECTED.toString()).next());
     }
     
     public UDSmell(Vertex smell, Type type) {
@@ -34,6 +35,7 @@ public class UDSmell extends SingleElementSmell {
     public void setAffectedElements(Vertex smell) {
         this.affectedElements = new HashSet<>();
         this.affectedElements.add(smell.graph().traversal().V(smell).out(EdgeLabel.UDAFFECTED.toString()).next());
+        this.affectedElements.addAll(smell.graph().traversal().V(smell).out(EdgeLabel.UDBADDEP.toString()).toSet());
     }
 
     /**

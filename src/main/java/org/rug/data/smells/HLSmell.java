@@ -23,15 +23,15 @@ public class HLSmell extends SingleElementSmell {
      * @param smell the vertex to use.
      */
     public HLSmell(Vertex smell) {
-        super(smell, Type.HL);
-        this.inDep = smell.graph().traversal().V(smell).out(EdgeLabel.HLIN.toString()).toSet();
-        this.outDep = smell.graph().traversal().V(smell).out(EdgeLabel.HLOUT.toString()).toSet();
+        this(smell, Type.HL);
     }
     
     public HLSmell(Vertex smell, Type type) {
         super(smell, type);
         this.inDep = smell.graph().traversal().V(smell).out(EdgeLabel.HLIN.toString()).toSet();
         this.outDep = smell.graph().traversal().V(smell).out(EdgeLabel.HLOUT.toString()).toSet();
+        EdgeLabel label = getLevel().isDesignLevel() ? EdgeLabel.HLAFFECTEDCLASS : EdgeLabel.HLAFFECTEDPACK;
+        this.setCentre(smell.graph().traversal().V(smell).out(label.toString()).next());
     }
 
     /**
@@ -44,6 +44,9 @@ public class HLSmell extends SingleElementSmell {
         EdgeLabel label = getLevel().isDesignLevel() ? EdgeLabel.HLAFFECTEDCLASS : EdgeLabel.HLAFFECTEDPACK;
         this.affectedElements = new HashSet<>();
         this.affectedElements.add(smell.graph().traversal().V(smell).out(label.toString()).next());
+        // Ingoing and outgoing dependencies are also considered affected elements
+        this.affectedElements.addAll(smell.graph().traversal().V(smell).out(EdgeLabel.HLIN.toString()).toSet());
+        this.affectedElements.addAll(smell.graph().traversal().V(smell).out(EdgeLabel.HLOUT.toString()).toSet());
     }
 
     /**

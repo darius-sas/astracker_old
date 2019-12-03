@@ -18,7 +18,6 @@ public abstract class SingleElementSmell extends ArchitecturalSmell {
      */
     public SingleElementSmell(Vertex smell, Type type) {
         super(smell, type);
-        this.centre = getAffectedElements().iterator().next();
     }
 
     /**
@@ -27,6 +26,22 @@ public abstract class SingleElementSmell extends ArchitecturalSmell {
      */
     public Vertex getCentre() {
         return centre;
+    }
+
+    /**
+     * Return the name property of the centre of this smell.
+     * @return a string representing the name.
+     */
+    public String getCentreName(){
+        return this.getCentre().value("name");
+    }
+
+    /**
+     * The component center of this smell.
+     * @param centre the vertex causing this smell.
+     */
+    public void setCentre(Vertex centre){
+        this.centre = centre;
     }
 
     /**
