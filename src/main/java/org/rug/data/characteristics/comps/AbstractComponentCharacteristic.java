@@ -7,12 +7,16 @@ import org.rug.data.characteristics.IComponentCharacteristic;
 import org.rug.data.labels.EdgeLabel;
 import org.rug.data.labels.VertexLabel;
 import org.rug.data.project.IVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public abstract class AbstractComponentCharacteristic implements IComponentCharacteristic {
+
+    private final static Logger logger = LoggerFactory.getLogger(AbstractComponentCharacteristic.class);
 
     protected String name;
     protected List<String> eLabels;
@@ -40,6 +44,7 @@ public abstract class AbstractComponentCharacteristic implements IComponentChara
      */
     @Override
     public void calculate(IVersion version) {
+        logger.debug("Computing {} characteristic", name);
         var graph = version.getGraph();
         if (!vLabels.isEmpty()) {
             graph.traversal().V().hasLabel(P.within(vLabels)).forEachRemaining(this::calculate);

@@ -7,9 +7,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This class manages the retrieval of the source code of a class from
@@ -22,6 +21,7 @@ public abstract class SourceCodeRetriever {
 
     protected Map<String, String> classesCache;
     protected Path sourcePath;
+    protected Set<Path> deepPaths;
 
     protected final static String NOT_FOUND = "";
 
@@ -32,6 +32,11 @@ public abstract class SourceCodeRetriever {
     public SourceCodeRetriever(Path sourcePath) {
         this.classesCache = new HashMap<>();
         this.sourcePath = sourcePath;
+        try( var stream = Files.walk(sourcePath)){
+            this.deepPaths = stream.filter(p -> p.toFile().isFile()).collect(Collectors.toSet());
+        } catch (IOException e) {
+            this.deepPaths = new HashSet<>();
+        }
     }
 
     /**
@@ -130,12 +135,11 @@ public abstract class SourceCodeRetriever {
      * @return an optional Path.
      */
     protected Optional<Path> findFile(String fileName){
-        Optional<Path> elementFile;
-        try (var walk = Files.walk(sourcePath)) {
-            elementFile = walk.filter(p -> p.endsWith(fileName)).findFirst();
-        } catch (IOException e) {
-            logger.error("Could not find source file: {}", fileName);
-            elementFile = Optional.empty();
+        Optional<Path> elementFile = deepPaths.stream().filter(p -> p.endsWith(fileName)).findFirst();
+        if (elementFile.isEmpty()) {
+            logger.debug("Could not find source file: {}", fileName);
+        }else {
+            logger.debug("Found file: {}", fileName);
         }
         return elementFile;
     }
@@ -146,6 +150,8 @@ public abstract class SourceCodeRetriever {
      * @return the path relative to the source path or an empty optional otherwise.
      */
     public Optional<Path> relativize(Optional<Path> path){
+        if (path.isEmpty())
+            return Optional.empty();
         return path.map(value -> sourcePath.relativize(value));
     }
 }

@@ -90,10 +90,10 @@ class MainTest {
         PersistenceHub.clearAll();
     }
 
-    void systemTestTics(){
-        var projectName = "tics";
+    void systemTestJackrabbit(){
+        var projectName = "jackrabbit";
         PersistenceHub.clearAll();
-        Main.main(new String[]{"-p", projectName, "-i", "../projects-analyses/arcanOutput", "-o", "../projects-analyses", "-pC", "-rS"});
+        Main.main("-p", projectName, "-i", "../data/arcanOutput/jackrabbit", "-o", "../data", "-pCC", "-pC", "-rS", "-gitRepo", "/home/fenn/git/data/jackrabbit");
         PersistenceHub.clearAll();
     }
 }

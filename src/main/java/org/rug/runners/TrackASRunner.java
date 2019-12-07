@@ -42,9 +42,12 @@ public class TrackASRunner extends ToolRunner {
             logger.info("Tracking version {} (n. {} of {})", version.getVersionString(), index, project.numberOfVersions());
             List<ArchitecturalSmell> smells = project.getArchitecturalSmellsIn(version);
 
+            logger.debug("Computing component characteristics...");
             componentCharacteristics.forEach(c -> c.calculate(version));
+            logger.debug("Computing smell characteristics...");
             smells.forEach(ArchitecturalSmell::calculateCharacteristics);
 
+            logger.debug("Tracking smells...");
             tracker.track(smells, version);
 
             logger.info("Linked {} smells out of a total of {} in this version.", tracker.smellsLinked(), smells.size());

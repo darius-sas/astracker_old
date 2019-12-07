@@ -6,7 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * Retrieves source code of Java classes from Java projects.
@@ -53,6 +55,21 @@ public class JavaSourceCodeRetriever extends SourceCodeRetriever {
     @Override
     protected String toFileName(String elementName, String extension){
         return clean(elementName).replace('.', File.separatorChar) + extension;
+    }
+
+    @Override
+    public Optional<Path> getPathOf(Vertex component) {
+        var tryFullName = super.getPathOf(component);
+        if (tryFullName.isEmpty()) {
+            try {
+                String compName = component.value("name");
+                compName = compName.substring(compName.lastIndexOf(".") + 1);
+                return super.getPathOf(compName, ".java");
+            }catch (Exception e){
+                return tryFullName;
+            }
+        }
+        return tryFullName;
     }
 
     /**
