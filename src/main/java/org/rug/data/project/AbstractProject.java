@@ -102,7 +102,7 @@ public abstract class AbstractProject implements IProject {
      */
     @Override
     public IVersion getVersionWith(long versionPosition) {
-        return versionedSystem.values().stream().filter(v -> v.getVersionPosition() == versionPosition).findFirst().orElse(null);
+        return versionedSystem.values().stream().filter(v -> v.getVersionIndex() == versionPosition).findFirst().orElse(null);
     }
 
     /**
@@ -129,7 +129,7 @@ public abstract class AbstractProject implements IProject {
      */
     @Override
     public Long getVersionIndex(String version){
-        return versionedSystem.get(version).getVersionPosition();
+        return versionedSystem.get(version).getVersionIndex();
     }
 
     /**
@@ -153,7 +153,7 @@ public abstract class AbstractProject implements IProject {
     protected void initVersionPositions(){
         long counter = 1;
         for (var version : getVersionedSystem().values()){
-            version.setVersionPosition(counter++);
+            version.setVersionIndex(counter++);
         }
     }
 

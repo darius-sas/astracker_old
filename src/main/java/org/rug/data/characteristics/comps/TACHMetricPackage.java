@@ -27,7 +27,7 @@ public class TACHMetricPackage extends AbstractComponentCharacteristic {
      */
     @Override
     public void calculate(IVersion version) {
-        if (version.getVersionPosition() == 1)
+        if (version.getVersionIndex() == 1)
             return;
         super.calculate(version);
     }

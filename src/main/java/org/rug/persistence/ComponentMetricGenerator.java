@@ -19,7 +19,7 @@ public class ComponentMetricGenerator extends CSVDataGenerator<IVersion> {
     public ComponentMetricGenerator(String outputFile) {
         super(outputFile);
         this.header = new ArrayList<>();
-        header.addAll(List.of("name", "type", "version", "versionPosition"));
+        header.addAll(List.of("name", "type", "version", "versionIndex"));
         characteristicsNames = new ComponentCharacteristicSet().getCharacteristicSet().stream().map(IComponentCharacteristic::getName).collect(Collectors.toCollection(LinkedHashSet::new));
         characteristicsNames.removeAll(header);
         header.addAll(characteristicsNames);
@@ -34,7 +34,7 @@ public class ComponentMetricGenerator extends CSVDataGenerator<IVersion> {
     public void accept(IVersion version) {
         var g = version.getGraph().traversal();
         var versionString = version.getVersionString();
-        var versionPosition = String.valueOf(version.getVersionPosition());
+        var versionPosition = String.valueOf(version.getVersionIndex());
 
         var vertices = g.V().hasLabel(P.within(VertexLabel.getTypesStrings())).toSet();
         for (var vertex : vertices){

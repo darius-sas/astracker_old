@@ -22,13 +22,13 @@ public interface IVersion extends Comparable<IVersion> {
      * The position order of this version in comparison to the other versions in the system
      * @return a long integer representing the position of this version.
      */
-    long getVersionPosition();
+    long getVersionIndex();
 
     /**
-     * Sets the position of this version in comparison to the rest of the versions in the system.
-     * @param versionPosition The position of this version.
+     * Sets the position/index of this version in comparison to the rest of the versions in the system.
+     * @param versionIndex The index of this version.
      */
-    void setVersionPosition(long versionPosition);
+    void setVersionIndex(long versionIndex);
 
     /**
      * Retrieves the dependency graph for the version represented by this instance.

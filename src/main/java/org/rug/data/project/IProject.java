@@ -3,7 +3,6 @@ package org.rug.data.project;
 import org.rug.data.smells.ArchitecturalSmell;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -82,7 +81,7 @@ public interface IProject extends Iterable<IVersion> {
     /**
      * Returns the version with the given versionPosition.
      * @param versionPosition the position of the version as an index.
-     * @return the version object for which {@link IVersion#getVersionPosition()} equals the given value.
+     * @return the version object for which {@link IVersion#getVersionIndex()} equals the given value.
      */
     IVersion getVersionWith(long versionPosition);
 

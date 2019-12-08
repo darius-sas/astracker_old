@@ -1,16 +1,11 @@
 package org.rug.data.project;
 
 import org.eclipse.jgit.api.CheckoutCommand;
-import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.rug.data.characteristics.comps.SourceCodeRetriever;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.nio.file.Path;
 
 public class GitVersion extends AbstractVersion {
@@ -55,10 +50,10 @@ public class GitVersion extends AbstractVersion {
         var fileName = f.getFileName().toString();
         int endIndex = f.toFile().isDirectory() ? fileName.length() : fileName.lastIndexOf('.');
         var splits = fileName.substring(0, endIndex).split("-");
-        setVersionPosition(Long.parseLong(splits[1]));
+        setVersionIndex(Long.parseLong(splits[1]));
         versionDate = String.join("-", splits[2].split("_"));
         commitName = splits[3];
-        return String.join("-", String.valueOf(versionPosition), commitName);
+        return String.join("-", String.valueOf(versionIndex), commitName);
     }
 
     /**

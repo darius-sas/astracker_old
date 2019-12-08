@@ -32,7 +32,7 @@ public class ProjectStateManager {
     public void saveState(IVersion lastVersion) throws IOException {
         try(var oos = new ObjectOutputStream(new FileOutputStream(this.lastVersion))) {
             oos.writeObject(lastVersion.getVersionString()); // alternatively we can only serialize the versionString.
-            oos.writeObject(lastVersion.getVersionPosition());
+            oos.writeObject(lastVersion.getVersionIndex());
         }
     }
 
@@ -46,7 +46,7 @@ public class ProjectStateManager {
         if (instance.getVersionedSystem().containsKey(lastVersionString)){
             instance.setVersionedSystem(instance.getVersionedSystem().tailMap(lastVersionString));
             for(var v : instance.getVersionedSystem().values()){
-                v.setVersionPosition(lastVersionposition++);
+                v.setVersionIndex(lastVersionposition++);
             }
         }else {
             throw new IllegalStateException("Cannot load state for current project: last version string is not contained in the starting project.");

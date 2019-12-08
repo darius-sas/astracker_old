@@ -1,8 +1,6 @@
 package org.rug.runners;
 
 import org.apache.tinkerpop.gremlin.process.traversal.P;
-import org.apache.tinkerpop.gremlin.process.traversal.TextP;
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.rug.data.labels.VertexLabel;
 import org.rug.data.project.IProject;
 import org.rug.persistence.PersistenceHub;
@@ -51,7 +49,7 @@ public class ProjecSizeRunner extends ToolRunner {
                 record.add(project.getName());
                 record.add(version.getVersionString());
                 record.add(version.getVersionDate());
-                record.add(String.valueOf(version.getVersionPosition()));
+                record.add(String.valueOf(version.getVersionIndex()));
                 record.add(String.valueOf(nP));
                 record.add(String.valueOf(nC));
                 PersistenceHub.sendToAndWrite(ProjectSizeGenerator.class, record);

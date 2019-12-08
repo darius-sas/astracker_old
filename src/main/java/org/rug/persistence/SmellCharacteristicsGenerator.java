@@ -63,7 +63,7 @@ public class SmellCharacteristicsGenerator extends CSVDataGenerator<ASmellTracke
         Set<String> characteristicKeys = new TreeSet<>();
         g.V().hasLabel("characteristic").forEachRemaining(v -> characteristicKeys.addAll(v.keys()));
         header.add("version");
-        header.add("versionPosition");
+        header.add("versionIndex");
         header.add("versionDate");
         header.add("smellIdInVersion");
         header.addAll(characteristicKeys);
@@ -87,7 +87,7 @@ public class SmellCharacteristicsGenerator extends CSVDataGenerator<ASmellTracke
                         String versionString = incomingEdge.value(VERSION).toString();
                         IVersion version = project.getVersion(versionString);
                         completeRecord.add(versionString);
-                        completeRecord.add(String.valueOf(version.getVersionPosition()));
+                        completeRecord.add(String.valueOf(version.getVersionIndex()));
                         completeRecord.add(version.getVersionDate());
                         completeRecord.add(incomingEdge.value(SMELL_ID).toString());
                         characteristicKeys.forEach(k -> completeRecord.add(characteristic.property(k).orElse("NA").toString()));
