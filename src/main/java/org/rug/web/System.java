@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
  */
 public class System {
 
-    private final Map<Long, String> versions   = new TreeMap<>();
+    private final TreeMap<Long, String> versions   = new TreeMap<>();
     private final List<Smell>       smells     = new ArrayList<>(100);
     private final List<Component>   components = new ArrayList<>(100);
 
@@ -81,6 +81,18 @@ public class System {
      */
     public Map<Long, String> getVersions(){
         return versions;
+    }
+
+    /**
+     * Returns a reasonably recent starting index for this system.
+     * This method can be used to avoid returning too many irrelevant smells/components with {@link #getComponents(long, long)}
+     * or {@link #getSmells(long, long)}.
+     * @return a version index.
+     */
+    public long getRecentStartingIndex(){
+        var recentKey = versions.lastKey();
+        recentKey = versions.floorKey((long)(recentKey * 0.85));
+        return Math.max(recentKey, versions.ceilingKey(versions.lastKey() - 25));
     }
 
     /**
