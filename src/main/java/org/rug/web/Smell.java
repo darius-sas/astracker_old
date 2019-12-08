@@ -6,46 +6,98 @@ import org.rug.tracker.ASmellTracker;
 
 import java.util.*;
 
-public class Smell {
+/**
+ * Represents a smell affecting multiple components in multiple versions.
+ */
+public class Smell extends VersionSpanningNode{
 
     private final long id;
     private final String type;
     private final long age;
     private final String firstVersionAppeared;
     private final String lastVersionDetected;
-    private final Set<Long> affectedVersions;
-    private final Map<Long, Map<String, String>> characteristics;
     private final Map<Long, List<String>> affectedComponents;
 
+    /**
+     * Build this smell starting from a vertex representing a smell in the condensed graph.
+     * @param smell the vertex.
+     */
     public Smell(Vertex smell) {
         this.id = smell.value(ASmellTracker.UNIQUE_SMELL_ID);
         this.type = smell.value(ASmellTracker.SMELL_TYPE);
         this.age = smell.value(ASmellTracker.AGE);
         this.firstVersionAppeared = smell.value(ASmellTracker.FIRST_APPEARED);
         this.lastVersionDetected = smell.value(ASmellTracker.LAST_DETECTED);
-        this.characteristics = new TreeMap<>();
-        this.affectedVersions = new TreeSet<>();
         this.affectedComponents = new TreeMap<>();
         setAffectedComponents(smell);
         setCharacteristics(smell);
     }
 
-    private void setAffectedComponents(Vertex smell){
-        var graph = smell.graph();
-        var hasCharactEdges = graph.traversal().V(smell).outE(ASmellTracker.HAS_CHARACTERISTIC).toSet();
-        for (Edge edge : hasCharactEdges) {
-            long affectedVersion = edge.value(ASmellTracker.VERSION_INDEX);
-            affectedVersions.add(affectedVersion);
-            characteristics.put(affectedVersion, propertiesToMap(edge.inVertex()));
-        }
+    /**
+     * The unique smell identifier of this smell.
+     * @return a long.
+     */
+    public long getId() {
+        return id;
+    }
+
+    /**
+     * The type of the smell (cycle, unstable, etc.) as a string.
+     * @return a string
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * The number of versions this smell was detected in.
+     * @return the age of the smell.
+     */
+    public Long getAge() {
+        return age;
+    }
+
+    /**
+     * The string name of the first version this smell was detected in.
+     * @return the version where this smell was first detected.
+     */
+    public String getFirstVersionAppeared() {
+        return firstVersionAppeared;
+    }
+
+    /**
+     * The string name of the last version this smell was detected in.
+     * @return the version where this smell was last detected.
+     */
+    public String getLastVersionDetected() {
+        return lastVersionDetected;
+    }
+
+    /**
+     * A map where the keys are the version indexes this smell has affected and the values
+     * are a list of components name affected in that version.
+     * @return a map as described above.
+     */
+    public Map<Long, List<String>> getAffectedComponents() {
+        return affectedComponents;
     }
 
     private void setCharacteristics(Vertex smell){
         var graph = smell.graph();
+        var hasCharactEdges = graph.traversal().V(smell).outE(ASmellTracker.HAS_CHARACTERISTIC).toSet();
+        for (Edge edge : hasCharactEdges) {
+            long affectedVersion = edge.value(ASmellTracker.VERSION_INDEX);
+            spanningVersions.add(affectedVersion);
+            characteristics.put(affectedVersion, propertiesToMap(edge.inVertex()));
+        }
+    }
+
+    private void setAffectedComponents(Vertex smell){
+        var graph = smell.graph();
         var hasCharactEdges = graph.traversal().V(smell).outE(ASmellTracker.AFFECTS).toSet();
         for (Edge edge : hasCharactEdges) {
             long affectedVersion = edge.value(ASmellTracker.VERSION_INDEX);
-            affectedVersions.add(affectedVersion);
+            spanningVersions.add(affectedVersion);
             affectedComponents.compute(affectedVersion, (k, v) -> {
                 if (v == null){
                     v = new ArrayList<>();
@@ -56,41 +108,4 @@ public class Smell {
         }
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public Long getAge() {
-        return age;
-    }
-
-    public String getFirstVersionAppeared() {
-        return firstVersionAppeared;
-    }
-
-    public String getLastVersionDetected() {
-        return lastVersionDetected;
-    }
-
-    public Set<Long> getAffectedVersions() {
-        return affectedVersions;
-    }
-
-    public Map<Long, Map<String, String>> getCharacteristics() {
-        return characteristics;
-    }
-
-    public Map<Long, List<String>> getAffectedComponents() {
-        return affectedComponents;
-    }
-
-    private Map<String, String> propertiesToMap(Vertex vertex){
-        var map = new HashMap<String, String>();
-        vertex.keys().forEach(k -> map.put(k, vertex.value(k)));
-        return map;
-    }
 }

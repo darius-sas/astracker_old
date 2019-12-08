@@ -26,7 +26,7 @@ public class SmellTest {
         var smell = new Smell(smellVertex);
         assertEquals(smellID, smell.getId());
         assertFalse(smell.getAffectedComponents().isEmpty());
-        assertFalse(smell.getAffectedVersions().isEmpty());
+        assertFalse(smell.getSpanningVersions().isEmpty());
         assertFalse(smell.getCharacteristics().isEmpty());
     }
 }
