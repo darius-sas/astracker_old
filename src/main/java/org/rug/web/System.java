@@ -79,7 +79,7 @@ public class System {
      * The versions of this system as a map where the keys are the indexes and the values are the string representation.
      * @return a map of versions indexes and names of versions.
      */
-    public Map<Long, String> getVersions(){
+    public TreeMap<Long, String> getVersions(){
         return versions;
     }
 
@@ -90,8 +90,11 @@ public class System {
      * @return a version index.
      */
     public long getRecentStartingIndex(){
+        if (versions.size() == 0) {
+            return 0;
+        }
         var recentKey = versions.lastKey();
-        recentKey = versions.floorKey((long)(recentKey * 0.85));
+        recentKey = versions.ceilingKey((long)(recentKey * 0.85));
         return Math.max(recentKey, versions.ceilingKey(versions.lastKey() - 25));
     }
 
@@ -107,7 +110,7 @@ public class System {
         if (startIndex > endIndex){
             return Collections.emptyList();
         }
-        return list.stream().filter(s -> (endIndex - s.getFirst()) * (s.getLast() - startIndex) >= 0).collect(Collectors.toList());
+        return list.stream().filter(s -> (endIndex - s.getFirstVersion()) * (s.getLastVersion() - startIndex) >= 0).collect(Collectors.toList());
     }
 
 }

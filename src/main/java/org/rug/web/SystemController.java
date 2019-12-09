@@ -51,13 +51,17 @@ public class SystemController {
      */
     @RequestMapping(value = "/components", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Component> components(@RequestParam(value="system", defaultValue="antlr") String system,
+                                      @RequestParam(value="lastVersion", defaultValue = "true") boolean lastVersion,
                                       @RequestParam(value="start", defaultValue = "-1", required = false) long fromVersionIndex,
                                       @RequestParam(value="end", defaultValue = "4294967296", required = false) long toVersionIndex){
         var sys = getSystem(system);
-        if (fromVersionIndex < 0){
+        if (lastVersion){
+            fromVersionIndex = sys.getVersions().lastKey();
+            toVersionIndex = sys.getVersions().lastKey();
+        }else if (fromVersionIndex < 0) {
             fromVersionIndex = sys.getRecentStartingIndex();
-            logger.debug("Using fromVersionIndex={}", fromVersionIndex);
         }
+        logger.debug("Using fromVersionIndex={}", fromVersionIndex);
         return sys.getComponents(fromVersionIndex, toVersionIndex);
     }
 
@@ -73,16 +77,29 @@ public class SystemController {
      */
     @RequestMapping(value = "/smells", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Smell> smells(@RequestParam(value="system", defaultValue="antlr") String system,
+                              @RequestParam(value="lastVersion", defaultValue = "true") boolean lastVersion,
                               @RequestParam(value="start", defaultValue = "-1", required = false) long fromVersionIndex,
                               @RequestParam(value="end", defaultValue = "4294967296", required = false) long toVersionIndex){
         var sys = getSystem(system);
-        if (fromVersionIndex < 0){
+        if (lastVersion){
+            fromVersionIndex = sys.getVersions().lastKey();
+            toVersionIndex = sys.getVersions().lastKey();
+        }else if (fromVersionIndex < 0) {
             fromVersionIndex = sys.getRecentStartingIndex();
-            logger.debug("Using fromVersionIndex={}", fromVersionIndex);
         }
+        logger.debug("Using fromVersionIndex={}", fromVersionIndex);
         return sys.getSmells(fromVersionIndex, toVersionIndex);
     }
 
+    /**
+     * Returns the complete System object with all the smells and components belonging to the requested system.
+     * @param system the system name.
+     * @return a System object containing all versions of all smells and components.
+     */
+    @RequestMapping(value = "/system", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public System system(@RequestParam(value="system", defaultValue="antlr") String system){
+        return getSystem(system);
+    }
 
     /**
      * Get the system object with the given name. In case the system has not been cached already, load it before returning it to the caller.

@@ -24,7 +24,7 @@ public abstract class VersionSpanningNode {
      * The last version this element affects.
      * @return a version index.
      */
-    public long getLast(){
+    public long getLastVersion(){
         return spanningVersions.last();
     }
 
@@ -32,7 +32,7 @@ public abstract class VersionSpanningNode {
      * The first version this element affects.
      * @return a version index.
      */
-    public long getFirst(){
+    public long getFirstVersion(){
         return spanningVersions.first();
     }
 
