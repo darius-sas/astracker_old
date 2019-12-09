@@ -15,9 +15,9 @@ git clone https://github.com/darius-sas/astracker
 cd astracker
 mvn clean compile assembly:single -DskipTests=true
 ```
-or, to deploy to a docker container as a web service:
+or, to run it as web service:
 ```
-mvn clean package -DskipTests=true
+mvn spring-boot:run
 ```
 
 This will compile the project and will create a `astracker` directory within the `./target` directory.
