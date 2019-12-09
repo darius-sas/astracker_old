@@ -20,6 +20,7 @@ public abstract class SourceCodeRetriever {
     private final static Logger logger = LoggerFactory.getLogger(SourceCodeRetriever.class);
 
     protected Map<String, String> classesCache;
+    protected Map<String, Optional<Path>> filesCache;
     protected Path sourcePath;
     protected Set<Path> deepPaths;
 
@@ -30,7 +31,8 @@ public abstract class SourceCodeRetriever {
      * @param sourcePath the path to the source directory.
      */
     public SourceCodeRetriever(Path sourcePath) {
-        this.classesCache = new HashMap<>();
+        this.classesCache = new HashMap<>(200);
+        this.filesCache = new HashMap<>(200);
         this.sourcePath = sourcePath;
         try( var stream = Files.walk(sourcePath)){
             this.deepPaths = stream.filter(p -> p.toFile().isFile()).collect(Collectors.toSet());
@@ -135,13 +137,11 @@ public abstract class SourceCodeRetriever {
      * @return an optional Path.
      */
     protected Optional<Path> findFile(String fileName){
-        Optional<Path> elementFile = deepPaths.stream().filter(p -> p.endsWith(fileName)).findFirst();
-        if (elementFile.isEmpty()) {
-            logger.debug("Could not find source file: {}", fileName);
-        }else {
-            logger.debug("Found file: {}", fileName);
+        if (!filesCache.containsKey(fileName)) {
+            Optional<Path> elementFile = deepPaths.stream().filter(p -> p.endsWith(fileName)).findFirst();
+            filesCache.put(fileName, elementFile);
         }
-        return elementFile;
+        return filesCache.getOrDefault(fileName, Optional.empty());
     }
 
     /**
