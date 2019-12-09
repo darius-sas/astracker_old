@@ -112,7 +112,7 @@ public abstract class CSVDataGenerator<T> implements ICSVGenerator<T>{
         future = CompletableFuture.runAsync(()-> {
             try {
                 if (fileWriter == null) {
-                    fileWriter = new BufferedWriter(new FileWriter(getOutputFile(), CHARSET, false));
+                    fileWriter = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(getOutputFile(), false), 165537));
                     printer = new CSVPrinter(fileWriter, CSVFormat.DEFAULT.withHeader(getHeader()));
                 }
                 printer.printRecords(records);

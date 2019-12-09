@@ -51,6 +51,7 @@ public class TrackASRunner extends ToolRunner {
             tracker.track(smells, version);
 
             logger.info("Linked {} smells out of a total of {} in this version.", tracker.smellsLinked(), smells.size());
+            logger.debug("Sending characteristics to data generators...");
             PersistenceHub.sendToAndWrite(SmellSimilarityDataGenerator.class, tracker);
             PersistenceHub.sendToAndWrite(ComponentMetricGenerator.class, version);
             version.clearGraph();
