@@ -1,6 +1,5 @@
 package org.rug.simpletests.persistence;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.rug.data.smells.ArchitecturalSmell;
