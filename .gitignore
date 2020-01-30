@@ -3,6 +3,7 @@
 /data-analysis/*.pdf
 /data-analysis/*.csv
 /test-data/output/trackASOutput/
+/test-data/output/states
 /test-data/git-projects/*
 /arcan
 /arcan-c-cpp

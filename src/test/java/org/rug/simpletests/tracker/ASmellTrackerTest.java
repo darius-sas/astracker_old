@@ -78,7 +78,7 @@ public class ASmellTrackerTest {
             List<ArchitecturalSmell> smells = project.getArchitecturalSmellsIn(version);
             smells.forEach(ArchitecturalSmell::calculateCharacteristics);
             tracker.track(smells, version);
-            assertEquals(oracle.get(version.getVersionString()), tracker.smellsLinked());
+            assertEquals((long)oracle.get(version.getVersionString()), tracker.smellsLinked());
             PersistenceHub.sendToAndWrite(SmellSimilarityDataGenerator.class, tracker);
         }
         gen.accept(tracker);

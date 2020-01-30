@@ -30,14 +30,14 @@ public class ASmellTrackerStateManagerTest extends ASmellTrackerTest {
 
         tracker.track(antlr.getArchitecturalSmellsIn(v1), v1);
         tracker.track(antlr.getArchitecturalSmellsIn(v2), v2);
-        assertEquals(antlrOracle.get(v2.getVersionString()), tracker.smellsLinked());
+        assertEquals((long)antlrOracle.get(v2.getVersionString()), tracker.smellsLinked());
 
         stateManager.saveState(tracker);
         tracker = stateManager.loadState(antlr, v2);
 
         tracker.track(antlr.getArchitecturalSmellsIn(v3), v3);
         tracker.track(antlr.getArchitecturalSmellsIn(v4), v4);
-        assertEquals(antlrOracle.get(v4.getVersionString()), tracker.smellsLinked());
+        assertEquals((long)antlrOracle.get(v4.getVersionString()), tracker.smellsLinked());
     }
 
     @Test
@@ -57,7 +57,7 @@ public class ASmellTrackerStateManagerTest extends ASmellTrackerTest {
         IntStream.range(1, nVersions/2).forEach(i -> {
             var version = project.getVersionWith(i);
             tracker.track(project.getArchitecturalSmellsIn(version), version);
-            assertEquals(oracle.get(version.getVersionString()), tracker.smellsLinked());
+            assertEquals((long)oracle.get(version.getVersionString()), tracker.smellsLinked());
         });
 
         var stateManager = new ASmellTrackerStateManager("test-data/output/states");
@@ -67,7 +67,7 @@ public class ASmellTrackerStateManagerTest extends ASmellTrackerTest {
         IntStream.range(nVersions/2, nVersions).forEach(i -> {
             var version = project.getVersionWith(i);
             recoveredTracker.track(project.getArchitecturalSmellsIn(version), version);
-            assertEquals(oracle.get(version.getVersionString()), recoveredTracker.smellsLinked(),
+            assertEquals((long)oracle.get(version.getVersionString()), recoveredTracker.smellsLinked(),
                     String.format("Assertion error at i = %d version = %s", i, version.getVersionString()));
         });
     }

@@ -1,0 +1,146 @@
+---
+title: "Smell evolution analysis"
+author: "Darius Sas"
+date: "February 26, 2019"
+output: html_document
+runtime: shiny
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("as-history-all/plotting.R")
+options(shiny.maxRequestSize = 100*1024^2)
+```
+Select an input file and click the "Start analysis" button. Next, after selecting the characteristic which signal to analyse.
+```{r fileinput, echo=FALSE}
+inputPanel(         
+  fileInput("dataset", "Choose a file", 
+            accept = c("text/csv","text/comma-separated-values,text/plain",".csv")),
+  actionButton("calculate", "Start analysis"))
+data <- eventReactive(input$calculate, {read.csv(input$dataset$datapath)})
+characteristic <- eventReactive(input$compute, {input$characteristic})
+data.sig <- reactive({
+    df <- data()
+    char <- characteristic()
+    signalType <- classifiableSignals[classifiableSignals$signal == char, "type"]
+    if (signalType != "generic") {
+      df <- df[df$smellType == as.character(signalType), ]  
+    }
+
+   return(classifySignal(df, char))
+})
+
+data.corr <- reactive({
+  df <- data()
+  df.corr <- computeCharacteristicCorrelation(df, c("generic"))
+  return(df.corr)
+})
+```
+
+Some descriptive statistics
+```{r descriptiveStat, echo=FALSE}
+renderPlot({  
+  plotSmellCountPerVersion(data())
+}, height=1000)
+
+```
+
+```{r descriptiveStat2, echo=FALSE}
+renderPlot({
+  plotBoxplotsSmellGenericCharacteristics(data())
+}, height = 1000)
+renderPlot({
+  plotBoxplotsSmellSpecificCharacteristics(data())
+}, height = 1000)
+renderPlot({
+  plotCycleShapesCountPerVersion(data())
+}, height = 1000)
+ 
+```
+
+# Research question 1
+## Smell characteristic trend analysis
+Click "Compute" and wait for the computation to complete and the plots to appear.
+```{r characteristicSelection, echo=FALSE}
+inputPanel(uiOutput("characteristicSelector"))
+```
+The analysed signal is shown below as a matrix of pie plots. Each row is a different project,  whereas columns are the different smell types.
+The first row shows the data grouped for all projects.
+```{r signalAnalysis, echo=FALSE}
+renderUI({
+    df <- data()
+    inputPanel(
+      selectInput("characteristic", "Select a signal to classify", signalNames, selected = "size"),
+      actionButton("compute", "Compute"))
+})
+
+renderPlot({
+    plotSignalTrendCharacteristicAllProjects(df.sig())
+}, height = 500)
+```
+
+```{r signalAnalysis2,echo=FALSE}
+renderPlot({
+  plotSignalTrendCharacteristic(data.sig(), characteristic())
+}, height = 500)
+```
+
+The plot below, instead, shows us the correlation between the classifications of the selected signal and the age of that smell.
+For each test performed, p-values are shown only if less than ```0.05```.
+```{r iccor, echo=FALSE}
+renderPlot({
+    plotSignalTrendCorrelationWithAge(data.sig(), characteristic)
+})
+```
+
+```{r charatrend, echo=FALSE}
+renderPlot({
+  plotCharacteristicEvolutionTrend(data(), characteristic())
+}, height = 900)
+```
+
+## Smell-generic characteristics correlation
+The correlation between the smell-generic characteristics is depicted below
+```{r charcorr,echo=FALSE}
+renderPlot({
+  plotCharacteristicCorrelationBoth(data.corr())
+}, height = 1000)
+```
+
+```{r charcorr3,echo=FALSE}
+renderPlot({
+  plotCharacteristicDistribution(data(), characteristic())
+}, height = 900)
+```
+
+# Research question 2
+## Smell survival analysis
+This analysis computes the survival probability for each smell type in each project.
+```{r survival, echo=FALSE}
+renderPlot({
+  plotSurvivalProbabilities(data())
+}, height = 900)
+```
+
+Whereas the following plot shows the age density for each project
+```{r agedensity, echo=FALSE}
+renderPlot({
+  plotAgeDensity(data())
+}, height = 900)
+```
+
+And the lifetime of each smell detected in the system
+```{r smelllifetime, echo=FALSE}
+renderPlot({
+  plotSmellLifetimeLines(data())
+}, height = 900)
+```
+
